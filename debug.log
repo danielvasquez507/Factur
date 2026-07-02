@@ -1,0 +1,16 @@
+
+> facturdv-temp@0.1.0 dev /home/dany/DV/Code/FacturDV
+> next dev --turbopack -p 3002
+
+   ▲ Next.js 15.5.20 (Turbopack)
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.40.14:3002
+   - Environments: .env
+
+ ✓ Starting...
+ ○ Compiling middleware ...
+ ✓ Compiled middleware in 584ms
+ ✓ Ready in 2.4s
+ ○ Compiling / ...
+ ✓ Compiled / in 6s
+ GET / 200 in 6710ms
