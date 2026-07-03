@@ -7,6 +7,7 @@ import { format } from "date-fns"
 import Link from "next/link"
 
 import { RevenueChart } from "@/components/dashboard/lazy-revenue-chart"
+import { GlobalPanel } from "@/components/admin/global-panel"
 
 export async function SuperAdminDashboard() {
   const data = await getGlobalMetrics()
@@ -16,6 +17,8 @@ export async function SuperAdminDashboard() {
 
   return (
     <div className="space-y-6">
+      <GlobalPanel />
+
       <div className="mb-6">
         <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 mb-2">Acceso Global</Badge>
         <h2 className="text-2xl font-bold text-white">Métricas de Plataforma</h2>

@@ -90,6 +90,7 @@ model Company {
   invoiceTemplate   String   @default("modern") @map("invoice_template")
   invoiceColor      String   @default("blue") @map("invoice_color")
   nextInvoiceNumber Int      @default(1) @map("next_invoice_number")
+  paymentDetails    String?  @map("payment_details") @db.Text
   isActive          Boolean  @default(true) @map("is_active")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")

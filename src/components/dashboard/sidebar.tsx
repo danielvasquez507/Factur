@@ -7,9 +7,10 @@ import { Home, Users, FileText, Settings, Briefcase, ChevronRight, Bell, Layers,
 
 interface SidebarProps {
   userRole: string
+  pendingRequestsCount?: number
 }
 
-export function Sidebar({ userRole }: SidebarProps) {
+export function Sidebar({ userRole, pendingRequestsCount = 0 }: SidebarProps) {
   const pathname = usePathname()
   
   const routes = [
@@ -61,9 +62,10 @@ export function Sidebar({ userRole }: SidebarProps) {
       href: "/dashboard/requests",
       active: pathname.startsWith("/dashboard/requests"),
       roles: ["SUPER_ADMIN"],
+      badge: pendingRequestsCount,
     },
     {
-      label: "Configuración",
+      label: "Mi Empresa",
       icon: Settings,
       href: "/dashboard/settings",
       active: pathname.startsWith("/dashboard/settings"),
@@ -74,10 +76,10 @@ export function Sidebar({ userRole }: SidebarProps) {
   const visibleRoutes = routes.filter((route) => route.roles.includes(userRole))
 
   return (
-    <aside className="w-64 border-r border-white/10 bg-black/40 backdrop-blur-xl hidden md:flex flex-col z-20">
-      <div className="h-14 flex items-center border-b border-white/10 px-6">
-        <h2 className="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/70 drop-shadow-sm">
-          Factur<span className="text-blue-500">.</span>
+    <aside className="w-64 border-r border-border bg-background/80 backdrop-blur-xl hidden md:flex flex-col z-20">
+      <div className="h-14 flex items-center border-b border-border px-6">
+        <h2 className="text-2xl font-black tracking-tighter text-foreground drop-shadow-sm">
+          Factur<span className="text-primary">.</span>
         </h2>
       </div>
       <nav className="flex-1 overflow-y-auto py-4">
@@ -87,15 +89,20 @@ export function Sidebar({ userRole }: SidebarProps) {
               <Link
                 href={route.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group",
                   route.active 
-                    ? "bg-blue-500/10 text-blue-400 font-medium" 
-                    : "text-zinc-400 hover:text-white hover:bg-white/5"
+                    ? "bg-primary/10 text-primary border border-primary/20 shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
-                <route.icon className={cn("w-5 h-5", route.active ? "text-blue-400" : "text-zinc-500 group-hover:text-zinc-300")} />
-                {route.label}
-                {route.active && <ChevronRight className="w-4 h-4 ml-auto" />}
+                <route.icon className={cn("w-5 h-5", route.active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+                <span className="font-medium flex-1">{route.label}</span>
+                {route.badge !== undefined && route.badge > 0 && (
+                  <span className="bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full ml-auto">
+                    {route.badge}
+                  </span>
+                )}
+                {route.active && !route.badge && <ChevronRight className="w-4 h-4 ml-auto" />}
               </Link>
             </li>
           ))}

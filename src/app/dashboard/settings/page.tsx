@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth"
 import { getBypassPrisma } from "@/lib/prisma"
 import { getActiveTenantId } from "@/actions/tenant"
 import { CompanyProfileForm } from "@/components/settings/company-profile-form"
-import { InvoiceDesignForm } from "@/components/settings/invoice-design-form"
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -24,18 +23,13 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Configuración de Empresa</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Mi Empresa</h1>
         <p className="text-zinc-400 mt-1">
           Administra la información comercial de {company.name}
         </p>
       </div>
       
       <CompanyProfileForm company={company} userRole={session?.user?.role} />
-      
-      <InvoiceDesignForm 
-        initialTemplate={company.invoiceTemplate} 
-        initialColor={company.invoiceColor} 
-      />
     </div>
   )
 }

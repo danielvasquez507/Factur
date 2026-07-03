@@ -2,12 +2,14 @@
 
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { LogOut, Menu, User } from "lucide-react"
+import { LogOut, Menu, User, Moon, Sun, Monitor, Sparkles } from "lucide-react"
 import { CompanySelector } from "./company-selector"
+import { useTheme } from "next-themes"
+import { toast } from "sonner"
 
 // Eliminado ChangePasswordDialog ya que ahora usamos el módulo Mi Perfil
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuPortal, DropdownMenuSubContent } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 
 interface TopNavProps {
@@ -22,8 +24,10 @@ interface TopNavProps {
 }
 
 export function TopNav({ user, companies, activeTenantId }: TopNavProps) {
+  const { setTheme, theme } = useTheme()
+  
   return (
-    <header className="h-14 border-b border-white/10 bg-black/40 backdrop-blur-xl flex items-center justify-between px-4 lg:px-6 z-20">
+    <header className="h-14 border-b border-border bg-background/80 backdrop-blur-xl flex items-center justify-between px-4 lg:px-6 z-20">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" className="md:hidden text-zinc-400">
           <Menu className="w-5 h-5" />
@@ -41,12 +45,12 @@ export function TopNav({ user, companies, activeTenantId }: TopNavProps) {
               </Button>
             }
           />
-          <DropdownMenuContent align="end" className="w-56 bg-zinc-950 border-white/10 text-zinc-200">
+          <DropdownMenuContent align="end" className="w-56 bg-background border-border text-foreground">
             <DropdownMenuGroup>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none text-white">{user.name}</p>
-                  <p className="text-xs leading-none text-zinc-400">{user.email}</p>
+                  <p className="text-sm font-medium leading-none text-foreground">{user.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                 </div>
               </DropdownMenuLabel>
             </DropdownMenuGroup>
@@ -60,9 +64,38 @@ export function TopNav({ user, companies, activeTenantId }: TopNavProps) {
                 </Link>
               }
             />
-            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="cursor-pointer hover:bg-muted focus:bg-muted">
+                <Monitor className="mr-2 h-4 w-4" />
+                <span>Apariencia</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="bg-background border-border text-foreground">
+                  <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer hover:bg-muted focus:bg-muted">
+                    <Moon className="mr-2 h-4 w-4" />
+                    <span>Oscuro</span>
+                    {theme === "dark" && <span className="ml-auto text-xs opacity-50">✓</span>}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("login")} className="cursor-pointer hover:bg-muted focus:bg-muted">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    <span>Aurora</span>
+                    {theme === "login" && <span className="ml-auto text-xs opacity-50">✓</span>}
+                  </DropdownMenuItem>
+                  {/* <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer hover:bg-muted focus:bg-muted">
+                    <Sun className="mr-2 h-4 w-4" />
+                    <span>Claro</span>
+                    {theme === "light" && <span className="ml-auto text-xs opacity-50">✓</span>}
+                  </DropdownMenuItem> */}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator className="border-border" />
             <DropdownMenuItem 
-              onClick={() => signOut({ callbackUrl: '/' })}
+              onClick={async () => {
+                const toastId = toast.loading("Cerrando sesión...")
+                await signOut({ callbackUrl: '/' })
+                toast.dismiss(toastId)
+              }}
               className="cursor-pointer text-red-400 focus:text-red-300 hover:bg-red-500/10 focus:bg-red-500/10"
             >
               <LogOut className="mr-2 h-4 w-4" />

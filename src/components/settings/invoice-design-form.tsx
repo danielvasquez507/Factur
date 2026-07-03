@@ -6,19 +6,19 @@ import { updateInvoiceDesign } from "@/actions/settings"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { CheckCircle2, Loader2, Palette, LayoutTemplate } from "lucide-react"
+import { toast } from "sonner"
 
 type DesignFormProps = {
   initialTemplate: string
   initialColor: string
+  company?: any
 }
 
-export function InvoiceDesignForm({ initialTemplate, initialColor }: DesignFormProps) {
+export function InvoiceDesignForm({ initialTemplate, initialColor, company }: DesignFormProps) {
   const router = useRouter()
   const [template, setTemplate] = useState(initialTemplate)
   const [color, setColor] = useState(initialColor)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
 
   const templates = [
     { id: "modern", name: "Moderna", description: "Diseño limpio y espacioso" },
@@ -26,26 +26,30 @@ export function InvoiceDesignForm({ initialTemplate, initialColor }: DesignFormP
   ]
 
   const colors = [
-    { id: "blue", name: "Azul Corporativo", hex: "bg-blue-500" },
-    { id: "emerald", name: "Verde Esmeralda", hex: "bg-emerald-500" },
-    { id: "slate", name: "Gris Oscuro", hex: "bg-slate-700" }
+    { id: "blue", name: "Azul Corporativo", hex: "bg-blue-500", textHex: "text-blue-600", bgLightHex: "bg-blue-500/10" },
+    { id: "emerald", name: "Verde Esmeralda", hex: "bg-emerald-500", textHex: "text-emerald-600", bgLightHex: "bg-emerald-500/10" },
+    { id: "slate", name: "Gris Oscuro", hex: "bg-slate-700", textHex: "text-slate-800", bgLightHex: "bg-slate-700/10" },
+    { id: "red", name: "Rojo Carmesí", hex: "bg-red-500", textHex: "text-red-600", bgLightHex: "bg-red-500/10" },
+    { id: "orange", name: "Naranja Atardecer", hex: "bg-orange-500", textHex: "text-orange-600", bgLightHex: "bg-orange-500/10" },
+    { id: "purple", name: "Púrpura Real", hex: "bg-purple-500", textHex: "text-purple-600", bgLightHex: "bg-purple-500/10" },
+    { id: "pink", name: "Rosa Vibrante", hex: "bg-pink-500", textHex: "text-pink-600", bgLightHex: "bg-pink-500/10" },
   ]
 
   const handleSave = async () => {
     setIsLoading(true)
-    setError("")
-    setSuccess("")
     
     const res = await updateInvoiceDesign(template, color)
     if (res?.error) {
-      setError(res.error)
+      toast.error(res.error)
     } else {
-      setSuccess("Diseño actualizado correctamente")
+      toast.success("Diseño actualizado correctamente")
       router.refresh()
     }
     
     setIsLoading(false)
   }
+
+  const selectedColor = colors.find(c => c.id === color) || colors[0];
 
   return (
     <div className="space-y-8 bg-black/40 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/5 relative overflow-hidden group">
@@ -96,7 +100,7 @@ export function InvoiceDesignForm({ initialTemplate, initialColor }: DesignFormP
               <Palette className="w-4 h-4" />
               Color Principal
             </Label>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {colors.map((c) => (
                 <div 
                   key={c.id}
@@ -116,9 +120,6 @@ export function InvoiceDesignForm({ initialTemplate, initialColor }: DesignFormP
               ))}
             </div>
           </div>
-
-          {error && <p className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</p>}
-          {success && <p className="text-emerald-400 text-sm bg-emerald-400/10 p-3 rounded-lg border border-emerald-400/20">{success}</p>}
 
           <div className="pt-4 flex justify-start">
             <Button 
@@ -141,35 +142,33 @@ export function InvoiceDesignForm({ initialTemplate, initialColor }: DesignFormP
             <div className="w-full h-full flex flex-col">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <div className={`w-12 h-12 rounded-lg ${colors.find(c => c.id === color)?.hex} mb-2 shadow-sm flex items-center justify-center text-[8px] font-bold text-white`}>LOGO</div>
-                  <div className="w-24 h-3 bg-zinc-300 rounded mb-1"></div>
-                  <div className="w-16 h-2 bg-zinc-200 rounded"></div>
+                  <div className={`w-12 h-12 rounded-lg ${selectedColor.hex} mb-2 shadow-sm flex items-center justify-center text-[8px] font-bold text-white text-center p-1 leading-tight overflow-hidden`}>
+                    {company?.name ? company.name.substring(0, 8).toUpperCase() : "LOGO"}
+                  </div>
+                  <div className="text-xs font-bold text-zinc-800">{company?.name || "Empresa Demo"}</div>
+                  <div className="text-[9px] text-zinc-500">{company?.taxId || "RUC: 123456789"}</div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-xl font-black uppercase mb-1 ${
-                    color === 'blue' ? 'text-blue-600' : color === 'emerald' ? 'text-emerald-600' : 'text-slate-800'
-                  }`}>INVOICE</div>
-                  <div className="w-20 h-3 bg-zinc-300 rounded ml-auto mb-1"></div>
-                  <div className="w-16 h-2 bg-zinc-200 rounded ml-auto"></div>
+                  <div className={`text-xl font-black uppercase mb-1 ${selectedColor.textHex}`}>FACTURA</div>
+                  <div className="text-[10px] text-zinc-600 font-medium">FAC-0001</div>
+                  <div className="text-[8px] text-zinc-400">Fecha: Hoy</div>
                 </div>
               </div>
               
               <div className="w-full bg-zinc-100 rounded-lg p-3 mb-4 flex justify-between">
                 <div>
-                  <div className="w-16 h-2 bg-zinc-300 rounded mb-2"></div>
-                  <div className="w-24 h-2 bg-zinc-200 rounded"></div>
+                  <div className="text-[9px] font-bold text-zinc-500 mb-1">FACTURAR A:</div>
+                  <div className="text-[10px] font-semibold text-zinc-800">Cliente Demo S.A.</div>
                 </div>
                 <div className="text-right">
-                  <div className="w-12 h-2 bg-zinc-300 rounded mb-2 ml-auto"></div>
-                  <div className="w-20 h-2 bg-zinc-200 rounded ml-auto"></div>
+                  <div className="text-[9px] font-bold text-zinc-500 mb-1">RUC/NIT:</div>
+                  <div className="text-[10px] font-semibold text-zinc-800">999999999-9</div>
                 </div>
               </div>
 
               {/* Tabla Simulada Moderna */}
               <div className="flex-1 flex flex-col gap-2">
-                <div className={`w-full h-6 rounded-md flex items-center px-2 gap-2 ${
-                  color === 'blue' ? 'bg-blue-500/10' : color === 'emerald' ? 'bg-emerald-500/10' : 'bg-slate-700/10'
-                }`}>
+                <div className={`w-full h-6 rounded-md flex items-center px-2 gap-2 ${selectedColor.bgLightHex}`}>
                   <div className="w-1/2 h-2 bg-zinc-300 rounded"></div>
                   <div className="w-1/4 h-2 bg-zinc-300 rounded"></div>
                   <div className="w-1/4 h-2 bg-zinc-300 rounded"></div>
@@ -188,10 +187,10 @@ export function InvoiceDesignForm({ initialTemplate, initialColor }: DesignFormP
               
               <div className="flex justify-end mt-4 pt-3 border-t border-zinc-200">
                 <div className="text-right">
-                  <div className="w-16 h-2 bg-zinc-300 rounded mb-2 ml-auto"></div>
-                  <div className={`w-24 h-4 rounded ml-auto ${
-                    color === 'blue' ? 'bg-blue-600' : color === 'emerald' ? 'bg-emerald-600' : 'bg-slate-800'
-                  }`}></div>
+                  <div className="text-[9px] font-bold text-zinc-500 mb-1">TOTAL</div>
+                  <div className={`px-2 py-1 rounded text-white text-[10px] font-bold ${selectedColor.hex}`}>
+                    $ 1,500.00
+                  </div>
                 </div>
               </div>
             </div>
@@ -199,30 +198,28 @@ export function InvoiceDesignForm({ initialTemplate, initialColor }: DesignFormP
             // PLANTILLA CLASICA (Centrada / Tabular estricta)
             <div className="w-full h-full flex flex-col border-[0.5px] border-zinc-300 p-4 bg-white">
               <div className="flex flex-col items-center mb-6 text-center border-b-[0.5px] border-zinc-300 pb-4">
-                <div className={`w-10 h-10 rounded ${colors.find(c => c.id === color)?.hex} mb-2 shadow-sm flex items-center justify-center text-[7px] font-bold text-white`}>LOGO</div>
-                <div className={`text-lg font-serif font-black uppercase mb-1 ${
-                  color === 'blue' ? 'text-blue-900' : color === 'emerald' ? 'text-emerald-900' : 'text-slate-900'
-                }`}>FACTURA COMERCIAL</div>
-                <div className="w-24 h-2 bg-zinc-300 rounded mx-auto mb-1"></div>
+                <div className={`w-10 h-10 rounded ${selectedColor.hex} mb-2 shadow-sm flex items-center justify-center text-[7px] font-bold text-white leading-tight overflow-hidden p-1`}>
+                  {company?.name ? company.name.substring(0, 8).toUpperCase() : "LOGO"}
+                </div>
+                <div className={`text-lg font-serif font-black uppercase mb-1 ${selectedColor.textHex}`}>FACTURA COMERCIAL</div>
+                <div className="text-xs font-bold text-zinc-800">{company?.name || "Empresa Demo"}</div>
               </div>
               
               <div className="flex justify-between mb-4 text-xs">
                 <div>
-                  <div className="w-12 h-2 bg-zinc-400 rounded mb-1"></div>
-                  <div className="w-20 h-2 bg-zinc-200 rounded mb-1"></div>
-                  <div className="w-24 h-2 bg-zinc-200 rounded"></div>
+                  <div className="text-[9px] font-bold text-zinc-600 mb-1">CLIENTE:</div>
+                  <div className="text-[10px] font-semibold text-zinc-800">Cliente Demo S.A.</div>
+                  <div className="text-[9px] text-zinc-500">RUC: 999999999-9</div>
                 </div>
                 <div className="text-right">
-                  <div className="w-16 h-2 bg-zinc-400 rounded mb-1 ml-auto"></div>
-                  <div className="w-20 h-2 bg-zinc-200 rounded mb-1 ml-auto"></div>
+                  <div className="text-[9px] font-bold text-zinc-600 mb-1">FACTURA Nº:</div>
+                  <div className="text-[10px] font-semibold text-zinc-800 mb-1">FAC-0001</div>
                 </div>
               </div>
 
               {/* Tabla Simulada Clásica */}
               <div className="flex-1 flex flex-col border-[0.5px] border-zinc-300 mt-2">
-                <div className={`w-full h-6 flex items-center px-2 gap-2 border-b-[0.5px] border-zinc-300 ${
-                  color === 'blue' ? 'bg-blue-900 text-white' : color === 'emerald' ? 'bg-emerald-900 text-white' : 'bg-zinc-800 text-white'
-                }`}>
+                <div className={`w-full h-6 flex items-center px-2 gap-2 border-b-[0.5px] border-zinc-300 ${selectedColor.hex} text-white`}>
                   <div className="w-1/2 h-1.5 bg-white/70 rounded"></div>
                   <div className="w-1/4 h-1.5 bg-white/70 rounded"></div>
                   <div className="w-1/4 h-1.5 bg-white/70 rounded"></div>
@@ -242,10 +239,10 @@ export function InvoiceDesignForm({ initialTemplate, initialColor }: DesignFormP
               <div className="flex justify-between items-end mt-4">
                 <div className="w-24 h-16 border-[0.5px] border-zinc-300 rounded-sm"></div>
                 <div className="text-right flex items-center gap-4">
-                  <div className="w-16 h-3 bg-zinc-400 rounded"></div>
-                  <div className={`w-20 h-5 rounded ${
-                    color === 'blue' ? 'bg-blue-900' : color === 'emerald' ? 'bg-emerald-900' : 'bg-zinc-800'
-                  }`}></div>
+                  <div className="text-[10px] font-bold text-zinc-800">TOTAL</div>
+                  <div className={`px-3 py-1 rounded-sm text-white text-[11px] font-bold ${selectedColor.hex}`}>
+                    $ 1,500.00
+                  </div>
                 </div>
               </div>
             </div>

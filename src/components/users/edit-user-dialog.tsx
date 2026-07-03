@@ -55,11 +55,11 @@ export function EditUserDialog({ user, open, onOpenChange }: { user: any, open: 
           )}
           <div className="space-y-2">
             <Label htmlFor={`name-${user?.id}`} className="text-zinc-300">Nombre</Label>
-            <Input id={`name-${user?.id}`} name="name" defaultValue={user?.name} required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+            <Input id={`name-${user?.id}`} name="name" defaultValue={user?.name || ""} required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
           </div>
           <div className="space-y-2">
             <Label htmlFor={`email-${user?.id}`} className="text-zinc-300">Correo Electrónico</Label>
-            <Input id={`email-${user?.id}`} name="email" type="email" defaultValue={user?.email} required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+            <Input id={`email-${user?.id}`} name="email" type="email" defaultValue={user?.email || ""} required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
           </div>
           <div className="flex items-center space-x-2 py-2">
             <input 

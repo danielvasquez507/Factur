@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Trash2, Loader2, Save } from "lucide-react"
 import { createManualInvoice } from "@/actions/invoices"
+import { ServiceDialog } from "@/components/services/service-dialog"
 
 export function InvoiceForm({ clients, services }: { clients: any[], services: any[] }) {
   const router = useRouter()
@@ -22,7 +23,7 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
   const [notes, setNotes] = useState("")
 
   const [items, setItems] = useState<any[]>([{
-    serviceId: "custom_free_text",
+    serviceId: "",
     description: "",
     quantity: 1,
     unitPrice: 0,
@@ -31,7 +32,7 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
   }])
 
   const handleAddItem = () => {
-    setItems([...items, { serviceId: "custom_free_text", description: "", quantity: 1, unitPrice: 0, applyTax: false, taxRate: 0.07 }])
+    setItems([...items, { serviceId: "", description: "", quantity: 1, unitPrice: 0, applyTax: false, taxRate: 0.07 }])
   }
 
   const handleRemoveItem = (index: number) => {
@@ -42,7 +43,7 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
     const newItems = [...items]
     newItems[index][field] = value
     
-    if (field === "serviceId" && value && value !== "custom_free_text") {
+    if (field === "serviceId" && value) {
       const svc = services.find(s => s.id === value)
       if (svc) {
         newItems[index].unitPrice = Number(svc.defaultPrice)
@@ -82,7 +83,7 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
       notes,
       items: items.map(it => ({
         ...it,
-        serviceId: it.serviceId === "custom_free_text" ? null : it.serviceId
+        serviceId: it.serviceId || null
       }))
     }
 
@@ -168,15 +169,17 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
       <Card className="bg-black/40 border-white/10 backdrop-blur-md">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-xl">Ítems a Facturar</CardTitle>
-          <Button type="button" variant="outline" onClick={handleAddItem} className="bg-white/5 border-white/10 hover:bg-white/10 text-white">
-            <Plus className="w-4 h-4 mr-2" /> Agregar Línea
-          </Button>
+          <div className="flex gap-2">
+            <ServiceDialog />
+            <Button type="button" variant="outline" onClick={handleAddItem} className="bg-white/5 border-white/10 hover:bg-white/10 text-white p-2 h-9 w-9" title="Agregar Línea">
+              <Plus className="w-5 h-5" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="hidden md:grid md:grid-cols-[200px_1fr_100px_120px_80px_40px] gap-4 px-2 text-sm font-medium text-zinc-400">
-              <div>Servicio (Opcional)</div>
-              <div>Descripción</div>
+            <div className="hidden md:grid md:grid-cols-[1fr_100px_120px_80px_40px] gap-4 px-2 text-sm font-medium text-zinc-400">
+              <div>Servicio del Catálogo</div>
               <div>Cant.</div>
               <div>Precio Unit.</div>
               <div>ITBMS</div>
@@ -184,30 +187,21 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
             </div>
             
             {items.map((item, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-[200px_1fr_100px_120px_80px_40px] gap-4 p-4 md:p-2 bg-white/5 md:bg-transparent rounded-lg border border-white/10 md:border-none items-start md:items-center">
+              <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_100px_120px_80px_40px] gap-4 p-4 md:p-2 bg-white/5 md:bg-transparent rounded-lg border border-white/10 md:border-none items-start md:items-center">
                 <Select value={item.serviceId} onValueChange={(val) => updateItem(index, "serviceId", val)}>
-                  <SelectTrigger className="bg-black/50 border-white/10 text-zinc-100 focus:ring-blue-500 overflow-hidden text-ellipsis">
-                    <SelectValue placeholder="Concepto libre...">
-                      {item.serviceId !== "custom_free_text" && item.serviceId 
+                  <SelectTrigger className="bg-black/50 border-white/10 text-zinc-100 focus:ring-blue-500 overflow-hidden text-ellipsis w-full">
+                    <SelectValue placeholder="Seleccionar servicio...">
+                      {item.serviceId 
                         ? services.find(s => s.id === item.serviceId)?.name 
-                        : "Concepto libre..."}
+                        : "Seleccionar servicio..."}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-zinc-950 border-white/10 text-white">
-                    <SelectItem value="custom_free_text" className="text-zinc-500 hover:bg-white/10 focus:bg-white/10">-- Concepto Libre --</SelectItem>
                     {services.map(s => (
                       <SelectItem key={s.id} value={s.id} className="hover:bg-white/10 focus:bg-white/10">{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-
-                <Input 
-                  required 
-                  value={item.description} 
-                  onChange={(e) => updateItem(index, "description", e.target.value)} 
-                  placeholder="Descripción detallada..." 
-                  className="bg-black/50 border-white/10 focus-visible:ring-blue-500" 
-                />
                 
                 <div className="flex items-center gap-2 md:block">
                   <span className="md:hidden text-zinc-400 text-sm w-20">Cant:</span>
@@ -228,9 +222,9 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
                     step="0.01" 
                     min="0" 
                     required 
+                    readOnly
                     value={item.unitPrice} 
-                    onChange={(e) => updateItem(index, "unitPrice", Number(e.target.value))} 
-                    className="bg-black/50 border-white/10 focus-visible:ring-blue-500" 
+                    className="bg-black/50 border-white/10 focus-visible:ring-blue-500 cursor-not-allowed opacity-70" 
                   />
                 </div>
 

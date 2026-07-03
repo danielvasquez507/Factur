@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import { useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -84,7 +85,8 @@ export function ClientTable({ clients }: { clients: any[] }) {
                           onClick={async () => {
                             const { toggleClientStatus } = await import("@/actions/clients")
                             const res = await toggleClientStatus(client.id, !client.isActive)
-                            if (res?.error) alert(res.error)
+                            if (res?.error) toast.error(res.error)
+                            else toast.success("Estado actualizado")
                           }}
                         >
                           {client.isActive ? "Desactivar" : "Activar"}
@@ -95,7 +97,8 @@ export function ClientTable({ clients }: { clients: any[] }) {
                             if (confirm("¿Seguro que deseas eliminar este cliente?")) {
                               const { deleteClient } = await import("@/actions/clients")
                               const res = await deleteClient(client.id)
-                              if (res?.error) alert(res.error)
+                              if (res?.error) toast.error(res.error)
+                              else toast.success("Cliente eliminado exitosamente")
                             }
                           }}
                         >

@@ -45,7 +45,7 @@ export function EditServiceDialog({ service, open, onOpenChange }: { service: an
             Actualiza los datos del servicio en el catálogo.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form key={service?.id || 'empty'} onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="p-3 text-sm text-red-400 bg-red-950/50 rounded-md border border-red-900/50">
               {error}
@@ -53,7 +53,7 @@ export function EditServiceDialog({ service, open, onOpenChange }: { service: an
           )}
           <div className="space-y-2">
             <Label htmlFor={`name-${service?.id}`} className="text-zinc-300">Nombre del Servicio</Label>
-            <Input id={`name-${service?.id}`} name="name" defaultValue={service?.name} required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+            <Input id={`name-${service?.id}`} name="name" defaultValue={service?.name || ''} required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
           </div>
           <div className="space-y-2">
             <Label htmlFor={`desc-${service?.id}`} className="text-zinc-300">Descripción (Opcional)</Label>
@@ -61,7 +61,7 @@ export function EditServiceDialog({ service, open, onOpenChange }: { service: an
           </div>
           <div className="space-y-2">
             <Label htmlFor={`price-${service?.id}`} className="text-zinc-300">Precio Base (USD)</Label>
-            <Input id={`price-${service?.id}`} name="defaultPrice" type="number" step="0.01" min="0" defaultValue={service?.defaultPrice} required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+            <Input id={`price-${service?.id}`} name="defaultPrice" type="number" step="0.01" min="0" defaultValue={service?.defaultPrice || 0} required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
           </div>
           <DialogFooter className="pt-4">
             <Button type="submit" disabled={loading} className="w-full bg-white text-black hover:bg-zinc-200">

@@ -13,6 +13,7 @@ const updateSettingsSchema = z.object({
   ruc: z.string().optional(),
   dv: z.string().optional(),
   address: z.string().optional(),
+  paymentDetails: z.string().optional(),
 })
 
 export async function updateCompanySettings(formData: FormData) {
@@ -28,6 +29,7 @@ export async function updateCompanySettings(formData: FormData) {
     ruc: formData.get("ruc") as string || undefined,
     dv: formData.get("dv") as string || undefined,
     address: formData.get("address") as string || undefined,
+    paymentDetails: formData.get("paymentDetails") as string || undefined,
   }
 
   const logoFile = formData.get("logo") as File | null
@@ -48,6 +50,7 @@ export async function updateCompanySettings(formData: FormData) {
 
     const updateData: any = {
       address: result.data.address,
+      paymentDetails: result.data.paymentDetails,
     }
 
     const requests = []

@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import { useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -94,7 +95,8 @@ export function UserTable({ users, companies }: { users: any[], companies: any[]
                           if (confirm("¿Seguro que deseas eliminar a este usuario?")) {
                             const { deleteUser } = await import("@/actions/users")
                             const res = await deleteUser(user.id)
-                            if (res?.error) alert(res.error)
+                            if (res?.error) toast.error(res.error)
+                            else toast.success("Usuario eliminado exitosamente")
                           }
                         }}
                       >

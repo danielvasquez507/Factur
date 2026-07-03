@@ -49,7 +49,7 @@ export function InvoiceTable({ invoices }: { invoices: any[] }) {
         <TableBody>
           {invoices.map((inv) => (
             <TableRow key={inv.id} className="border-white/10 hover:bg-white/5 transition-colors group cursor-pointer" onClick={() => window.location.href = `/dashboard/invoices/${inv.id}`}>
-              <TableCell className="font-semibold text-white">INV-{String(inv.invoiceNumber).padStart(6, '0')}</TableCell>
+              <TableCell className="font-semibold text-white">FAC-{String(inv.invoiceNumber).padStart(6, '0')}</TableCell>
               <TableCell className="text-zinc-300">
                 <div className="font-medium text-white">{inv.client.name}</div>
                 <div className="text-xs text-zinc-500">{inv.client.email}</div>

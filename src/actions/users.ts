@@ -170,6 +170,7 @@ const updateProfileSchema = z.object({
   name: z.string().min(2, "El nombre es muy corto"),
   email: z.string().email("Correo inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").optional().or(z.literal("")),
+  currentPassword: z.string().optional().or(z.literal("")),
 })
 
 export async function updateMyProfile(formData: FormData) {
@@ -180,6 +181,7 @@ export async function updateMyProfile(formData: FormData) {
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password") || undefined,
+    currentPassword: formData.get("currentPassword") || undefined,
   }
 
   const result = updateProfileSchema.safeParse(rawData)
@@ -187,6 +189,13 @@ export async function updateMyProfile(formData: FormData) {
 
   const prisma = getBypassPrisma()
   const userId = session.user.id
+
+  // Obtener el usuario completo para verificar la contraseña actual
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId }
+  })
+
+  if (!currentUser) return { error: "Usuario no encontrado" }
 
   // Check if email belongs to someone else
   const emailExists = await prisma.user.findFirst({
@@ -203,6 +212,13 @@ export async function updateMyProfile(formData: FormData) {
   }
 
   if (result.data.password) {
+    if (!result.data.currentPassword) {
+      return { error: "Debes ingresar tu contraseña actual" }
+    }
+    const isValid = await bcrypt.compare(result.data.currentPassword, currentUser.passwordHash)
+    if (!isValid) {
+      return { error: "La contraseña actual es incorrecta" }
+    }
     dataToUpdate.passwordHash = await bcrypt.hash(result.data.password, 10)
   }
 

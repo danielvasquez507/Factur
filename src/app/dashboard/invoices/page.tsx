@@ -21,10 +21,16 @@ export default async function InvoicesPage() {
           <h1 className="text-3xl font-bold tracking-tight text-white">Facturas</h1>
           <p className="text-zinc-400 mt-2">Gestiona el historial de facturación de esta empresa.</p>
         </div>
-        <Link href="/dashboard/invoices/new" className={cn(buttonVariants({ variant: "default" }), "bg-blue-600 hover:bg-blue-700 text-white gap-2 transition-all shadow-lg shadow-blue-900/20")}>
-          <Plus className="w-4 h-4" />
-          Generar Factura
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/invoices/design" className={cn(buttonVariants({ variant: "outline" }), "bg-black/50 border-white/10 hover:bg-white/5 text-white gap-2 transition-all")}>
+            <FileText className="w-4 h-4" />
+            Diseño de Plantilla
+          </Link>
+          <Link href="/dashboard/invoices/new" className={cn(buttonVariants({ variant: "default" }), "bg-blue-600 hover:bg-blue-700 text-white gap-2 transition-all shadow-lg shadow-blue-900/20")}>
+            <Plus className="w-4 h-4" />
+            Generar Factura
+          </Link>
+        </div>
       </div>
 
       <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">

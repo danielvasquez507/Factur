@@ -102,7 +102,7 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
                 <div key={invoice.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-white leading-none">{invoice.client.name}</p>
-                    <p className="text-xs text-zinc-500">INV-{String(invoice.invoiceNumber).padStart(6, '0')} • {format(new Date(invoice.issueDate), 'dd/MM/yyyy')}</p>
+                    <p className="text-xs text-zinc-500">FAC-{String(invoice.invoiceNumber).padStart(6, '0')} • {format(new Date(invoice.issueDate), 'dd/MM/yyyy')}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-white">{formatCurrency(invoice.total)}</p>
