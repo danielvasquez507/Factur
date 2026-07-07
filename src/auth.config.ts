@@ -37,7 +37,8 @@ export const authConfig = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60,
+    maxAge: 8 * 60 * 60, // 8 horas
+    updateAge: 60 * 60, // Refresca el token cada hora si hay actividad
   },
   providers: [], // Providers are added in lib/auth.ts
 } satisfies NextAuthConfig

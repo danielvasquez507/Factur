@@ -24,7 +24,34 @@ export const getTenantPrisma = (companyId: string) => {
   if (!UUID_RE.test(companyId)) {
     throw new Error("companyId inválido: no es un UUID válido")
   }
-  return prisma
+  
+  // Logical RLS (Prisma Extension)
+  // Automáticamente inyecta `companyId` en las tablas tenant-scoped para evitar fugas de datos
+  return prisma.$extends({
+    query: {
+      $allModels: {
+        async $allOperations({ model, operation, args, query }) {
+          const tenantModels = ['Invoice', 'Client', 'Service', 'ChangeRequest']
+          
+          if (tenantModels.includes(model)) {
+            // Si la operación es de lectura o escritura que acepta 'where'
+            if (['findUnique', 'findMany', 'findFirst', 'update', 'updateMany', 'delete', 'deleteMany', 'count'].includes(operation)) {
+              args.where = { ...args.where, companyId }
+            }
+            // Si es creación, inyectar el companyId en la data
+            if (['create', 'createMany'].includes(operation)) {
+              if (Array.isArray(args.data)) {
+                args.data = args.data.map((d: any) => ({ ...d, companyId }))
+              } else {
+                args.data = { ...args.data, companyId }
+              }
+            }
+          }
+          return query(args)
+        }
+      }
+    }
+  })
 }
 
 export const getBypassPrisma = () => {
