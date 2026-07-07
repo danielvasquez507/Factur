@@ -40,5 +40,6 @@ export const authConfig = {
     maxAge: 8 * 60 * 60, // 8 horas
     updateAge: 60 * 60, // Refresca el token cada hora si hay actividad
   },
+  trustHost: true,
   providers: [], // Providers are added in lib/auth.ts
 } satisfies NextAuthConfig

@@ -40,7 +40,10 @@ export default async function DashboardLayout({
     <div className="flex h-screen bg-transparent overflow-hidden">
       <DynamicBackground />
       <SidebarProvider>
-        <Sidebar userRole={session.user.role} pendingRequestsCount={pendingRequestsCount} />
+        {/* Solo mostrar la navegación si tiene un tenant activo o es SUPER_ADMIN */}
+        {(activeTenantId || session.user.role === "SUPER_ADMIN") && (
+          <Sidebar userRole={session.user.role} pendingRequestsCount={pendingRequestsCount} />
+        )}
         <div className="flex flex-col flex-1 overflow-hidden">
           <AutoHideHeader
             userName={session.user.name}
@@ -56,7 +59,9 @@ export default async function DashboardLayout({
             </div>
           </main>
         </div>
-        <MobileBottomNav userRole={session.user.role} pendingRequestsCount={pendingRequestsCount} />
+        {(activeTenantId || session.user.role === "SUPER_ADMIN") && (
+          <MobileBottomNav userRole={session.user.role} pendingRequestsCount={pendingRequestsCount} />
+        )}
       </SidebarProvider>
     </div>
   )

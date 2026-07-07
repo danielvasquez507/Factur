@@ -9,8 +9,9 @@ services:
       - "3001:3000"
     environment:
       - DATABASE_URL=postgresql://facturdv:${DB_PASSWORD:-secret}@db:5432/facturdv
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-supersecret}
-      - NEXTAUTH_URL=https://factur.danielvasquez.cloud
+      - AUTH_SECRET=${AUTH_SECRET:-supersecret}
+      - AUTH_URL=https://factur.danielvasquez.cloud
+      - AUTH_TRUST_HOST=true
       - NODE_ENV=production
     depends_on:
       db:
