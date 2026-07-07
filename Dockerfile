@@ -8,7 +8,7 @@ RUN corepack enable pnpm
 
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
-RUN pnpm i --frozen-lockfile
+RUN pnpm config set ignore-scripts false && pnpm i --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
