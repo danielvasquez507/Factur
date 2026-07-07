@@ -8,6 +8,22 @@ import { RevenueChart } from "@/components/dashboard/lazy-revenue-chart"
 
 export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
   const data = await getCompanyMetrics(tenantId)
+  
+  if ('noTenant' in data && data.noTenant) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
+        <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center border border-white/10 mb-4">
+          <Users className="w-8 h-8 text-zinc-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Bienvenido a Factur DV</h2>
+        <p className="text-zinc-400 max-w-md">
+          Tu cuenta ha sido creada exitosamente, pero aún no tienes una empresa asignada. 
+          Contacta con el administrador del sistema para que te asigne a una empresa.
+        </p>
+      </div>
+    )
+  }
+
   const { companyName, stats, chartData, recentInvoices } = data
 
   const formatCurrency = (val: number) => `$${Number(val).toLocaleString('en-US', { minimumFractionDigits: 2 })} USD`

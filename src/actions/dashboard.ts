@@ -16,7 +16,15 @@ export async function getCompanyMetrics(forcedTenantId?: string) {
     activeTenantId = forcedTenantId
   }
 
-  if (!activeTenantId) throw new Error("No tenant active")
+  if (!activeTenantId) {
+    return {
+      noTenant: true,
+      companyName: "",
+      stats: { totalClients: 0, totalServices: 0, incomeThisMonth: 0, pendingAmount: 0 },
+      chartData: [],
+      recentInvoices: []
+    }
+  }
 
   const prisma = getTenantPrisma(activeTenantId)
 
