@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Bell, Check, X, Loader2, Maximize2, Building2, FileText, User, Calendar, Hash } from "lucide-react"
 import { processRequest } from "@/actions/requests"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { formatDate } from "@/lib/utils"
+import { formatDate, formatDateTime } from "@/lib/utils"
 
 export function RequestTable({ requests, isHistory = false }: { requests: any[], isHistory?: boolean }) {
   const [processingId, setProcessingId] = useState<string | null>(null)
@@ -136,7 +136,7 @@ export function RequestTable({ requests, isHistory = false }: { requests: any[],
               <Calendar className="w-4 h-4 text-zinc-500" />
               Fecha Creación
             </span>
-            <span className="text-white font-medium text-sm">{req.createdAt ? formatDate(req.createdAt) : '—'}</span>
+            <span className="text-white font-medium text-sm">{req.createdAt ? formatDateTime(req.createdAt) : '—'}</span>
           </div>
 
           {isHistory && (
@@ -149,7 +149,7 @@ export function RequestTable({ requests, isHistory = false }: { requests: any[],
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-zinc-400 text-sm">Fecha de Finalización</span>
-                <span className="text-white font-medium text-sm">{req.reviewedAt ? formatDate(req.reviewedAt) : '—'}</span>
+                <span className="text-white font-medium text-sm">{req.reviewedAt ? formatDateTime(req.reviewedAt) : '—'}</span>
               </div>
             </>
           )}
@@ -254,7 +254,7 @@ export function RequestTable({ requests, isHistory = false }: { requests: any[],
                   )}
                 </TableCell>
                 <TableCell className="text-zinc-400 text-sm max-sm:hidden">{req.requestedBy.name || req.requestedBy.email}</TableCell>
-                <TableCell className="text-zinc-400 text-sm max-sm:hidden">{req.createdAt ? formatDate(req.createdAt) : '—'}</TableCell>
+                <TableCell className="text-zinc-400 text-sm max-sm:hidden">{req.createdAt ? formatDateTime(req.createdAt) : '—'}</TableCell>
                 {isHistory ? (
                   <>
                     <TableCell>
@@ -263,7 +263,7 @@ export function RequestTable({ requests, isHistory = false }: { requests: any[],
                       </span>
                     </TableCell>
                     <TableCell className="text-zinc-400 text-sm text-right max-sm:hidden">
-                      {req.reviewedAt ? formatDate(req.reviewedAt) : '—'}
+                      {req.reviewedAt ? formatDateTime(req.reviewedAt) : '—'}
                     </TableCell>
                   </>
                 ) : (
