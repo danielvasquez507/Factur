@@ -4,16 +4,14 @@ FROM node:22-alpine AS base
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-RUN corepack enable pnpm
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 COPY prisma ./prisma/
-RUN pnpm config set ignore-scripts false && pnpm i --frozen-lockfile
+RUN npm install
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-RUN corepack enable pnpm
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -21,7 +19,7 @@ COPY . .
 RUN npx prisma generate
 
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm run build
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
