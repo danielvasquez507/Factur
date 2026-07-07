@@ -3,7 +3,7 @@ name: Deploy to Private Production Server
 on:
   push:
     branches:
-      - main # O la rama que consideres de producción
+      - master # O la rama que consideres de producción
 
 jobs:
   deploy:
