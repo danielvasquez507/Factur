@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Download, TrendingUp, DollarSign, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { formatDate } from "@/lib/utils"
 
 export function ReportsDashboard({ initialTaxData, initialTopClients }: { initialTaxData: any[], initialTopClients: any[] }) {
   
@@ -24,7 +25,7 @@ export function ReportsDashboard({ initialTaxData, initialTopClients }: { initia
     initialTaxData.forEach(row => {
       const invNum = `FAC-${String(row.invoiceNumber).padStart(6, '0')}`
       const client = `"${row.client.name.replace(/"/g, '""')}"`
-      const date = new Date(row.issueDate).toLocaleDateString()
+      const date = formatDate(row.issueDate)
       csvContent += `${invNum},${client},${date},${row.subtotal},${row.taxAmount},${row.total},${row.status}\n`
     })
 
@@ -107,7 +108,7 @@ export function ReportsDashboard({ initialTaxData, initialTopClients }: { initia
                       <tr key={inv.invoiceNumber} className="hover:bg-white/5">
                         <td className="px-4 py-3 text-white font-medium">FAC-{String(inv.invoiceNumber).padStart(6, '0')}</td>
                         <td className="px-4 py-3 text-zinc-300">{inv.client.name}</td>
-                        <td className="px-4 py-3 text-zinc-400">{new Date(inv.issueDate).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-zinc-400">{formatDate(inv.issueDate)}</td>
                         <td className="px-4 py-3 text-right text-zinc-300">{formatCurrency(inv.subtotal)}</td>
                         <td className="px-4 py-3 text-right text-zinc-300">{formatCurrency(inv.taxAmount)}</td>
                         <td className="px-4 py-3 text-right font-bold text-white">{formatCurrency(inv.total)}</td>

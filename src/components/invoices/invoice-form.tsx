@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Trash2, Loader2, Save } from "lucide-react"
 import { createManualInvoice } from "@/actions/invoices"
 import { ServiceDialog } from "@/components/services/service-dialog"
 
-export function InvoiceForm({ clients, services }: { clients: any[], services: any[] }) {
+export function InvoiceForm({ clients, services, companyId }: { clients: any[], services: any[], companyId?: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -87,19 +87,19 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
       }))
     }
 
-    const res = await createManualInvoice(payload)
+    const res = await createManualInvoice(payload, companyId)
     if (res.error) {
       setError(res.error)
       setLoading(false)
     } else {
-      router.push(`/dashboard/invoices/${res.invoiceId}`)
+      router.push(`/facturas/${res.invoiceId}`)
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-4 bg-red-950/50 border border-red-900/50 rounded-md text-red-400">
+        <div className="p-4 bg-red-950/50 border border-red-900/50 rounded-md text-red-500">
           {error}
         </div>
       )}
@@ -112,7 +112,7 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label className="text-zinc-300">Cliente</Label>
-              <Select value={clientId} onValueChange={setClientId}>
+              <Select value={clientId} onValueChange={(val) => setClientId(val ?? "")}>
                 <SelectTrigger className="bg-black/50 border-white/10 text-zinc-100 focus:ring-blue-500 overflow-hidden text-ellipsis">
                   <SelectValue placeholder="Seleccionar cliente...">
                     {clientId ? clients.find(c => c.id === clientId)?.name : "Seleccionar cliente..."}
@@ -157,12 +157,7 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
               <span>${totals.total.toFixed(2)}</span>
             </div>
           </CardContent>
-          <CardFooter>
-            <Button type="submit" disabled={loading || items.length === 0} className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20">
-              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Generar Factura
-            </Button>
-          </CardFooter>
+
         </Card>
       </div>
 
@@ -170,26 +165,18 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-xl">Ítems a Facturar</CardTitle>
           <div className="flex gap-2">
-            <ServiceDialog />
+            <ServiceDialog companyId={companyId} />
             <Button type="button" variant="outline" onClick={handleAddItem} className="bg-white/5 border-white/10 hover:bg-white/10 text-white p-2 h-9 w-9" title="Agregar Línea">
               <Plus className="w-5 h-5" />
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="hidden md:grid md:grid-cols-[1fr_100px_120px_80px_40px] gap-4 px-2 text-sm font-medium text-zinc-400">
-              <div>Servicio del Catálogo</div>
-              <div>Cant.</div>
-              <div>Precio Unit.</div>
-              <div>ITBMS</div>
-              <div></div>
-            </div>
-            
+          <div className="space-y-3">
             {items.map((item, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_100px_120px_80px_40px] gap-4 p-4 md:p-2 bg-white/5 md:bg-transparent rounded-lg border border-white/10 md:border-none items-start md:items-center">
+              <div key={index} className="flex flex-col gap-2 p-2 bg-white/5 rounded-lg border border-white/10">
                 <Select value={item.serviceId} onValueChange={(val) => updateItem(index, "serviceId", val)}>
-                  <SelectTrigger className="bg-black/50 border-white/10 text-zinc-100 focus:ring-blue-500 overflow-hidden text-ellipsis w-full">
+                  <SelectTrigger className="bg-black/50 border-white/10 text-zinc-100 focus:ring-blue-500 overflow-hidden text-ellipsis w-full h-8">
                     <SelectValue placeholder="Seleccionar servicio...">
                       {item.serviceId 
                         ? services.find(s => s.id === item.serviceId)?.name 
@@ -203,20 +190,16 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
                   </SelectContent>
                 </Select>
                 
-                <div className="flex items-center gap-2 md:block">
-                  <span className="md:hidden text-zinc-400 text-sm w-20">Cant:</span>
+                <div className="flex items-center gap-2">
                   <Input 
                     type="number" 
                     min="1" 
                     required 
                     value={item.quantity} 
                     onChange={(e) => updateItem(index, "quantity", Number(e.target.value))} 
-                    className="bg-black/50 border-white/10 focus-visible:ring-blue-500" 
+                    className="bg-black/50 border-white/10 focus-visible:ring-blue-500 w-16 h-8" 
                   />
-                </div>
 
-                <div className="flex items-center gap-2 md:block">
-                  <span className="md:hidden text-zinc-400 text-sm w-20">Precio:</span>
                   <Input 
                     type="number" 
                     step="0.01" 
@@ -224,29 +207,29 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
                     required 
                     readOnly
                     value={item.unitPrice} 
-                    className="bg-black/50 border-white/10 focus-visible:ring-blue-500 cursor-not-allowed opacity-70" 
+                    className="bg-black/50 border-white/10 focus-visible:ring-blue-500 cursor-not-allowed opacity-70 w-24 h-8" 
                   />
-                </div>
 
-                <div className="flex items-center justify-between md:justify-center h-10 border border-white/10 rounded-md bg-black/50 px-3">
-                  <span className="md:hidden text-zinc-400 text-sm">Aplica ITBMS:</span>
-                  <Checkbox 
-                    checked={item.applyTax} 
-                    onCheckedChange={(checked) => updateItem(index, "applyTax", !!checked)} 
-                    className="border-white/20 data-[state=checked]:bg-blue-600"
-                  />
-                </div>
+                  <div className="flex items-center gap-1.5">
+                    <Checkbox 
+                      checked={item.applyTax} 
+                      onCheckedChange={(checked) => updateItem(index, "applyTax", !!checked)} 
+                      className="border-white/20 data-[state=checked]:bg-blue-600"
+                    />
+                    <span className="text-xs text-zinc-400">ITBMS</span>
+                  </div>
 
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  size="icon"
-                  disabled={items.length === 1}
-                  onClick={() => handleRemoveItem(index)}
-                  className="text-red-400 hover:text-red-300 hover:bg-red-950/50 justify-self-end md:justify-self-center disabled:opacity-30"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon"
+                    disabled={items.length === 1}
+                    onClick={() => handleRemoveItem(index)}
+                    className="text-red-500 hover:text-red-300 hover:bg-red-950/50 h-8 w-8 disabled:opacity-30 ml-auto"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -263,6 +246,11 @@ export function InvoiceForm({ clients, services }: { clients: any[], services: a
           placeholder="Gracias por su preferencia..."
         />
       </div>
+
+      <Button type="submit" disabled={loading || items.length === 0} className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 h-11 text-base">
+        {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+        Generar Factura
+      </Button>
     </form>
   )
 }

@@ -1,21 +1,23 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { getTenantPrisma } from "@/lib/prisma"
+import { getTenantPrisma, getBypassPrisma } from "@/lib/prisma"
 import { getActiveTenantId } from "@/actions/tenant"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 const clientSchema = z.object({
   name: z.string().min(2, "El nombre es obligatorio"),
+  celular: z.string().min(6, "El celular es obligatorio"),
   email: z.string().email("Correo inválido").optional().or(z.literal("")),
   phone: z.string().optional(),
+  direccion: z.string().optional(),
   authorizedPersons: z.string().optional(),
 })
 
-export async function getClients() {
+export async function getClients(companyId?: string) {
   const session = await auth()
-  const activeTenantId = await getActiveTenantId()
+  const activeTenantId = companyId || await getActiveTenantId()
 
   if (!session?.user || !activeTenantId) throw new Error("No autorizado")
 
@@ -28,19 +30,26 @@ export async function getClients() {
 
 export async function createClient(formData: FormData) {
   const session = await auth()
-  const activeTenantId = await getActiveTenantId()
-
-  if (!session?.user || !activeTenantId) return { error: "No autorizado" }
+  if (!session?.user) return { error: "No autorizado" }
 
   const rawData = {
     name: formData.get("name") as string,
+    celular: formData.get("celular") as string,
     email: formData.get("email") as string,
     phone: formData.get("phone") as string,
+    direccion: formData.get("direccion") as string,
     authorizedPersons: formData.get("authorizedPersons") as string,
   }
 
   const result = clientSchema.safeParse(rawData)
   if (!result.success) return { error: result.error.errors[0].message }
+
+  // SUPER_ADMIN puede crear clientes en cualquier empresa
+  const companyId = session.user.role === "SUPER_ADMIN"
+    ? (formData.get("companyId") as string)
+    : await getActiveTenantId()
+
+  if (!companyId) return { error: "No autorizado" }
 
   // Convertimos la lista separada por comas a un array JSON
   let authorizedArray: string[] = []
@@ -48,20 +57,22 @@ export async function createClient(formData: FormData) {
     authorizedArray = result.data.authorizedPersons.split(',').map(p => p.trim()).filter(Boolean)
   }
 
-  const prisma = getTenantPrisma(activeTenantId)
+  const prisma = session.user.role === "SUPER_ADMIN" ? getBypassPrisma() : getTenantPrisma(companyId)
 
   try {
     await prisma.client.create({
       data: {
-        companyId: activeTenantId,
+        companyId,
         name: result.data.name,
+        celular: result.data.celular,
         email: result.data.email || null,
         phone: result.data.phone || null,
+        direccion: result.data.direccion || null,
         authorizedPersons: authorizedArray,
       }
     })
 
-    revalidatePath("/dashboard/clients")
+    revalidatePath("/clientes")
     return { success: true }
   } catch (error) {
     console.error("Error creating client:", error)
@@ -77,8 +88,10 @@ export async function updateClient(clientId: string, formData: FormData) {
 
   const rawData = {
     name: formData.get("name") as string,
+    celular: formData.get("celular") as string,
     email: formData.get("email") as string,
     phone: formData.get("phone") as string,
+    direccion: formData.get("direccion") as string,
     authorizedPersons: formData.get("authorizedPersons") as string,
   }
 
@@ -97,13 +110,15 @@ export async function updateClient(clientId: string, formData: FormData) {
       where: { id: clientId, companyId: activeTenantId },
       data: {
         name: result.data.name,
+        celular: result.data.celular,
         email: result.data.email || null,
         phone: result.data.phone || null,
+        direccion: result.data.direccion || null,
         authorizedPersons: authorizedArray,
       }
     })
 
-    revalidatePath("/dashboard/clients")
+    revalidatePath("/clientes")
     return { success: true }
   } catch (error) {
     console.error("Error updating client:", error)
@@ -124,7 +139,7 @@ export async function deleteClient(clientId: string) {
       where: { id: clientId, companyId: activeTenantId }
     })
     
-    revalidatePath("/dashboard/clients")
+    revalidatePath("/clientes")
     return { success: true }
   } catch (error) {
     console.error("Error deleting client:", error)
@@ -146,10 +161,35 @@ export async function toggleClientStatus(clientId: string, isActive: boolean) {
       data: { isActive }
     })
     
-    revalidatePath("/dashboard/clients")
+    revalidatePath("/clientes")
     return { success: true }
   } catch (error) {
     console.error("Error toggling client status:", error)
     return { error: "Error al cambiar el estado del cliente" }
   }
+}
+
+export async function getClientInvoices(clientId: string) {
+  const activeTenantId = await getActiveTenantId()
+  if (!activeTenantId) throw new Error("No tenant active")
+
+  const prisma = getTenantPrisma(activeTenantId)
+  const invoices = await prisma.invoice.findMany({
+    where: { clientId, companyId: activeTenantId },
+    include: { items: true },
+    orderBy: { issueDate: "desc" }
+  })
+
+  return invoices.map(inv => ({
+    ...inv,
+    subtotal: Number(inv.subtotal),
+    taxAmount: Number(inv.taxAmount),
+    total: Number(inv.total),
+    items: inv.items.map(item => ({
+      ...item,
+      unitPrice: Number(item.unitPrice),
+      taxAmount: Number(item.taxAmount),
+      lineTotal: Number(item.lineTotal),
+    }))
+  }))
 }

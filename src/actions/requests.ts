@@ -77,7 +77,7 @@ export async function processRequest(requestId: string, action: "APPROVE" | "REJ
       })
     }
 
-    revalidatePath("/dashboard/requests")
+    revalidatePath("/solicitudes")
     return { success: true }
   } catch (error) {
     console.error("Error processing request:", error)

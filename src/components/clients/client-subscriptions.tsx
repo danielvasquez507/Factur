@@ -3,6 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { FileText, CalendarClock } from "lucide-react"
+import { formatDate } from "@/lib/utils"
 
 export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] }) {
   if (subscriptions.length === 0) {
@@ -57,7 +58,7 @@ export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] })
                 {sub.nextBillingDate ? (
                    <span className="flex items-center gap-1">
                      <CalendarClock className="w-3 h-3" />
-                     {new Date(sub.nextBillingDate).toLocaleDateString()}
+                     {formatDate(sub.nextBillingDate)}
                    </span>
                 ) : (
                   <span className="text-zinc-600">-</span>

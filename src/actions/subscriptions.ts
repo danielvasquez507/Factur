@@ -20,11 +20,17 @@ export async function getClientSubscriptions(clientId: string) {
   if (!activeTenantId) throw new Error("No tenant active")
 
   const prisma = getTenantPrisma(activeTenantId)
-  return await prisma.clientService.findMany({
-    where: { clientId },
+  const subs = await prisma.clientService.findMany({
+    where: { clientId, companyId: activeTenantId },
     include: { service: true },
     orderBy: { createdAt: "desc" }
   })
+  return subs.map(s => ({
+    ...s,
+    agreedPrice: Number(s.agreedPrice),
+    taxRate: Number(s.taxRate),
+    service: s.service ? { ...s.service, defaultPrice: Number(s.service.defaultPrice) } : s.service,
+  }))
 }
 
 export async function assignServiceToClient(formData: FormData) {
@@ -48,16 +54,6 @@ export async function assignServiceToClient(formData: FormData) {
   const prisma = getTenantPrisma(activeTenantId)
 
   try {
-    // Calculamos el próximo mes si es mensual, solo como default simple
-    let nextDate = null
-    if (result.data.billingFrequency === "MONTHLY") {
-      const d = new Date()
-      d.setMonth(d.getMonth() + 1)
-      nextDate = d
-    } else if (result.data.billingFrequency !== "MANUAL") {
-      nextDate = new Date() // Fallback
-    }
-
     await prisma.clientService.create({
       data: {
         companyId: activeTenantId,
@@ -66,12 +62,12 @@ export async function assignServiceToClient(formData: FormData) {
         agreedPrice: result.data.agreedPrice,
         applyTax: result.data.applyTax,
         taxRate: result.data.taxRate,
-        billingFrequency: result.data.billingFrequency,
-        nextBillingDate: nextDate,
+        billingFrequency: "MANUAL",
+        nextBillingDate: null,
       }
     })
 
-    revalidatePath(`/dashboard/clients/${result.data.clientId}`)
+    revalidatePath(`/clientes/${result.data.clientId}`)
     return { success: true }
   } catch (error) {
     console.error("Error assigning service:", error)

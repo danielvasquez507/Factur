@@ -14,13 +14,17 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
 
   return (
     <div className="space-y-6">
-      {tenantId && (
+      {tenantId ? (
         <div className="mb-4">
           <h2 className="text-2xl font-bold text-white">Métricas: {companyName}</h2>
           <p className="text-zinc-400 text-sm">Vista aislada de empresa (Super Admin)</p>
         </div>
+      ) : (
+        <div className="mb-4">
+          <h1 className="text-3xl font-bold tracking-tight text-white">{companyName}</h1>
+        </div>
       )}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="relative overflow-hidden bg-zinc-950/80 border border-white/10 shadow-2xl transition-all hover:-translate-y-1 hover:border-purple-500/50 group !p-0">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-purple-500/30 transition-colors"></div>
@@ -83,7 +87,7 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
       </div>
 
       <div className="grid gap-6 md:grid-cols-7">
-        <Card className="col-span-4 bg-black/40 border-white/10 backdrop-blur-md">
+        <Card className="col-span-full bg-black/40 border-white/10 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-white">Ingresos (Últimos 6 meses)</CardTitle>
           </CardHeader>
@@ -92,7 +96,7 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
           </CardContent>
         </Card>
         
-        <Card className="col-span-3 bg-black/40 border-white/10 backdrop-blur-md overflow-hidden">
+        <Card className="col-span-full bg-black/40 border-white/10 backdrop-blur-md overflow-hidden">
           <CardHeader>
             <CardTitle className="text-white">Facturas Recientes</CardTitle>
           </CardHeader>
@@ -117,7 +121,7 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
             </div>
             {recentInvoices.length > 0 && (
               <div className="p-3 border-t border-white/10 text-center">
-                <Link href="/dashboard/invoices" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">Ver todas las facturas</Link>
+                <Link href="/facturas" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">Ver todas las facturas</Link>
               </div>
             )}
           </CardContent>

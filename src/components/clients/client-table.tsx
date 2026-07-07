@@ -2,14 +2,30 @@
 
 import { toast } from "sonner"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Users, MoreHorizontal, Mail, Phone } from "lucide-react"
+import { Users, MoreHorizontal, Mail, Phone, Smartphone } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuGroup } from "@/components/ui/dropdown-menu"
 import { EditClientDialog } from "./edit-client-dialog"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export function ClientTable({ clients }: { clients: any[] }) {
+  const router = useRouter()
   const [editingClient, setEditingClient] = useState<any>(null)
+  const [deletingClient, setDeletingClient] = useState<any>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    if (!deletingClient) return
+    setDeleting(true)
+    const { deleteClient } = await import("@/actions/clients")
+    const res = await deleteClient(deletingClient.id)
+    setDeleting(false)
+    setDeletingClient(null)
+    if (res?.error) toast.error(res.error)
+    else toast.success("Cliente eliminado exitosamente")
+  }
 
   if (clients.length === 0) {
     return (
@@ -26,30 +42,44 @@ export function ClientTable({ clients }: { clients: any[] }) {
   return (
     <>
       <div className="relative overflow-x-auto rounded-md">
-        <Table>
+        <Table className="w-full" containerClassName="overflow-hidden">
           <TableHeader className="bg-white/5">
-            <TableRow className="border-white/10 hover:bg-transparent">
+            <TableRow className="border-0 border-b border-white/[0.06] hover:bg-transparent">
               <TableHead className="text-zinc-400 font-medium">Cliente</TableHead>
-              <TableHead className="text-zinc-400 font-medium">Contacto</TableHead>
-              <TableHead className="text-zinc-400 font-medium">Autorizados</TableHead>
+              <TableHead className="text-zinc-400 font-medium hidden md:table-cell">Contacto</TableHead>
+              <TableHead className="text-zinc-400 font-medium hidden md:table-cell">Autorizados</TableHead>
               <TableHead className="text-zinc-400 font-medium text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {clients.map((client) => (
-              <TableRow key={client.id} className="border-white/10 hover:bg-white/5 transition-colors">
-                <TableCell className="font-medium text-white">
-                  {client.name}
-                  {!client.isActive && <Badge variant="secondary" className="ml-2 bg-red-500/10 text-red-400 hover:bg-red-500/20">Inactivo</Badge>}
+              <TableRow
+                key={client.id}
+                className="border-0 border-b border-white/[0.03] hover:bg-gradient-to-r hover:from-white/[0.04] hover:to-transparent hover:border-l-2 hover:border-l-blue-500/50 cursor-pointer transition-all duration-200"
+                onClick={() => router.push(`/clientes/${client.id}`)}
+              >
+                <TableCell className="font-medium text-white py-2.5">
+                  <div className="flex flex-col md:hidden">
+                    <span>{client.name}</span>
+                    <span className="flex items-center gap-1 text-zinc-400 text-sm mt-0.5">
+                      <Smartphone className="w-3 h-3" />
+                      {client.celular || "-"}
+                    </span>
+                  </div>
+                  <span className="hidden md:inline">
+                    {client.name}
+                    {!client.isActive && <Badge variant="secondary" className="ml-2 bg-red-500/10 text-red-500 hover:bg-red-500/20">Inactivo</Badge>}
+                  </span>
                 </TableCell>
-                <TableCell className="text-zinc-400">
+                <TableCell className="text-zinc-400 hidden md:table-cell py-2.5">
                   <div className="flex flex-col gap-1 text-sm">
                     {client.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {client.email}</span>}
+                    {client.celular && <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> {client.celular}</span>}
                     {client.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {client.phone}</span>}
-                    {!client.email && !client.phone && <span className="text-zinc-600">-</span>}
+                    {!client.email && !client.celular && !client.phone && <span className="text-zinc-600">-</span>}
                   </div>
                 </TableCell>
-                <TableCell className="text-zinc-400">
+                <TableCell className="text-zinc-400 hidden md:table-cell py-2.5">
                   {client.authorizedPersons && client.authorizedPersons.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {client.authorizedPersons.map((person: string, idx: number) => (
@@ -62,7 +92,7 @@ export function ClientTable({ clients }: { clients: any[] }) {
                     <span className="text-zinc-600">Ninguno</span>
                   )}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right py-2.5" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md h-8 w-8 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/20">
                       <span className="sr-only">Abrir menú</span>
@@ -77,7 +107,7 @@ export function ClientTable({ clients }: { clients: any[] }) {
                         >
                           Editar Cliente
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer" onClick={() => window.location.href = `/dashboard/clients/${client.id}`}>
+                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer" onClick={() => window.location.href = `/clientes/${client.id}`}>
                           Ver Servicios
                         </DropdownMenuItem>
                         <DropdownMenuItem 
@@ -92,15 +122,8 @@ export function ClientTable({ clients }: { clients: any[] }) {
                           {client.isActive ? "Desactivar" : "Activar"}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          className="focus:bg-red-500/20 focus:text-red-400 text-red-400 cursor-pointer"
-                          onClick={async () => {
-                            if (confirm("¿Seguro que deseas eliminar este cliente?")) {
-                              const { deleteClient } = await import("@/actions/clients")
-                              const res = await deleteClient(client.id)
-                              if (res?.error) toast.error(res.error)
-                              else toast.success("Cliente eliminado exitosamente")
-                            }
-                          }}
+                          className="focus:bg-red-500/20 focus:text-red-500 text-red-500 cursor-pointer"
+                          onClick={() => setDeletingClient(client)}
                         >
                           Eliminar
                         </DropdownMenuItem>
@@ -118,6 +141,17 @@ export function ClientTable({ clients }: { clients: any[] }) {
         client={editingClient}
         open={!!editingClient}
         onOpenChange={(open) => !open && setEditingClient(null)}
+      />
+
+      <ConfirmDialog
+        open={!!deletingClient}
+        onOpenChange={(open) => !open && setDeletingClient(null)}
+        title="Eliminar cliente"
+        description={`¿Estás seguro de eliminar a ${deletingClient?.name}? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        onConfirm={handleDelete}
+        loading={deleting}
       />
     </>
   )

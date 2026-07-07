@@ -70,8 +70,8 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
     
     if (res.error) {
       setMessage(`Error: ${res.error}`)
-    } else if (res.message) {
-      setMessage(res.message)
+    } else if (res.success) {
+      setMessage(res.pendingRequests ? "Cambios guardados. Los campos sensibles requieren aprobación del Super Admin." : "Cambios guardados correctamente.")
     }
     
     setLoading(false)
@@ -94,7 +94,7 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
             Los cambios en el Nombre Comercial y el Logo pueden requerir aprobación del Super Admin.
           </CardDescription>
           {message && (
-            <div className={`p-3 mt-4 text-sm rounded-md border ${message.startsWith('Error') ? 'text-red-400 bg-red-950/50 border-red-900/50' : 'text-green-400 bg-green-950/50 border-green-900/50'}`}>
+            <div className={`p-3 mt-4 text-sm rounded-md border ${message.startsWith('Error') ? 'text-red-500 bg-red-950/50 border-red-900/50' : 'text-green-400 bg-green-950/50 border-green-900/50'}`}>
               {message}
             </div>
           )}

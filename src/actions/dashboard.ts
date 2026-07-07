@@ -90,10 +90,12 @@ export async function getCompanyMetrics(forcedTenantId?: string) {
       pendingAmount
     },
     chartData,
-    recentInvoices: recentInvoices.map(inv => ({
-      ...inv,
-      total: Number(inv.total)
-    }))
+recentInvoices: recentInvoices.map(inv => ({
+  ...inv,
+  subtotal: Number(inv.subtotal),
+  taxAmount: Number(inv.taxAmount),
+  total: Number(inv.total)
+}))
   }
 }
 

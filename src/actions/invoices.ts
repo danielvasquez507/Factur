@@ -5,6 +5,18 @@ import { getTenantPrisma, getBypassPrisma } from "@/lib/prisma"
 import { getActiveTenantId } from "@/actions/tenant"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { rateLimit } from "@/lib/rate-limit"
+
+// Helper to serialize Decimal fields to Number for client consumption
+function toPlainInvoice(inv: any) {
+  if (!inv) return inv
+  return {
+    ...inv,
+    subtotal: Number(inv.subtotal),
+    taxAmount: Number(inv.taxAmount),
+    total: Number(inv.total),
+  }
+}
 
 const invoiceItemSchema = z.object({
   serviceId: z.string().uuid().optional().nullable(),
@@ -23,11 +35,14 @@ const createInvoiceSchema = z.object({
   items: z.array(invoiceItemSchema).min(1, "Debe agregar al menos un ítem"),
 })
 
-export async function createManualInvoice(rawData: any) {
+export async function createManualInvoice(rawData: any, companyId?: string) {
   const session = await auth()
-  const activeTenantId = await getActiveTenantId()
+  const activeTenantId = companyId || await getActiveTenantId()
 
   if (!session?.user || !activeTenantId) return { error: "No autorizado" }
+
+  const rl = rateLimit(`createInvoice:${session.user.id}`, 15, 60 * 1000)
+  if (!rl.success) return { error: "Demasiadas solicitudes. Espere un momento." }
 
   const result = createInvoiceSchema.safeParse(rawData)
   if (!result.success) {
@@ -103,7 +118,8 @@ export async function createManualInvoice(rawData: any) {
       })
     })
 
-    revalidatePath("/dashboard/invoices")
+    revalidatePath("/facturas")
+    revalidatePath("/empresas", "layout")
     return { success: true, invoiceId: newInvoice.id }
   } catch (error) {
     console.error("Error creating invoice:", error)
@@ -113,14 +129,30 @@ export async function createManualInvoice(rawData: any) {
 
 export async function generateInvoicePublicLink(invoiceId: string) {
   const session = await auth()
-  const activeTenantId = await getActiveTenantId()
+  let activeTenantId = await getActiveTenantId()
 
-  if (!session?.user || !activeTenantId) return { error: "No autorizado" }
+  if (!session?.user) return { error: "No autorizado" }
 
-  const prisma = getTenantPrisma(activeTenantId)
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: invoiceId, companyId: activeTenantId }
-  })
+  const rl = rateLimit(`publicLink:${session.user.id}`, 30, 60 * 1000)
+  if (!rl.success) return { error: "Demasiadas solicitudes. Espere un momento." }
+
+  let invoice;
+
+  if (session.user.role === "SUPER_ADMIN") {
+    const prisma = getBypassPrisma()
+    invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId }
+    })
+    if (invoice) {
+      activeTenantId = invoice.companyId; // Ensure activeTenantId is set for the token
+    }
+  } else {
+    if (!activeTenantId) return { error: "No autorizado" }
+    const prisma = getTenantPrisma(activeTenantId)
+    invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId, companyId: activeTenantId }
+    })
+  }
 
   if (!invoice) return { error: "Factura no encontrada" }
 
@@ -157,27 +189,56 @@ export async function getInvoices() {
   })
 
   // Serializar Decimal a number para los componentes cliente
-  return invoices.map(inv => ({
-    ...inv,
-    subtotal: Number(inv.subtotal),
-    taxAmount: Number(inv.taxAmount),
-    total: Number(inv.total),
-  }))
+  return invoices.map(toPlainInvoice)
 }
 
 export async function getInvoiceDetails(invoiceId: string) {
+  const session = await auth()
   const activeTenantId = await getActiveTenantId()
-  if (!activeTenantId) throw new Error("No tenant active")
 
-  const prisma = getTenantPrisma(activeTenantId)
-  return await prisma.invoice.findFirst({
-    where: { id: invoiceId, companyId: activeTenantId },
-    include: {
-      client: true,
-      company: true,
-      items: {
-        include: { service: true }
+  let invoice;
+
+  if (session?.user?.role === "SUPER_ADMIN") {
+    const prisma = getBypassPrisma()
+    invoice = await prisma.invoice.findFirst({
+      where: { id: invoiceId },
+      include: {
+        client: true,
+        company: true,
+        items: {
+          include: { service: true }
+        }
       }
-    }
-  })
+    })
+  } else {
+    if (!activeTenantId) throw new Error("No tenant active")
+    const prisma = getTenantPrisma(activeTenantId)
+    invoice = await prisma.invoice.findFirst({
+      where: { id: invoiceId, companyId: activeTenantId },
+      include: {
+        client: true,
+        company: true,
+        items: {
+          include: { service: true }
+        }
+      }
+    })
+  }
+
+  if (!invoice) return null
+
+  return {
+    ...invoice,
+    subtotal: Number(invoice.subtotal),
+    taxAmount: Number(invoice.taxAmount),
+    total: Number(invoice.total),
+    items: invoice.items.map(item => ({
+      ...item,
+      unitPrice: Number(item.unitPrice),
+      taxRate: Number(item.taxRate),
+      taxAmount: Number(item.taxAmount),
+      lineTotal: Number(item.lineTotal),
+      service: item.service ? { ...item.service, defaultPrice: Number(item.service.defaultPrice) } : null,
+    }))
+  }
 }

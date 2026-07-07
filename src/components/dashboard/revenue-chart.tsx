@@ -26,7 +26,7 @@ export function RevenueChart({ data }: { data: any[] }) {
           cursor={{ fill: '#ffffff0a' }}
           contentStyle={{ backgroundColor: '#18181b', borderColor: '#ffffff20', color: '#fff', borderRadius: '8px' }}
           itemStyle={{ color: '#60a5fa' }}
-          formatter={(value: number) => [`$${value.toLocaleString()}`, 'Ingresos']}
+          formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Ingresos']}
         />
         <Bar dataKey="Ingresos" fill="#3b82f6" radius={[4, 4, 0, 0]} />
       </BarChart>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { getBypassPrisma } from "@/lib/prisma"
+import { rateLimit } from "@/lib/rate-limit"
 import jwt from "jsonwebtoken"
 import { renderToStream } from "@react-pdf/renderer"
 import { InvoicePDF } from "@/components/invoices/invoice-pdf"
@@ -10,6 +11,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params
   const searchParams = req.nextUrl.searchParams
   const token = searchParams.get("token")
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || req.headers.get("x-real-ip")
+    || "unknown"
+  const rl = rateLimit(ip, 30, 15 * 60 * 1000)
+  if (!rl.success) {
+    return new NextResponse("Demasiadas solicitudes. Intente más tarde.", {
+      status: 429,
+      headers: { "Retry-After": "900" },
+    })
+  }
 
   let authorizedCompanyId: string | null = null
 
@@ -56,7 +68,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const prisma = getBypassPrisma()
   const fullInvoice = await prisma.invoice.findUnique({
-    where: { id },
+    where: { id, companyId: authorizedCompanyId },
     include: {
       client: true,
       items: true,
@@ -66,8 +78,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (!fullInvoice) return new NextResponse("Factura no encontrada", { status: 404 })
 
+  const template = searchParams.get("template") || fullInvoice.company.invoiceTemplate || "modern"
+  const color = searchParams.get("color") || fullInvoice.company.invoiceColor || "slate"
+
   try {
-    const pdfStream = await renderToStream(React.createElement(InvoicePDF, { invoice: fullInvoice, company: fullInvoice.company }))
+    const pdfStream = await renderToStream(React.createElement(InvoicePDF, { invoice: fullInvoice, company: { ...fullInvoice.company, invoiceTemplate: template, invoiceColor: color } }) as any)
 
     // El stream retornado por react-pdf es un stream de NodeJS, lo envolvemos en un ReadableStream de web para NextResponse
     const webStream = new ReadableStream({

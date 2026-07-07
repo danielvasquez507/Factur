@@ -9,11 +9,11 @@ import { z } from "zod"
 import { FieldType } from "@prisma/client"
 
 const updateSettingsSchema = z.object({
-  name: z.string().min(2),
-  ruc: z.string().optional(),
-  dv: z.string().optional(),
-  address: z.string().optional(),
-  paymentDetails: z.string().optional(),
+  name: z.string().min(2, "Nombre debe tener al menos 2 caracteres").max(100),
+  ruc: z.string().regex(/^\d{1,12}$/, "RUC inválido: solo números hasta 12 dígitos").optional().or(z.literal("")),
+  dv: z.string().regex(/^\d{1,2}$/, "DV inválido: solo 1 o 2 dígitos").optional().or(z.literal("")),
+  address: z.string().max(500, "Dirección demasiado larga").optional(),
+  paymentDetails: z.string().max(2000, "Detalles de pago demasiado largos").optional(),
 })
 
 export async function updateCompanySettings(formData: FormData) {
@@ -131,7 +131,7 @@ export async function updateCompanySettings(formData: FormData) {
       })
     }
 
-    revalidatePath("/dashboard/settings")
+    revalidatePath("/configuracion")
     return { success: true, pendingRequests: requests.length > 0 }
   } catch (error) {
     console.error(error)
@@ -158,8 +158,8 @@ export async function updateInvoiceDesign(template: string, color: string) {
       }
     })
 
-    revalidatePath("/dashboard/settings")
-    revalidatePath("/dashboard/invoices")
+    revalidatePath("/configuracion")
+    revalidatePath("/facturas")
     return { success: true }
   } catch (error) {
     console.error(error)

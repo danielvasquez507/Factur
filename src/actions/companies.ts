@@ -1,7 +1,8 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { getBypassPrisma } from "@/lib/prisma"
+import { getBypassPrisma, getTenantPrisma } from "@/lib/prisma"
+import { getActiveTenantId } from "@/actions/tenant"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
@@ -25,7 +26,7 @@ export async function getCompanies() {
       userCompanies: {
         include: {
           user: {
-            select: { name: true, email: true }
+            select: { id: true, name: true, email: true }
           }
         }
       }
@@ -69,7 +70,7 @@ export async function createCompany(formData: FormData) {
       data: result.data
     })
 
-    revalidatePath("/dashboard/companies")
+    revalidatePath("/empresas")
     return { success: true }
   } catch (error) {
     console.error("Error creating company:", error)
@@ -91,12 +92,18 @@ export async function getCompanyById(id: string) {
       userCompanies: {
         include: {
           user: {
-            select: { name: true, email: true, role: true }
+            select: { id: true, name: true, email: true, role: true }
           }
         }
       },
       invoices: {
         select: { total: true }
+      },
+      clients: {
+        select: { id: true, name: true, email: true, celular: true }
+      },
+      services: {
+        select: { id: true, name: true, defaultPrice: true, description: true }
       },
       _count: {
         select: { clients: true, services: true, invoices: true }
@@ -106,12 +113,30 @@ export async function getCompanyById(id: string) {
 
   if (!company) return null
 
-  // Computed fields
   const volume = company.invoices.reduce((acc, inv) => acc + Number(inv.total), 0)
+
+  const recentInvoices = await prisma.invoice.findMany({
+    where: { companyId: id },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+    select: {
+      id: true,
+      invoiceNumber: true,
+      issueDate: true,
+      total: true,
+      status: true,
+      client: { select: { name: true } },
+    },
+  })
 
   return {
     ...company,
-    volume
+    invoices: company.invoices.map(inv => ({ total: Number(inv.total) })),
+    volume,
+    recentInvoices: recentInvoices.map(inv => ({
+      ...inv,
+      total: Number(inv.total),
+    })),
   }
 }
 
@@ -133,11 +158,52 @@ export async function toggleCompanyStatus(id: string) {
       data: { isActive: !company.isActive }
     })
 
-    revalidatePath("/dashboard/companies")
-    revalidatePath(`/dashboard/companies/${id}`)
+    revalidatePath("/empresas")
+    revalidatePath(`/empresas/${id}`)
     return { success: true }
   } catch (error) {
     console.error("Error toggling company status:", error)
     return { error: "Error al actualizar estado de la empresa" }
+  }
+}
+
+const invoiceStyleSchema = z.object({
+  invoiceTemplate: z.enum(["modern", "classic", "minimal", "corporate", "elegant", "bold", "professional", "creative", "executive"]),
+  invoiceColor: z.enum(["blue", "emerald", "slate", "red", "orange", "purple", "amber", "teal", "indigo"]),
+})
+
+export async function updateCompanyInvoiceStyle(formData: FormData) {
+  const session = await auth()
+  if (!session?.user) return { error: "No autorizado" }
+
+  const activeTenantId = await getActiveTenantId()
+  if (!activeTenantId) return { error: "No hay tenant activo" }
+
+  const rawData = {
+    invoiceTemplate: formData.get("invoiceTemplate") as string,
+    invoiceColor: formData.get("invoiceColor") as string,
+  }
+
+  const result = invoiceStyleSchema.safeParse(rawData)
+  if (!result.success) {
+    return { error: "Valores inválidos para plantilla o color" }
+  }
+
+  const prisma = getTenantPrisma(activeTenantId)
+
+  try {
+    await prisma.company.update({
+      where: { id: activeTenantId },
+      data: {
+        invoiceTemplate: result.data.invoiceTemplate,
+        invoiceColor: result.data.invoiceColor,
+      },
+    })
+
+    revalidatePath("/facturas/[id]")
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating invoice style:", error)
+    return { error: "Error al guardar la preferencia" }
   }
 }

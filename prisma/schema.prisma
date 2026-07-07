@@ -147,8 +147,10 @@ model Client {
   id                String   @id @default(uuid()) @db.Uuid
   companyId         String   @map("company_id") @db.Uuid
   name              String
+  celular           String
   email             String?
   phone             String?
+  direccion         String?
   authorizedPersons Json?    @map("authorized_persons") // Array of strings
   isActive          Boolean  @default(true) @map("is_active")
   createdAt         DateTime @default(now()) @map("created_at")

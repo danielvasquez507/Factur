@@ -34,7 +34,7 @@ export async function changePassword(formData: FormData) {
     return { error: "Usuario no válido o no utiliza contraseña." }
   }
 
-  const isValid = await bcrypt.compare(result.data.currentPassword, user.passwordHash)
+  const isValid = await bcrypt.compare(result.data.currentPassword, user.passwordHash!)
   if (!isValid) {
     return { error: "La contraseña actual es incorrecta." }
   }

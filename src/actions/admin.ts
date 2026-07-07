@@ -19,10 +19,11 @@ export async function getGlobalServices() {
   if (session?.user?.role !== "SUPER_ADMIN") throw new Error("No autorizado")
 
   const prisma = getBypassPrisma()
-  return await prisma.service.findMany({
+  const services = await prisma.service.findMany({
     include: { company: true },
     orderBy: { name: "asc" }
   })
+  return services.map(s => ({ ...s, defaultPrice: Number(s.defaultPrice) }))
 }
 
 export async function getGlobalInvoices() {
@@ -30,10 +31,16 @@ export async function getGlobalInvoices() {
   if (session?.user?.role !== "SUPER_ADMIN") throw new Error("No autorizado")
 
   const prisma = getBypassPrisma()
-  return await prisma.invoice.findMany({
+  const invoices = await prisma.invoice.findMany({
     include: { company: true, client: true },
     orderBy: { issueDate: "desc" }
   })
+  return invoices.map(inv => ({
+    ...inv,
+    subtotal: Number(inv.subtotal),
+    taxAmount: Number(inv.taxAmount),
+    total: Number(inv.total),
+  }))
 }
 
 export async function getGlobalCompanies() {

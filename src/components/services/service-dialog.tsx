@@ -1,14 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import type { ReactElement } from "react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Plus, Loader2 } from "lucide-react"
+import { Package, FileText, DollarSign, Plus, Loader2 } from "lucide-react"
 import { createService } from "@/actions/services"
 
-export function ServiceDialog() {
+export function ServiceDialog({ trigger, companyId }: { trigger?: ReactElement, companyId?: string }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -19,6 +20,7 @@ export function ServiceDialog() {
     setError("")
     
     const formData = new FormData(e.currentTarget)
+    if (companyId) formData.set("companyId", companyId)
     const result = await createService(formData)
 
     if (result.error) {
@@ -32,41 +34,68 @@ export function ServiceDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white shadow-lg shadow-blue-900/20 hover:bg-blue-700 h-9 px-4 py-2 gap-2">
-        <Plus className="w-4 h-4" />
-        Crear Servicio
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-zinc-950 border-white/10 text-white backdrop-blur-2xl shadow-2xl">
-        <DialogHeader>
-          <DialogTitle>Añadir Servicio o Producto</DialogTitle>
-          <DialogDescription className="text-zinc-400">
-            Añade un concepto al catálogo para facturarlo posteriormente.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 text-sm text-red-400 bg-red-950/50 rounded-md border border-red-900/50">
-              {error}
+      {trigger ? (
+        <DialogTrigger render={trigger} />
+      ) : (
+        <DialogTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white h-8 px-3 gap-1.5">
+          <Plus className="w-3.5 h-3.5" />
+          Crear Servicio
+        </DialogTrigger>
+      )}
+      <DialogContent className="sm:max-w-[400px] bg-zinc-950/95 border-white/[0.08] text-white backdrop-blur-xl shadow-2xl p-0 gap-0">
+        <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-violet-500 to-blue-600 rounded-t-xl" />
+        <div className="p-5">
+          <DialogHeader className="mb-4">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                <Package className="w-4 h-4 text-violet-400" />
+              </div>
+              <div>
+                <DialogTitle className="text-base font-semibold text-white">Añadir Servicio</DialogTitle>
+                <DialogDescription className="text-xs text-zinc-500 mt-0.5">
+                  Añade un concepto al catálogo para facturarlo posteriormente
+                </DialogDescription>
+              </div>
             </div>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-zinc-300">Nombre del Servicio</Label>
-            <Input id="name" name="name" required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" placeholder="Ej. Mantenimiento Mensual" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-zinc-300">Descripción (Opcional)</Label>
-            <Input id="description" name="description" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="defaultPrice" className="text-zinc-300">Precio Base (USD)</Label>
-            <Input id="defaultPrice" name="defaultPrice" type="number" step="0.01" min="0" required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" placeholder="0.00" />
-          </div>
-          <DialogFooter className="pt-4">
-            <Button type="submit" disabled={loading} className="w-full bg-white text-black hover:bg-zinc-200">
-              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Guardar Servicio"}
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            {error && (
+              <div className="p-2.5 text-xs text-red-500 bg-red-950/40 rounded-lg border border-red-900/40 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Nombre</Label>
+              <div className="relative">
+                <Package className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input id="name" name="name" required placeholder="Ej. Mantenimiento Mensual" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="description" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Descripción</Label>
+              <div className="relative">
+                <FileText className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input id="description" name="description" placeholder="Opcional" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="defaultPrice" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Precio Base</Label>
+              <div className="relative">
+                <DollarSign className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input id="defaultPrice" name="defaultPrice" type="number" step="0.01" min="0" required placeholder="0.00" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+              </div>
+            </div>
+
+            <Button type="submit" disabled={loading} className="w-full h-9 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-medium text-sm shadow-lg shadow-blue-900/20 border-0">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar Servicio"}
             </Button>
-          </DialogFooter>
-        </form>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   )

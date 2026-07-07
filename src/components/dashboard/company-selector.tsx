@@ -44,7 +44,7 @@ export function CompanySelector({ companies, activeTenantId }: CompanySelectorPr
 
   return (
     <div className="flex items-center gap-2">
-      <Select value={validTenantId} onValueChange={handleSelect}>
+      <Select value={validTenantId} onValueChange={(val) => handleSelect(val ?? "")}>
         <SelectTrigger className="w-[180px] sm:w-[220px] bg-black/50 border-white/10 text-zinc-200 h-9 hover:bg-white/5 transition-colors">
           <div className="flex items-center gap-2 truncate">
             <Building2 className="w-4 h-4 shrink-0 text-zinc-500" />

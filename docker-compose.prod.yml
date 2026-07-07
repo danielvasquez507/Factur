@@ -1,0 +1,69 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://facturdv:${DB_PASSWORD:-secret}@db:5432/facturdv
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-supersecret}
+      - NEXTAUTH_URL=http://localhost:3000
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    networks:
+      - facturdv-net
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=facturdv
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+      - POSTGRES_DB=facturdv
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432" # Solo exponer localmente por seguridad
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U facturdv"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - facturdv-net
+
+  pgbackups:
+    image: prodrigestivill/postgres-backup-local
+    restart: always
+    user: postgres:postgres # Corre con permisos de postgres para evitar problemas de volumen
+    volumes:
+      - ./backups:/backups
+    links:
+      - db:db
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=facturdv
+      - POSTGRES_USER=facturdv
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+      - SCHEDULE=@daily # Crea un backup cada día a medianoche
+      - BACKUP_KEEP_DAYS=7 # Mantiene los últimos 7 días
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=2
+    networks:
+      - facturdv-net
+
+volumes:
+  pgdata:
+
+networks:
+  facturdv-net:
+    driver: bridge

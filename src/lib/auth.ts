@@ -1,6 +1,7 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
+import { rateLimit } from "./rate-limit"
 import bcrypt from "bcryptjs"
 import { authConfig } from "../auth.config"
 
@@ -13,8 +14,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        const ip = request?.headers?.get("x-forwarded-for")?.split(",")[0]?.trim()
+          || request?.headers?.get("x-real-ip")
+          || "unknown"
+        const rl = rateLimit(`login:${ip}`, 5, 15 * 60 * 1000)
+        if (!rl.success) {
           return null
         }
 
@@ -44,7 +53,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
     })
   ],
-  session: {
-    strategy: "jwt"
-  }
 })

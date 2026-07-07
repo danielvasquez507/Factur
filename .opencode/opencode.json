@@ -1,0 +1,30 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "skills": {
+    "paths": [".opencode/skills"]
+  },
+  "agent": {
+    "explore": {
+      "mode": "subagent",
+      "model": "deepseek/deepseek-v4-flash-free",
+      "description": "Explora el código fuente de FacturDV para entender estructura, patrones y dependencias",
+      "permission": { "read": "allow", "glob": "allow", "grep": "allow", "edit": "deny", "bash": "deny" }
+    },
+    "rls-auditor": {
+      "mode": "subagent",
+      "description": "Audita archivos en busca de violaciones de aislamiento multi-tenant (RLS)",
+      "permission": { "read": "allow", "glob": "allow", "grep": "allow", "edit": "deny", "bash": "deny" }
+    },
+    "pdf-templater": {
+      "mode": "subagent",
+      "description": "Crea y modifica plantillas PDF con @react-pdf/renderer",
+      "permission": { "read": "allow", "edit": "allow", "glob": "allow", "grep": "allow", "bash": "allow" }
+    },
+    "db-migrator": {
+      "mode": "subagent",
+      "description": "Ejecuta migraciones de Prisma y valida el schema",
+      "permission": { "read": "allow", "edit": "allow", "bash": "allow", "glob": "allow", "grep": "allow" }
+    }
+  }
+}

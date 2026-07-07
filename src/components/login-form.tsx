@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+import { Loader2, Eye, EyeOff } from "lucide-react"
 
 export function LoginForm() {
   const router = useRouter()
@@ -15,6 +15,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +32,7 @@ export function LoginForm() {
       setError("Credenciales incorrectas")
       setLoading(false)
     } else {
-      router.push("/dashboard")
+      router.push("/")
       router.refresh()
     }
   }
@@ -43,7 +44,7 @@ export function LoginForm() {
       <form onSubmit={handleSubmit} className="p-6">
         <div className="space-y-5">
           {error && (
-            <div className="p-3 text-sm text-red-400 bg-red-950/30 rounded-lg border border-red-900/30 text-center animate-in fade-in zoom-in-95 duration-300">
+            <div className="p-3 text-sm text-red-500 bg-red-950/30 rounded-lg border border-red-900/30 text-center animate-in fade-in zoom-in-95 duration-300">
               {error}
             </div>
           )}
@@ -61,14 +62,24 @@ export function LoginForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password" className="text-zinc-400 text-xs uppercase tracking-wider">Contraseña</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-              className="bg-white/5 border-white/10 text-white focus-visible:ring-blue-500 focus-visible:border-blue-500 h-11 transition-all rounded-lg"
-            />
+            <div className="relative">
+              <Input 
+                id="password" 
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required 
+                className="bg-white/5 border-white/10 text-white pr-10 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-11 transition-all rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
         </div>
         <div className="pt-8">

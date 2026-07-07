@@ -29,12 +29,17 @@ export async function getTaxReport() {
       total: true,
       status: true,
       client: {
-        select: { name: true, ruc: true }
+        select: { name: true }
       }
     }
   })
 
-  return invoices
+  return invoices.map(inv => ({
+    ...inv,
+    subtotal: Number(inv.subtotal),
+    taxAmount: Number(inv.taxAmount),
+    total: Number(inv.total),
+  }))
 }
 
 export async function getTopClientsReport() {
@@ -84,9 +89,9 @@ export async function getTopClientsReport() {
       clientName: client?.name || 'Desconocido',
       clientEmail: client?.email || '',
       invoiceCount: g._count.id,
-      totalVolume: g._sum.total || 0,
-      totalSubtotal: g._sum.subtotal || 0,
-      totalTaxes: g._sum.taxAmount || 0,
+      totalVolume: Number(g._sum.total || 0),
+      totalSubtotal: Number(g._sum.subtotal || 0),
+      totalTaxes: Number(g._sum.taxAmount || 0),
     }
   })
 }

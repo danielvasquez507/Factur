@@ -13,6 +13,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Factur | Dashboard",
   description: "Plataforma de Facturación B2B",
+  icons: {
+    icon: [
+      { url: "/favicon-f.svg", type: "image/svg+xml" },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

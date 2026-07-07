@@ -5,6 +5,9 @@ import { getBypassPrisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
+import { rateLimit } from "@/lib/rate-limit"
+
+const PROTECTED_USER_ID = "8c732b08-e938-4b90-ad24-12e8b5c97c1e"
 
 const userSchema = z.object({
   name: z.string().min(2, "El nombre es muy corto"),
@@ -35,9 +38,28 @@ export async function getUsers() {
   })
 }
 
+export async function getUserById(userId: string) {
+  const session = await auth()
+  if (session?.user?.role !== "SUPER_ADMIN") throw new Error("Unauthorized")
+
+  const prisma = getBypassPrisma()
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      userCompanies: {
+        include: { company: true }
+      }
+    }
+  })
+  return user
+}
+
 export async function createUser(formData: FormData) {
   const session = await auth()
   if (session?.user?.role !== "SUPER_ADMIN") return { error: "No autorizado" }
+
+  const rl = rateLimit(`createUser:${session.user.id}`, 5, 60 * 1000)
+  if (!rl.success) return { error: "Demasiadas solicitudes. Espere un momento." }
 
   const rawData = {
     name: formData.get("name"),
@@ -67,7 +89,7 @@ export async function createUser(formData: FormData) {
       }
     })
     
-    revalidatePath("/dashboard/users")
+    revalidatePath("/usuarios")
     return { success: true }
   } catch (error) {
     return { error: "Error al crear el usuario" }
@@ -90,6 +112,17 @@ export async function updateUser(userId: string, formData: FormData) {
 
   const prisma = getBypassPrisma()
 
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, role: true }
+  })
+
+  if (!currentUser) return { error: "Usuario no encontrado" }
+
+  if (currentUser.id === PROTECTED_USER_ID && result.data.role !== "SUPER_ADMIN") {
+    return { error: "No se puede cambiar el rol del Super Admin principal" }
+  }
+
   const dataToUpdate: any = {
     name: result.data.name,
     email: result.data.email,
@@ -106,7 +139,7 @@ export async function updateUser(userId: string, formData: FormData) {
       data: dataToUpdate
     })
     
-    revalidatePath("/dashboard/users")
+    revalidatePath("/usuarios")
     return { success: true }
   } catch (error) {
     return { error: "Error al actualizar el usuario" }
@@ -120,11 +153,21 @@ export async function deleteUser(userId: string) {
   const prisma = getBypassPrisma()
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
+    })
+
+    if (!user) return { error: "Usuario no encontrado" }
+    if (user.id === PROTECTED_USER_ID) {
+      return { error: "No se puede eliminar la cuenta principal de Super Admin" }
+    }
+
     await prisma.user.delete({
       where: { id: userId }
     })
     
-    revalidatePath("/dashboard/users")
+    revalidatePath("/usuarios")
     return { success: true }
   } catch (error) {
     return { error: "No se puede eliminar (probablemente tenga relaciones)" }
@@ -137,6 +180,7 @@ export async function assignUserToCompany(formData: FormData) {
 
   const userId = formData.get("userId") as string
   const companyId = formData.get("companyId") as string
+  const force = formData.get("force") === "true"
 
   if (!userId || !companyId) return { error: "Datos faltantes" }
 
@@ -151,18 +195,58 @@ export async function assignUserToCompany(formData: FormData) {
 
     if (exists) return { error: "El usuario ya está asignado a esta empresa" }
 
-    await prisma.userCompany.create({
-      data: {
-        userId,
-        companyId,
-        roleInCompany: "OWNER"
-      }
+    // Buscar si otro usuario ya es owner de esta empresa
+    const currentOwner = await prisma.userCompany.findFirst({
+      where: { companyId, roleInCompany: "OWNER" },
+      include: { user: { select: { name: true, email: true } } }
     })
-    
-    revalidatePath("/dashboard/users")
+
+    if (currentOwner && !force) {
+      return {
+        conflict: true,
+        currentOwnerName: currentOwner.user.name,
+        currentOwnerId: currentOwner.userId,
+        message: `"${currentOwner.user.name}" ya es propietario de esta empresa. Si continúas, se reasignará a este usuario.`
+      }
+    }
+
+    // Si hay force, eliminar owner anterior y asignar nuevo en transacción
+    await prisma.$transaction(async (tx) => {
+      if (currentOwner && force) {
+        await tx.userCompany.delete({
+          where: { userId_companyId: { userId: currentOwner.userId, companyId } }
+        })
+      }
+
+      await tx.userCompany.create({
+        data: { userId, companyId, roleInCompany: "OWNER" }
+      })
+    })
+
+    revalidatePath("/usuarios")
     return { success: true }
   } catch (error) {
     return { error: "Error al asignar la empresa" }
+  }
+}
+
+export async function removeUserFromCompany(userId: string, companyId: string) {
+  const session = await auth()
+  if (session?.user?.role !== "SUPER_ADMIN") return { error: "No autorizado" }
+
+  const prisma = getBypassPrisma()
+
+  try {
+    await prisma.userCompany.delete({
+      where: {
+        userId_companyId: { userId, companyId }
+      }
+    })
+
+    revalidatePath("/usuarios")
+    return { success: true }
+  } catch (error) {
+    return { error: "Error al desvincular la empresa" }
   }
 }
 
@@ -214,6 +298,9 @@ export async function updateMyProfile(formData: FormData) {
   if (result.data.password) {
     if (!result.data.currentPassword) {
       return { error: "Debes ingresar tu contraseña actual" }
+    }
+    if (!currentUser.passwordHash) {
+      return { error: "Este usuario no tiene contraseña configurada" }
     }
     const isValid = await bcrypt.compare(result.data.currentPassword, currentUser.passwordHash)
     if (!isValid) {

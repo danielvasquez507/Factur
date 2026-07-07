@@ -2,7 +2,7 @@ import type { NextAuthConfig } from 'next-auth'
 
 export const authConfig = {
   pages: {
-    signIn: '/',
+    signIn: '/login',
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -21,23 +21,23 @@ export const authConfig = {
     },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
-      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard')
-      const isRoot = nextUrl.pathname === '/'
+      const isLoginPage = nextUrl.pathname === '/login'
+      const isApiRoute = nextUrl.pathname.startsWith('/api')
 
-      if (isOnDashboard) {
-        if (isLoggedIn) return true
-        return false // Redirect to login
-      } else if (isLoggedIn && isRoot) {
-        return Response.redirect(new URL('/dashboard', nextUrl))
+      if (isLoggedIn && isLoginPage) {
+        return Response.redirect(new URL('/', nextUrl))
       }
-      
-      // Bloquear acceso al resto si no está autenticado, excepto login y api
-      if (!isLoggedIn && !isRoot && !nextUrl.pathname.startsWith('/api')) {
-          return false
-      }
-      
+
+      if (isLoginPage || isApiRoute) return true
+
+      if (!isLoggedIn) return false
+
       return true
     },
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60,
   },
   providers: [], // Providers are added in lib/auth.ts
 } satisfies NextAuthConfig
