@@ -12,7 +12,7 @@ export async function validateLoginAttempt(email: string) {
     select: { id: true, failedLoginAttempts: true, lockedUntil: true }
   })
 
-  if (!user) return { success: true } // Don't leak user existence
+  if (!user) return { error: "El correo electrónico no existe en el sistema" }
 
   // Check if locked
   if (user.lockedUntil) {

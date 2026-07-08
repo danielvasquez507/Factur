@@ -88,7 +88,7 @@ export function UserTable({ users, companies }: { users: any[], companies: any[]
         </Select>
       </div>
 
-      <Table className="w-full" containerClassName="overflow-hidden">
+      <Table className="w-full" containerClassName="overflow-x-auto">
         <TableHeader className="bg-white/5">
             <TableRow className="border-0 border-b border-white/[0.06] hover:bg-transparent">
               <TableHead className="text-zinc-400 font-medium">Usuario</TableHead>

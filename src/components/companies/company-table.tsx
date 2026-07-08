@@ -94,7 +94,7 @@ export function CompanyTable({ companies, users = [] }: { companies: any[], user
         </Select>
       </div>
 
-      <Table containerClassName="overflow-hidden">
+      <Table containerClassName="overflow-x-auto">
         <TableHeader className="bg-white/5">
           <TableRow className="border-0 border-b border-white/[0.06] hover:bg-transparent">
             <TableHead className="text-zinc-400 font-medium">Empresa</TableHead>

@@ -8,6 +8,7 @@ import { toast } from "sonner"
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuPortal, DropdownMenuSubContent } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
+import { DeveloperCredits } from "./developer-credits"
 
 interface TopNavProps {
   user: {
@@ -33,13 +34,15 @@ export function TopNav({ user, activeCompanyRole }: TopNavProps) {
               </Button>
             }
           />
-          <DropdownMenuContent className="w-56 bg-background border-border text-foreground" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none text-foreground">{user.name}</p>
-                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-              </div>
-            </DropdownMenuLabel>
+          <DropdownMenuContent className="w-56 bg-background border-border text-foreground" align="end">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none text-foreground">{user.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                </div>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator className="bg-white/10" />
             <DropdownMenuItem
               className="cursor-pointer hover:bg-white/10 focus:bg-white/10 p-0"
@@ -82,6 +85,7 @@ export function TopNav({ user, activeCompanyRole }: TopNavProps) {
               </DropdownMenuPortal>
             </DropdownMenuSub>
             <DropdownMenuSeparator className="border-border" />
+            <DeveloperCredits />
             <DropdownMenuItem 
               onClick={async () => {
                 const toastId = toast.loading("Cerrando sesión...")

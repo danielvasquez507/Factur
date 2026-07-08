@@ -36,9 +36,9 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="aurora"
           enableSystem={false}
-          themes={["light", "dark", "login"]}
+          themes={["light", "dark", "login", "aurora"]}
         >
           {children}
           <Toaster richColors position="top-right" theme="system" />

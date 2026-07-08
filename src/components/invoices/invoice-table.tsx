@@ -24,7 +24,7 @@ export function InvoiceTable({ invoices }: { invoices: any[] }) {
 
   return (
     <div className="relative overflow-x-auto rounded-b-md">
-      <Table className="w-full" containerClassName="overflow-hidden">
+      <Table className="w-full" containerClassName="overflow-x-auto">
         <TableHeader className="bg-white/5">
           <TableRow className="border-0 border-b border-white/[0.06] hover:bg-transparent">
             <TableHead className="text-zinc-400 font-medium">Factura</TableHead>

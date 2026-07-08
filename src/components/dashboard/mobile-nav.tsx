@@ -98,6 +98,8 @@ export function MobileBottomNav({ userRole, pendingRequestsCount = 0 }: MobileBo
   )
 }
 
+import { DeveloperCredits } from "./developer-credits"
+
 export function AutoHideHeader({
   userName,
   userEmail,
@@ -240,6 +242,7 @@ export function AutoHideHeader({
                 </div>
               )}
               <DropdownMenuSeparator className="bg-white/10" />
+              <DeveloperCredits />
               <DropdownMenuItem
                 onClick={async () => {
                   const toastId = toast.loading("Cerrando sesión...")
