@@ -13,3 +13,6 @@
 - PDFs con `@react-pdf/renderer`, 4 plantillas
 - PNPM exclusivamente
 - Servidor corre en `http://localhost:3000`
+
+## Versionamiento
+- Por cada modificación o avance en el código, se debe incrementar el número de la versión en `package.json` (usando `npm version patch --no-git-tag-version` o manualmente) para que se refleje de manera automática en la app.

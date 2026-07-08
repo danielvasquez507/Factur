@@ -21,6 +21,11 @@ export default function LoginPage() {
 
         <LoginForm />
       </div>
+
+      {/* Version Number */}
+      <div className="absolute bottom-3 right-4 text-[10px] font-mono text-white/20 select-none z-20 hover:text-white/40 transition-colors">
+        v{require('../../../package.json').version}
+      </div>
     </div>
   )
 }

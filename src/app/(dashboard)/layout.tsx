@@ -34,8 +34,8 @@ export default async function DashboardLayout({
   const activeTenantId = await getActiveTenantId()
   const activeCompanyRole = await getActiveCompanyRole()
 
-  // Auto-select first company if no tenant cookie is set
-  if (!activeTenantId && companies.length > 0) {
+  // Auto-select first company if no tenant cookie is set (except for SUPER_ADMIN)
+  if (!activeTenantId && companies.length > 0 && session.user.role !== "SUPER_ADMIN") {
     redirect(`/api/switch-company/${companies[0].id}`)
   }
 
