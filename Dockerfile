@@ -58,8 +58,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Instalar sharp nativamente en Alpine para que Next.js pueda optimizar imágenes
 # Se hace ANTES de cambiar al usuario sin privilegios
 RUN rm -rf node_modules/sharp && \
+    mkdir -p /tmp/sharp-install && \
+    cd /tmp/sharp-install && \
+    npm init -y && \
     npm install --cpu=x64 --os=linux --libc=musl sharp && \
-    chown -R nextjs:nodejs node_modules
+    cp -r node_modules/* /app/node_modules/ && \
+    cd /app && \
+    rm -rf /tmp/sharp-install && \
+    chown -R nextjs:nodejs /app/node_modules
 
 # Switch to non-root user
 USER nextjs
