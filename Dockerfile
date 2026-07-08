@@ -34,6 +34,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Install sharp for image optimization in standalone mode
+RUN npm install sharp
+
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/public ./public
 
