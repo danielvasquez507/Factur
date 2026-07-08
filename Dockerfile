@@ -1,32 +1,39 @@
 FROM node:22-alpine AS base
 
-# Install dependencies only when needed
+# ─── Stage 1: Install dependencies ──────────────────────────────────────────
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json ./
-COPY prisma ./prisma/
-RUN npm install
+# Enable pnpm via corepack
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Rebuild the source code only when needed
+COPY package.json pnpm-lock.yaml ./
+COPY prisma ./prisma/
+
+RUN pnpm install --frozen-lockfile
+
+# ─── Stage 2: Build ──────────────────────────────────────────────────────────
 FROM base AS builder
 WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Generate prisma client before building
-RUN npx prisma generate
+RUN pnpm exec prisma generate
 
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+RUN pnpm run build
 
-# Production image, copy all the files and run next
+# ─── Stage 3: Runner ─────────────────────────────────────────────────────────
 FROM base AS runner
 WORKDIR /app
 
-# Instalar bash y herramientas útiles
-RUN apk add --no-cache bash
+# Instalar dependencias del sistema necesarias para sharp y bash
+RUN apk add --no-cache bash libc6-compat
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -50,6 +57,11 @@ RUN chown nextjs:nodejs .next
 # Copy standalone output
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Instalar sharp nativamente en Alpine para que Next.js pueda optimizar imágenes
+# Se hace ANTES de cambiar al usuario sin privilegios
+RUN npm install --cpu=x64 --os=linux --libc=musl sharp && \
+    chown -R nextjs:nodejs node_modules
 
 # Switch to non-root user
 USER nextjs
