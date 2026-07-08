@@ -61,8 +61,8 @@ RUN rm -rf node_modules/sharp && \
     mkdir -p /tmp/sharp-install && \
     cd /tmp/sharp-install && \
     npm init -y && \
-    npm install --cpu=x64 --os=linux --libc=musl sharp && \
-    cp -r node_modules/* /app/node_modules/ && \
+    npm install --cpu=x64 --os=linux --libc=musl sharp prisma@6.4.1 && \
+    cp -a node_modules/. /app/node_modules/ && \
     cd /app && \
     rm -rf /tmp/sharp-install && \
     chown -R nextjs:nodejs /app/node_modules
