@@ -41,9 +41,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Install sharp for image optimization in standalone mode
-RUN npm install sharp
-
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/public ./public
 
@@ -60,7 +57,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Instalar sharp nativamente en Alpine para que Next.js pueda optimizar imágenes
 # Se hace ANTES de cambiar al usuario sin privilegios
-RUN npm install --cpu=x64 --os=linux --libc=musl sharp && \
+RUN rm -rf node_modules/sharp && \
+    npm install --cpu=x64 --os=linux --libc=musl sharp && \
     chown -R nextjs:nodejs node_modules
 
 # Switch to non-root user
