@@ -76,7 +76,7 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-emerald-500/30 transition-colors"></div>
           <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="flex flex-row items-center justify-between p-4 pb-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-zinc-400 group-hover:text-emerald-300 transition-colors">Ingresos del Mes</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-400 group-hover:text-emerald-300 transition-colors" title="Facturación">Facturas emitidas (total)</CardTitle>
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] group-hover:scale-110 transition-transform">
               <DollarSign className="w-5 h-5" />
             </div>
@@ -105,7 +105,7 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
       <div className="grid gap-6 md:grid-cols-7">
         <Card className="col-span-full bg-black/40 border-white/10 backdrop-blur-md">
           <CardHeader>
-            <CardTitle className="text-white">Ingresos (Últimos 6 meses)</CardTitle>
+            <CardTitle className="text-white" title="Facturación">Facturas emitidas (Últimos 6 meses)</CardTitle>
           </CardHeader>
           <CardContent className="h-[300px] w-full">
             <RevenueChart data={chartData} />

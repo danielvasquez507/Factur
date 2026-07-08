@@ -1,25 +1,46 @@
 const store = new Map<string, { count: number; resetAt: number }>()
 
-export function rateLimit(
+export function checkRateLimit(
   ip: string,
-  maxAttempts: number = 10,
-  windowMs: number = 15 * 60 * 1000,
+  maxAttempts: number = 5
 ) {
   const now = Date.now()
-  const key = ip
-  const entry = store.get(key)
+  const entry = store.get(ip)
 
   if (!entry || now > entry.resetAt) {
-    store.set(key, { count: 1, resetAt: now + windowMs })
-    return { success: true, remaining: maxAttempts - 1 }
+    return { success: true, remaining: maxAttempts }
   }
 
   if (entry.count >= maxAttempts) {
     return { success: false, remaining: 0 }
   }
 
-  entry.count++
   return { success: true, remaining: maxAttempts - entry.count }
+}
+
+export function incrementRateLimit(
+  ip: string,
+  maxAttempts: number = 5,
+  windowMs: number = 15 * 60 * 1000,
+) {
+  const now = Date.now()
+  const entry = store.get(ip)
+
+  if (!entry || now > entry.resetAt) {
+    store.set(ip, { count: 1, resetAt: now + windowMs })
+    return { success: true, remaining: maxAttempts - 1 }
+  }
+
+  entry.count++
+  if (entry.count >= maxAttempts) {
+    return { success: false, remaining: 0 }
+  }
+
+  return { success: true, remaining: maxAttempts - entry.count }
+}
+
+export function resetRateLimit(ip: string) {
+  store.delete(ip)
 }
 
 setInterval(() => {

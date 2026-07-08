@@ -19,6 +19,16 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
+  const bypassPrisma = getBypassPrisma()
+  const dbUser = await bypassPrisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { onboardingCompleted: true }
+  })
+
+  if (dbUser && !dbUser.onboardingCompleted) {
+    redirect('/onboarding')
+  }
+
   const companies = await getUserCompanies()
 
   const activeTenantId = await getActiveTenantId()

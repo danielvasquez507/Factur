@@ -4,12 +4,28 @@ import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Building2 } from "lucide-react"
+import { assignUserToCompany } from "@/actions/users"
+import { Search, Building2, Trash2, Power, Ban, Play, AlertTriangle } from "lucide-react"
+import { toggleCompanyStatus, deleteCompany } from "@/actions/companies"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export function CompanyTable({ companies, users = [] }: { companies: any[], users?: any[] }) {
   const router = useRouter()
   const [search, setSearch] = useState("")
   const [userFilter, setUserFilter] = useState("")
+  const [deletingCompany, setDeletingCompany] = useState<any>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const userOptions = useMemo(() => {
     return (users || [])
@@ -82,13 +98,14 @@ export function CompanyTable({ companies, users = [] }: { companies: any[], user
         <TableHeader className="bg-white/5">
           <TableRow className="border-0 border-b border-white/[0.06] hover:bg-transparent">
             <TableHead className="text-zinc-400 font-medium">Empresa</TableHead>
-            <TableHead className="text-zinc-400 font-medium">Usuarios Asignados</TableHead>
+            <TableHead className="text-zinc-400 font-medium">Usuarios Asignadas</TableHead>
+            <TableHead className="text-zinc-400 font-medium text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredCompanies.length === 0 ? (
             <TableRow className="border-0">
-              <TableCell colSpan={2} className="text-center text-zinc-500 py-12">
+              <TableCell colSpan={3} className="text-center text-zinc-500 py-12">
                 Ninguna empresa coincide con la búsqueda.
               </TableCell>
             </TableRow>
@@ -105,9 +122,9 @@ export function CompanyTable({ companies, users = [] }: { companies: any[], user
                     <span className="text-white font-medium text-sm">{company.name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="py-2.5 whitespace-normal max-w-[200px]">
+                <TableCell className="py-2.5 max-w-[120px] sm:max-w-[200px]">
                   {company.userCompanies && company.userCompanies.length > 0 ? (
-                    <div className="flex items-center gap-1 flex-nowrap">
+                    <div className="flex items-center gap-1 flex-wrap sm:flex-nowrap">
                       {company.userCompanies.slice(0, 2).map((uc: any) => (
                         <span
                           key={uc.id}
@@ -115,7 +132,7 @@ export function CompanyTable({ companies, users = [] }: { companies: any[], user
                           title={uc.user.email}
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-blue-500/70 shrink-0" />
-                          <span className="max-w-[140px] truncate">{uc.user.name || uc.user.email.split('@')[0]}</span>
+                          <span className="max-w-[60px] sm:max-w-[140px] truncate">{uc.user.name || uc.user.email.split('@')[0]}</span>
                         </span>
                       ))}
                       {company.userCompanies.length > 2 && (
@@ -128,14 +145,141 @@ export function CompanyTable({ companies, users = [] }: { companies: any[], user
                       )}
                     </div>
                   ) : (
-                    <span className="text-xs text-zinc-500 italic">Sin usuarios</span>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Select
+                        disabled={actionLoading === `assign-${company.id}`}
+                        onValueChange={async (userId) => {
+                          if (!userId) return;
+                          setActionLoading(`assign-${company.id}`);
+                          const formData = new FormData();
+                          formData.append("userId", userId);
+                          formData.append("companyId", company.id);
+                          const res = await assignUserToCompany(formData);
+                          setActionLoading(null);
+                          if (res.error) {
+                            toast.error(res.error);
+                          } else if (res.conflict) {
+                            toast.error(res.message);
+                          } else {
+                            toast.success("Usuario asignado exitosamente");
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="h-7 w-[110px] sm:w-[160px] text-[10px] sm:text-xs bg-white/[0.04] border-white/[0.08] text-zinc-400 hover:bg-white/[0.08]">
+                          <SelectValue placeholder="+ Asignar" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-950 border-white/10 text-white text-xs max-h-60">
+                          {users?.filter(u => u.role !== 'SUPER_ADMIN').map(u => (
+                            <SelectItem key={u.id} value={u.id} className="text-xs focus:bg-white/10 cursor-pointer">
+                              {u.name || u.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   )}
+                </TableCell>
+                <TableCell className="py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center justify-end gap-2">
+                    {company.isActive ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-zinc-400 hover:text-red-400 hover:bg-red-500/10"
+                        title="Desactivar Empresa"
+                        disabled={actionLoading === company.id}
+                        onClick={async () => {
+                          setActionLoading(company.id)
+                          const res = await toggleCompanyStatus(company.id)
+                          setActionLoading(null)
+                          if (res.success) {
+                            toast.success("Empresa desactivada exitosamente")
+                          } else {
+                            toast.error(res.error || "Error al desactivar empresa")
+                          }
+                        }}
+                      >
+                        <Ban className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10"
+                        title="Activar Empresa"
+                        disabled={actionLoading === company.id}
+                        onClick={async () => {
+                          setActionLoading(company.id)
+                          const res = await toggleCompanyStatus(company.id)
+                          setActionLoading(null)
+                          if (res.success) {
+                            toast.success("Empresa activada exitosamente")
+                          } else {
+                            toast.error(res.error || "Error al activar empresa")
+                          }
+                        }}
+                      >
+                        <Play className="w-4 h-4" />
+                      </Button>
+                    )}
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-zinc-400 hover:text-red-500 hover:bg-red-500/10"
+                      title="Eliminar Empresa"
+                      disabled={actionLoading === company.id}
+                      onClick={() => setDeletingCompany(company)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
+
+      <AlertDialog open={!!deletingCompany} onOpenChange={(open) => !open && setDeletingCompany(null)}>
+        <AlertDialogContent className="bg-zinc-950 border-white/10 text-white backdrop-blur-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-500">
+              <AlertTriangle className="w-5 h-5 shrink-0" />
+              ¿Estás completamente seguro?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400">
+              Esta acción eliminará de forma permanente la empresa{" "}
+              <strong className="text-white">"{deletingCompany?.name}"</strong>,
+              junto con todos sus clientes, servicios, facturas y accesos asociados.
+              Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-transparent border-white/10 text-zinc-400 hover:text-white hover:bg-white/5">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={async () => {
+                if (!deletingCompany) return
+                const id = deletingCompany.id
+                setDeletingCompany(null)
+                setActionLoading(id)
+                const res = await deleteCompany(id)
+                setActionLoading(null)
+                if (res.success) {
+                  toast.success("Empresa eliminada exitosamente")
+                } else {
+                  toast.error(res.error || "Error al eliminar empresa")
+                }
+              }}
+            >
+              Sí, eliminar empresa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

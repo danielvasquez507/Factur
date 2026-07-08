@@ -79,7 +79,7 @@ export function ClientDialog({ trigger, companyId }: { trigger?: ReactElement, c
               <Label htmlFor="celular" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Celular <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Smartphone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <Input id="celular" name="celular" required placeholder="Ej. 6000-1234" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                <Input id="celular" name="celular" type="tel" maxLength={8} pattern="\d{8}" required placeholder="61234567" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
               </div>
             </div>
 
@@ -95,7 +95,7 @@ export function ClientDialog({ trigger, companyId }: { trigger?: ReactElement, c
                 <Label htmlFor="phone" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Teléfono</Label>
                 <div className="relative">
                   <Phone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <Input id="phone" name="phone" placeholder="Opcional" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                  <Input id="phone" name="phone" type="tel" maxLength={8} pattern="\d{8}" placeholder="Opcional" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
                 </div>
               </div>
             </div>

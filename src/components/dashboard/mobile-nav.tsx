@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Receipt, Users, Layers, Briefcase, UserIcon, Bell, LogOut, Monitor, Moon, Sparkles, Check } from "lucide-react"
+import { LayoutDashboard, Receipt, Users, Layers, Briefcase, UserIcon, Bell, LogOut, Monitor, Moon, Sparkles, Check, Settings } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
@@ -193,14 +193,27 @@ export function AutoHideHeader({
                 </DropdownMenuPortal>
               </DropdownMenuSub>
               <DropdownMenuSeparator className="bg-white/10" />
+              
+              {userRole !== "SUPER_ADMIN" && (
+                <DropdownMenuItem
+                  className="cursor-pointer hover:bg-white/10 focus:bg-white/10 p-0"
+                  render={
+                    <Link href="/configuracion" className="flex items-center w-full px-2 py-1.5 text-blue-400">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Configuración</span>
+                    </Link>
+                  }
+                />
+              )}
+
               {userRole !== "SUPER_ADMIN" && companies.length > 0 && (
-                <div className="px-2 py-2">
+                <div className="px-2 py-2 mt-1 border-t border-white/5">
                   <p className="text-[11px] text-zinc-500 px-2 mb-1.5 font-medium uppercase tracking-wider">Empresas</p>
                   <div className="space-y-0.5">
                     {companies.map((c) => {
                       const isActive = c.id === activeTenantId
                       return (
-                        <Link
+                        <a
                           key={c.id}
                           href={isActive ? "#" : `/api/switch-company/${c.id}`}
                           className={cn(
@@ -218,7 +231,7 @@ export function AutoHideHeader({
                           {isActive && (
                             <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Activo</span>
                           )}
-                        </Link>
+                        </a>
                       )
                     })}
                   </div>

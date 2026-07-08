@@ -2,8 +2,17 @@
 
 import { useState, useTransition, useRef, useCallback, useEffect } from "react"
 import { format } from "date-fns"
-import { Maximize2, X, Printer, Palette, LayoutTemplate, CheckCircle2, Loader2, RotateCcw, ZoomIn } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Maximize2, X, Printer, Palette, LayoutTemplate, CheckCircle2, Loader2, RotateCcw, ZoomIn, CircleDot, ChevronDown, Coins, Smartphone, Landmark } from "lucide-react"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { updateInvoiceStatus } from "@/actions/invoices"
 import { Card } from "@/components/ui/card"
 import {
   Dialog,
@@ -27,6 +36,18 @@ const colorMap: Record<string, string> = {
   indigo: "#4f46e5",
 }
 
+const buttonThemeMap: Record<string, { bg: string, border: string, hoverBg: string, text: string, shadow: string }> = {
+  blue: { bg: "bg-blue-500/10", border: "border-blue-500/30", hoverBg: "hover:bg-blue-500", text: "text-blue-400", shadow: "shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]" },
+  emerald: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", hoverBg: "hover:bg-emerald-500", text: "text-emerald-400", shadow: "shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]" },
+  slate: { bg: "bg-slate-500/10", border: "border-slate-500/30", hoverBg: "hover:bg-slate-500", text: "text-slate-400", shadow: "shadow-[0_0_15px_rgba(100,116,139,0.1)] hover:shadow-[0_0_20px_rgba(100,116,139,0.4)]" },
+  red: { bg: "bg-red-500/10", border: "border-red-500/30", hoverBg: "hover:bg-red-500", text: "text-red-400", shadow: "shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]" },
+  orange: { bg: "bg-orange-500/10", border: "border-orange-500/30", hoverBg: "hover:bg-orange-500", text: "text-orange-400", shadow: "shadow-[0_0_15px_rgba(249,115,22,0.1)] hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]" },
+  amber: { bg: "bg-amber-500/10", border: "border-amber-500/30", hoverBg: "hover:bg-amber-500", text: "text-amber-400", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]" },
+  purple: { bg: "bg-purple-500/10", border: "border-purple-500/30", hoverBg: "hover:bg-purple-500", text: "text-purple-400", shadow: "shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]" },
+  teal: { bg: "bg-teal-500/10", border: "border-teal-500/30", hoverBg: "hover:bg-teal-500", text: "text-teal-400", shadow: "shadow-[0_0_15px_rgba(20,184,166,0.1)] hover:shadow-[0_0_20px_rgba(20,184,166,0.4)]" },
+  indigo: { bg: "bg-indigo-500/10", border: "border-indigo-500/30", hoverBg: "hover:bg-indigo-500", text: "text-indigo-400", shadow: "shadow-[0_0_15px_rgba(99,102,241,0.1)] hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]" },
+}
+
 const colorNames: Record<string, string> = {
   blue: "Azul Corporativo",
   emerald: "Verde Esmeralda",
@@ -44,11 +65,6 @@ const templates = [
   { id: "classic", name: "Clásica" },
   { id: "minimal", name: "Minimalista" },
   { id: "corporate", name: "Corporativa" },
-  { id: "elegant", name: "Elegante" },
-  { id: "bold", name: "Audaz" },
-  { id: "professional", name: "Profesional" },
-  { id: "creative", name: "Creativa" },
-  { id: "executive", name: "Ejecutiva" },
 ]
 
 function formatCurrency(val: number | string) {
@@ -73,7 +89,7 @@ function ModernTemplate({ invoice, company, invNum, primaryColor }: any) {
       <div className="h-28 px-8 pt-8 flex justify-between items-start" style={{ backgroundColor: primaryColor }}>
         <div className="w-3/5">
           {company.logoUrl ? (
-            <img src={company.logoUrl} alt={company.name} className="h-14 object-contain brightness-0 invert" />
+            <img src={company.logoUrl} alt={company.name} className="h-14 object-contain" />
           ) : (
             <div className="text-3xl font-bold text-white tracking-tight">{company.name}</div>
           )}
@@ -453,18 +469,23 @@ function RenderPaymentOptions({ paymentOpts, company }: any) {
     return <p className="text-sm text-zinc-600">{company.paymentDetails}</p>
   }
   return (
-    <div className="text-sm text-zinc-600 space-y-1">
-      {paymentOpts.cash && <div>• Efectivo</div>}
-      {paymentOpts.yappy?.enabled && <div>• Yappy: {paymentOpts.yappy.phone}</div>}
+    <div className="text-sm text-zinc-600 space-y-2 mt-2">
+      {paymentOpts.cash && (
+        <div className="flex items-center gap-2">
+          <Coins className="w-4 h-4 text-zinc-400 shrink-0" />
+          <span>Efectivo</span>
+        </div>
+      )}
+      {paymentOpts.yappy?.enabled && (
+        <div className="flex items-center gap-2">
+          <Smartphone className="w-4 h-4 text-zinc-400 shrink-0" />
+          <span>Yappy</span>
+        </div>
+      )}
       {paymentOpts.ach?.enabled && (
-        <div className="mt-2">
-          <div className="font-medium text-zinc-800">• Transferencia ACH:</div>
-          <div className="ml-3 text-xs text-zinc-500 space-y-0.5 mt-1">
-            <div>Banco: {paymentOpts.ach.bank}</div>
-            <div>Tipo: {paymentOpts.ach.accountType}</div>
-            <div>Cuenta: {paymentOpts.ach.accountNumber}</div>
-            <div>A nombre de: {paymentOpts.ach.owner}</div>
-          </div>
+        <div className="flex items-center gap-2">
+          <Landmark className="w-4 h-4 text-zinc-400 shrink-0" />
+          <span>Transferencia ACH</span>
         </div>
       )}
     </div>
@@ -484,7 +505,7 @@ function InvoiceContent({ invoice, company, invNum, template, primaryColor }: an
   }
 }
 
-function TemplateSelector({ template, color, onTemplateChange, onColorChange }: any) {
+function TemplateSelector({ template, color, primaryColor, onTemplateChange, onColorChange }: any) {
   const colors = [
     { id: "blue", hex: "bg-blue-500", shadow: "shadow-[0_0_15px_rgba(59,130,246,0.6)]", ring: "ring-blue-500", name: "Azul Corporativo" },
     { id: "emerald", hex: "bg-emerald-500", shadow: "shadow-[0_0_15px_rgba(16,185,129,0.6)]", ring: "ring-emerald-500", name: "Verde Esmeralda" },
@@ -501,27 +522,38 @@ function TemplateSelector({ template, color, onTemplateChange, onColorChange }: 
     <div className="space-y-8 py-2">
       <div>
         <div className="text-sm font-semibold text-zinc-200 mb-4 flex items-center gap-2 uppercase tracking-wider">
-          <LayoutTemplate className="w-4 h-4 text-purple-400" />
+          <LayoutTemplate style={{ color: primaryColor }} className="w-4 h-4" />
           Diseño de Plantilla
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
           {templates.map((t: any) => (
             <div
               key={t.id}
               onClick={() => onTemplateChange(t.id)}
               className={`relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 overflow-hidden group ${
                 template === t.id
-                  ? "border-purple-500 bg-purple-500/10 shadow-[0_0_20px_rgba(168,85,247,0.15)]"
+                  ? "border-transparent"
                   : "border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 hover:shadow-xl"
               }`}
+              style={template === t.id ? {
+                borderColor: primaryColor,
+                backgroundColor: `${primaryColor}1a`,
+                boxShadow: `0 0 20px ${primaryColor}26`
+              } : {}}
             >
               {template === t.id && (
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-50" />
+                <div 
+                  className="absolute inset-0 opacity-50" 
+                  style={{ backgroundImage: `linear-gradient(to bottom right, ${primaryColor}33, transparent)` }}
+                />
               )}
               <div className="flex items-center justify-between relative z-10">
                 <div className="font-semibold text-white text-base">{t.name}</div>
                 {template === t.id && (
-                  <CheckCircle2 className="w-5 h-5 text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
+                  <CheckCircle2 
+                    className="w-5 h-5 drop-shadow-md" 
+                    style={{ color: primaryColor }}
+                  />
                 )}
               </div>
             </div>
@@ -530,10 +562,10 @@ function TemplateSelector({ template, color, onTemplateChange, onColorChange }: 
       </div>
       <div>
         <div className="text-sm font-semibold text-zinc-200 mb-4 flex items-center gap-2 uppercase tracking-wider">
-          <Palette className="w-4 h-4 text-amber-400" />
+          <Palette style={{ color: primaryColor }} className="w-4 h-4" />
           Color de Énfasis
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {colors.map((c: any) => (
             <div
               key={c.id}
@@ -617,13 +649,17 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
   }, [])
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2 && touchRef.current) {
-      const dist = Math.hypot(
-         e.touches[0].clientX - e.touches[1].clientX,
-         e.touches[0].clientY - e.touches[1].clientY
-      )
-      setZoom(z => Math.max(0.5, Math.min(4, z + (dist - touchRef.current!.dist) * 0.005)))
-      touchRef.current = { dist }
+    try {
+      if (e.touches.length === 2 && touchRef.current && touchRef.current.dist) {
+        const dist = Math.hypot(
+           e.touches[0].clientX - e.touches[1].clientX,
+           e.touches[0].clientY - e.touches[1].clientY
+        )
+        setZoom(z => Math.max(0.5, Math.min(4, z + (dist - touchRef.current!.dist) * 0.005)))
+        touchRef.current = { dist }
+      }
+    } catch (err) {
+      console.warn("Touch zoom error ignored", err)
     }
   }, [])
 
@@ -747,17 +783,37 @@ export function InvoiceDetailView({
         companyName={company.name}
         template={template}
         color={color}
-      />
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
+      >
+        <Button
+          variant="outline"
+          onClick={() => setOrientation(o => o === "portrait" ? "landscape" : "portrait")}
+          className="group bg-amber-500/10 backdrop-blur border-amber-500/30 hover:bg-amber-500 hover:text-white text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] rounded-full transition-all duration-300 h-10 px-4 py-2 sm:h-9 flex justify-center"
+        >
+          <RotateCcw className="w-4 h-4 mr-2 shrink-0" />
+          <span>{orientation === "portrait" ? "Horizontal" : "Vertical"}</span>
+        </Button>
         <Dialog open={templateOpen} onOpenChange={setTemplateOpen}>
           <DialogTrigger render={<Button
             variant="outline"
-            className="group bg-purple-500/10 backdrop-blur border-purple-500/30 hover:bg-purple-500 hover:text-white text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] rounded-full transition-all duration-300 w-10 h-10 p-0 sm:w-auto sm:h-9 sm:px-4 sm:py-2"
+            className={cn(
+              "group backdrop-blur rounded-full transition-all duration-300 h-10 px-4 py-2 sm:h-9",
+              buttonThemeMap[color]?.bg || "bg-slate-500/10",
+              buttonThemeMap[color]?.border || "border-slate-500/30",
+              buttonThemeMap[color]?.hoverBg || "hover:bg-slate-500",
+              buttonThemeMap[color]?.text || "text-slate-400",
+              buttonThemeMap[color]?.shadow || "shadow-md"
+            )}
           >
-            <Palette className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Personalizar</span>
+            <Palette className="w-4 h-4 mr-2" />
+            <span>Personalizar</span>
           </Button>} />
-          <DialogContent className="sm:max-w-lg bg-zinc-950/90 backdrop-blur-2xl border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] text-white p-6 rounded-3xl">
+          <DialogContent 
+            style={{ 
+              borderColor: `${primaryColor}33`, 
+              boxShadow: `0 0 50px ${primaryColor}1a` 
+            }} 
+            className="w-[95vw] max-w-lg bg-zinc-950/90 backdrop-blur-2xl border text-white p-6 rounded-3xl max-h-[85vh] overflow-y-auto"
+          >
             <DialogHeader className="mb-2">
               <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
                 Personalizar Factura
@@ -766,26 +822,18 @@ export function InvoiceDetailView({
             <TemplateSelector
               template={template}
               color={color}
+              primaryColor={primaryColor}
               onTemplateChange={handleTemplateChange}
               onColorChange={handleColorChange}
             />
           </DialogContent>
         </Dialog>
-        <Button
-          variant="outline"
-          onClick={() => setOrientation(o => o === "portrait" ? "landscape" : "portrait")}
-          className="group bg-amber-500/10 backdrop-blur border-amber-500/30 hover:bg-amber-500 hover:text-white text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] rounded-full transition-all duration-300 w-10 h-10 p-0 sm:w-32 sm:h-9 sm:px-4 sm:py-2 flex justify-center"
-        >
-          <RotateCcw className="w-4 h-4 sm:mr-2 shrink-0" />
-          <span className="hidden sm:inline">{orientation === "portrait" ? "Horizontal" : "Vertical"}</span>
-        </Button>
-
         {template !== "modern" && (
           <span className="text-xs text-zinc-500 ml-auto">
             {templates.find(t => t.id === template)?.name} · {colorNames[color] || color}
           </span>
         )}
-      </div>
+      </InvoiceShareActions>
 
       <div className="pb-4 w-full">
         <A4PreviewWrapper orientation={orientation}>

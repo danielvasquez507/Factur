@@ -5,7 +5,7 @@ import { getTenantPrisma, getBypassPrisma } from "@/lib/prisma"
 import { getActiveTenantId } from "@/actions/tenant"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { rateLimit } from "@/lib/rate-limit"
+import { incrementRateLimit } from "@/lib/rate-limit"
 
 // Helper to serialize Decimal fields to Number for client consumption
 function toPlainInvoice(inv: any) {
@@ -41,7 +41,7 @@ export async function createManualInvoice(rawData: any, companyId?: string) {
 
   if (!session?.user || !activeTenantId) return { error: "No autorizado" }
 
-  const rl = rateLimit(`createInvoice:${session.user.id}`, 15, 60 * 1000)
+  const rl = incrementRateLimit(`createInvoice:${session.user.id}`, 15, 60 * 1000)
   if (!rl.success) return { error: "Demasiadas solicitudes. Espere un momento." }
 
   const result = createInvoiceSchema.safeParse(rawData)
@@ -133,7 +133,7 @@ export async function generateInvoicePublicLink(invoiceId: string) {
 
   if (!session?.user) return { error: "No autorizado" }
 
-  const rl = rateLimit(`publicLink:${session.user.id}`, 30, 60 * 1000)
+  const rl = incrementRateLimit(`publicLink:${session.user.id}`, 30, 60 * 1000)
   if (!rl.success) return { error: "Demasiadas solicitudes. Espere un momento." }
 
   let invoice;
@@ -167,8 +167,10 @@ export async function generateInvoicePublicLink(invoiceId: string) {
     { expiresIn: "5d" }
   )
 
-  // En local sería http://localhost:3000, en prod sería https://midominio.com
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "")
+  const headerList = await import("next/headers").then(m => m.headers())
+  const host = headerList.get("host") || "localhost:3000"
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https"
+  const baseUrl = `${protocol}://${host}`
   
   const url = `${baseUrl}/api/invoices/${invoiceId}/pdf?token=${token}`
   
@@ -240,5 +242,47 @@ export async function getInvoiceDetails(invoiceId: string) {
       lineTotal: Number(item.lineTotal),
       service: item.service ? { ...item.service, defaultPrice: Number(item.service.defaultPrice) } : null,
     }))
+  }
+}
+
+export async function updateInvoiceStatus(invoiceId: string, newStatus: string) {
+  const session = await auth()
+  const activeTenantId = await getActiveTenantId()
+
+  if (!session?.user) return { error: "No autorizado" }
+
+  const validStatuses = ["DRAFT", "ISSUED", "PAID", "CANCELLED"]
+  if (!validStatuses.includes(newStatus)) {
+    return { error: "Estado inválido" }
+  }
+
+  let prisma;
+
+  if (session.user.role === "SUPER_ADMIN") {
+    prisma = getBypassPrisma()
+    const inv = await prisma.invoice.findUnique({ where: { id: invoiceId } })
+    if (!inv) return { error: "Factura no encontrada" }
+  } else {
+    if (!activeTenantId) return { error: "No autorizado" }
+    prisma = getTenantPrisma(activeTenantId)
+    const inv = await prisma.invoice.findUnique({
+      where: { id: invoiceId, companyId: activeTenantId }
+    })
+    if (!inv) return { error: "Factura no encontrada" }
+  }
+
+  try {
+    await prisma.invoice.update({
+      where: { id: invoiceId },
+      data: { status: newStatus as any }
+    })
+    
+    revalidatePath("/facturas")
+    revalidatePath(`/facturas/${invoiceId}`)
+    revalidatePath("/", "layout")
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating invoice status:", error)
+    return { error: "Error al actualizar estado" }
   }
 }

@@ -5,7 +5,7 @@ import { getBypassPrisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
-import { rateLimit } from "@/lib/rate-limit"
+import { incrementRateLimit } from "@/lib/rate-limit"
 
 const PROTECTED_USER_ID = "8c732b08-e938-4b90-ad24-12e8b5c97c1e"
 
@@ -58,7 +58,7 @@ export async function createUser(formData: FormData) {
   const session = await auth()
   if (session?.user?.role !== "SUPER_ADMIN") return { error: "No autorizado" }
 
-  const rl = rateLimit(`createUser:${session.user.id}`, 5, 60 * 1000)
+  const rl = incrementRateLimit(`createUser:${session.user.id}`, 5, 60 * 1000)
   if (!rl.success) return { error: "Demasiadas solicitudes. Espere un momento." }
 
   const rawData = {
@@ -171,6 +171,23 @@ export async function deleteUser(userId: string) {
     return { success: true }
   } catch (error) {
     return { error: "No se puede eliminar (probablemente tenga relaciones)" }
+  }
+}
+
+export async function unlockUser(userId: string) {
+  const session = await auth()
+  if (session?.user?.role !== "SUPER_ADMIN") return { error: "No autorizado" }
+
+  const prisma = getBypassPrisma()
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { failedLoginAttempts: 0, lockedUntil: null }
+    })
+    revalidatePath("/usuarios")
+    return { success: true }
+  } catch (error) {
+    return { error: "Error al desbloquear el usuario" }
   }
 }
 

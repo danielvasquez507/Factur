@@ -15,17 +15,20 @@ datasource db {
 // -----------------------------------------------------------------------------
 
 model User {
-  id            String    @id @default(uuid()) @db.Uuid
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  passwordHash  String?   @map("password_hash")
-  image         String?
-  role          Role      @default(COMPANY_ADMIN)
-  isActive      Boolean   @default(true) @map("is_active")
-  maxCompanies  Int       @default(1) @map("max_companies")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id                  String    @id @default(uuid()) @db.Uuid
+  name                String?
+  email               String?   @unique
+  emailVerified       DateTime? @map("email_verified")
+  passwordHash        String?   @map("password_hash")
+  image               String?
+  onboardingCompleted Boolean   @default(false) @map("onboarding_completed")
+  role                Role      @default(COMPANY_ADMIN)
+  isActive            Boolean   @default(true) @map("is_active")
+  maxCompanies        Int       @default(1) @map("max_companies")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   accounts      Account[]
   sessions      Session[]

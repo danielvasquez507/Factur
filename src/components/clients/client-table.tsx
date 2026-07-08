@@ -59,17 +59,25 @@ export function ClientTable({ clients }: { clients: any[] }) {
                 onClick={() => router.push(`/clientes/${client.id}`)}
               >
                 <TableCell className="font-medium text-white py-2.5">
-                  <div className="flex flex-col md:hidden">
-                    <span>{client.name}</span>
-                    <span className="flex items-center gap-1 text-zinc-400 text-sm mt-0.5">
+                  <div className="flex flex-col md:hidden gap-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${client.isActive ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                      <span>{client.name}</span>
+                    </div>
+                    <span className="flex items-center gap-1 text-zinc-400 text-sm mt-0.5 pl-4">
                       <Smartphone className="w-3 h-3" />
                       {client.celular || "-"}
                     </span>
                   </div>
-                  <span className="hidden md:inline">
-                    {client.name}
-                    {!client.isActive && <Badge variant="secondary" className="ml-2 bg-red-500/10 text-red-500 hover:bg-red-500/20">Inactivo</Badge>}
-                  </span>
+                  <div className="hidden md:flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${client.isActive ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    <span>{client.name}</span>
+                    {client.isActive ? (
+                      <Badge variant="secondary" className="ml-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20">Activo</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="ml-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20">Inactivo</Badge>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="text-zinc-400 hidden md:table-cell py-2.5">
                   <div className="flex flex-col gap-1 text-sm">

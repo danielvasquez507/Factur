@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { getBypassPrisma } from "@/lib/prisma"
-import { rateLimit } from "@/lib/rate-limit"
+import { incrementRateLimit } from "@/lib/rate-limit"
 import jwt from "jsonwebtoken"
 import { renderToStream } from "@react-pdf/renderer"
 import { InvoicePDF } from "@/components/invoices/invoice-pdf"
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     || req.headers.get("x-real-ip")
     || "unknown"
-  const rl = rateLimit(ip, 30, 15 * 60 * 1000)
+  const rl = incrementRateLimit(ip, 30, 15 * 60 * 1000)
   if (!rl.success) {
     return new NextResponse("Demasiadas solicitudes. Intente más tarde.", {
       status: 429,

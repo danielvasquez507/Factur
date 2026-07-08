@@ -254,18 +254,8 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
     return (
       <View style={{ lineHeight: 1.5 }}>
         {paymentOpts.cash && <Text style={{ fontSize: 9, color: '#3f3f46' }}>• Efectivo</Text>}
-        {paymentOpts.yappy?.enabled && <Text style={{ fontSize: 9, color: '#3f3f46' }}>• Yappy: {paymentOpts.yappy.phone}</Text>}
-        {paymentOpts.ach?.enabled && (
-          <View style={{ marginTop: 4 }}>
-            <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#18181b' }}>• Transferencia ACH:</Text>
-            <View style={{ marginLeft: 10, marginTop: 2 }}>
-              <Text style={{ fontSize: 9, color: '#3f3f46' }}>Banco: {paymentOpts.ach.bank}</Text>
-              <Text style={{ fontSize: 9, color: '#3f3f46' }}>Tipo: {paymentOpts.ach.accountType}</Text>
-              <Text style={{ fontSize: 9, color: '#3f3f46' }}>Cuenta: {paymentOpts.ach.accountNumber}</Text>
-              <Text style={{ fontSize: 9, color: '#3f3f46' }}>A nombre de: {paymentOpts.ach.owner}</Text>
-            </View>
-          </View>
-        )}
+        {paymentOpts.yappy?.enabled && <Text style={{ fontSize: 9, color: '#3f3f46' }}>• Yappy</Text>}
+        {paymentOpts.ach?.enabled && <Text style={{ fontSize: 9, color: '#3f3f46' }}>• Transferencia ACH</Text>}
       </View>
     )
   }

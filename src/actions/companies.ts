@@ -8,7 +8,6 @@ import { z } from "zod"
 
 const createCompanySchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  slug: z.string().min(2, "El slug debe tener al menos 2 caracteres").regex(/^[a-z0-9-]+$/, "Solo minúsculas, números y guiones"),
   ruc: z.string().optional(),
   dv: z.string().optional(),
 })
@@ -44,7 +43,6 @@ export async function createCompany(formData: FormData) {
 
   const rawData = {
     name: formData.get("name") as string,
-    slug: formData.get("slug") as string,
     ruc: formData.get("ruc") as string || undefined,
     dv: formData.get("dv") as string || undefined,
   }
@@ -57,17 +55,34 @@ export async function createCompany(formData: FormData) {
 
   const prisma = getBypassPrisma()
 
-  try {
-    const existing = await prisma.company.findUnique({
-      where: { slug: result.data.slug }
-    })
+  // Generate base slug
+  let baseSlug = result.data.name
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[^a-z0-9]+/g, "-") // replace non-alphanumeric with hyphens
+    .replace(/^-+|-+$/g, "") // trim hyphens
+  
+  if (!baseSlug) baseSlug = "empresa"
 
-    if (existing) {
-      return { error: "El slug ya está en uso" }
+  try {
+    let finalSlug = baseSlug
+    let counter = 1
+    
+    // Check for uniqueness
+    while (true) {
+      const existing = await prisma.company.findUnique({
+        where: { slug: finalSlug }
+      })
+      if (!existing) break
+      finalSlug = `${baseSlug}-${counter}`
+      counter++
     }
 
     await prisma.company.create({
-      data: result.data
+      data: {
+        ...result.data,
+        slug: finalSlug
+      }
     })
 
     revalidatePath("/empresas")
@@ -164,6 +179,29 @@ export async function toggleCompanyStatus(id: string) {
   } catch (error) {
     console.error("Error toggling company status:", error)
     return { error: "Error al actualizar estado de la empresa" }
+  }
+}
+
+export async function deleteCompany(id: string) {
+  const session = await auth()
+  
+  if (session?.user?.role !== "SUPER_ADMIN") {
+    return { error: "No autorizado" }
+  }
+
+  const prisma = getBypassPrisma()
+
+  try {
+    // Delete company (will cascade delete related items due to DB schema onDelete: Cascade)
+    await prisma.company.delete({
+      where: { id }
+    })
+
+    revalidatePath("/empresas")
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting company:", error)
+    return { error: "Error al eliminar la empresa" }
   }
 }
 

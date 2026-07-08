@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -10,24 +10,24 @@ import { createCompany } from "@/actions/companies"
 
 export function CompanyDialog() {
   const [open, setOpen] = useState(false)
+  const [isPending, startTransition] = React.useTransition()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const formAction = (formData: FormData) => {
     setLoading(true)
     setError("")
     
-    const formData = new FormData(e.currentTarget)
-    const result = await createCompany(formData)
-
-    if (result.error) {
-      setError(result.error)
-      setLoading(false)
-    } else {
-      setLoading(false)
-      setOpen(false)
-    }
+    startTransition(async () => {
+      const result = await createCompany(formData)
+      if (result.error) {
+        setError(result.error)
+        setLoading(false)
+      } else {
+        setLoading(false)
+        setOpen(false)
+      }
+    })
   }
 
   return (
@@ -53,7 +53,7 @@ export function CompanyDialog() {
             </div>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          <form action={formAction} className="space-y-3.5">
             {error && (
               <div className="p-2.5 text-xs text-red-500 bg-red-950/40 rounded-lg border border-red-900/40 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
@@ -67,15 +67,6 @@ export function CompanyDialog() {
                 <Building2 className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <Input id="name" name="name" required placeholder="Ej. Empresa S.A." className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
               </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="slug" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Slug</Label>
-              <div className="relative">
-                <Globe className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <Input id="slug" name="slug" required placeholder="ej-empresa-sa" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
-              </div>
-              <p className="text-[10px] text-zinc-600 mt-1">Solo minúsculas, números y guiones. Se usa para las URLs públicas.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

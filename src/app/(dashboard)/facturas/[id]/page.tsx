@@ -4,6 +4,7 @@ import { getInvoiceDetails, generateInvoicePublicLink } from "@/actions/invoices
 import { Badge } from "@/components/ui/badge"
 import { BackButton } from "@/components/ui/back-button"
 import { InvoiceDetailView } from "@/components/invoices/invoice-detail-view"
+import { InvoiceStatusSelector } from "@/components/invoices/invoice-status-selector"
 
 export default async function InvoiceDetailsPage(
   props: { params: Promise<{ id: string }> }
@@ -42,7 +43,7 @@ export default async function InvoiceDetailsPage(
             <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-white">
               FAC-{invNum}
             </h1>
-            {getStatusBadge(invoice.status)}
+            <InvoiceStatusSelector invoiceId={invoice.id} currentStatus={invoice.status} />
           </div>
         </div>
 

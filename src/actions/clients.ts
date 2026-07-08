@@ -8,11 +8,12 @@ import { z } from "zod"
 
 const clientSchema = z.object({
   name: z.string().min(2, "El nombre es obligatorio"),
-  celular: z.string().min(6, "El celular es obligatorio"),
+  celular: z.string().regex(/^\d{8}$/, "El celular debe tener exactamente 8 dígitos"),
   email: z.string().email("Correo inválido").optional().or(z.literal("")),
-  phone: z.string().optional(),
+  phone: z.string().regex(/^\d{8}$/, "El teléfono debe tener exactamente 8 dígitos").optional().or(z.literal("")),
   direccion: z.string().optional(),
   authorizedPersons: z.string().optional(),
+  isActive: z.boolean().optional(),
 })
 
 export async function getClients(companyId?: string) {
@@ -93,6 +94,7 @@ export async function updateClient(clientId: string, formData: FormData) {
     phone: formData.get("phone") as string,
     direccion: formData.get("direccion") as string,
     authorizedPersons: formData.get("authorizedPersons") as string,
+    isActive: formData.get("isActive") === "true",
   }
 
   const result = clientSchema.safeParse(rawData)
@@ -115,6 +117,7 @@ export async function updateClient(clientId: string, formData: FormData) {
         phone: result.data.phone || null,
         direccion: result.data.direccion || null,
         authorizedPersons: authorizedArray,
+        isActive: result.data.isActive,
       }
     })
 

@@ -143,9 +143,11 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                 
                 <div className="space-y-4">
                   {/* EFECTIVO */}
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="pay-cash" checked={paymentOpts.cash} onCheckedChange={(c) => setPaymentOpts({...paymentOpts, cash: !!c})} />
-                    <Label htmlFor="pay-cash" className="text-zinc-300 cursor-pointer">Efectivo</Label>
+                  <div className="space-y-3 p-4 bg-white/5 rounded-md border border-white/10">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="pay-cash" checked={paymentOpts.cash} onCheckedChange={(c) => setPaymentOpts({...paymentOpts, cash: !!c})} />
+                      <Label htmlFor="pay-cash" className="text-zinc-300 cursor-pointer font-medium">Efectivo</Label>
+                    </div>
                   </div>
 
                   {/* YAPPY */}
@@ -154,17 +156,6 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                       <Checkbox id="pay-yappy" checked={paymentOpts.yappy.enabled} onCheckedChange={(c) => setPaymentOpts({...paymentOpts, yappy: {...paymentOpts.yappy, enabled: !!c}})} />
                       <Label htmlFor="pay-yappy" className="text-zinc-300 cursor-pointer font-medium">Yappy</Label>
                     </div>
-                    {paymentOpts.yappy.enabled && (
-                      <div className="pl-6">
-                        <Label className="text-xs text-zinc-400">Número de Teléfono</Label>
-                        <Input 
-                          value={paymentOpts.yappy.phone} 
-                          onChange={(e) => setPaymentOpts({...paymentOpts, yappy: {...paymentOpts.yappy, phone: e.target.value}})} 
-                          placeholder="Ej: 6123-4567" 
-                          className="bg-black/50 border-white/10 mt-1 max-w-[200px]" 
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* ACH */}
@@ -173,33 +164,6 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                       <Checkbox id="pay-ach" checked={paymentOpts.ach.enabled} onCheckedChange={(c) => setPaymentOpts({...paymentOpts, ach: {...paymentOpts.ach, enabled: !!c}})} />
                       <Label htmlFor="pay-ach" className="text-zinc-300 cursor-pointer font-medium">Transferencia ACH</Label>
                     </div>
-                    {paymentOpts.ach.enabled && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-6 mt-2">
-                        <div>
-                          <Label className="text-xs text-zinc-400">Nombre del dueño de la cuenta</Label>
-                          <Input value={paymentOpts.ach.owner} onChange={(e) => setPaymentOpts({...paymentOpts, ach: {...paymentOpts.ach, owner: e.target.value}})} className="bg-black/50 border-white/10 mt-1" />
-                        </div>
-                        <div>
-                          <Label className="text-xs text-zinc-400">Banco</Label>
-                          <Input value={paymentOpts.ach.bank} onChange={(e) => setPaymentOpts({...paymentOpts, ach: {...paymentOpts.ach, bank: e.target.value}})} className="bg-black/50 border-white/10 mt-1" />
-                        </div>
-                        <div>
-                          <Label className="text-xs text-zinc-400">Tipo de Cuenta</Label>
-                          <select 
-                            value={paymentOpts.ach.accountType} 
-                            onChange={(e) => setPaymentOpts({...paymentOpts, ach: {...paymentOpts.ach, accountType: e.target.value}})} 
-                            className="flex h-9 w-full rounded-md border border-white/10 bg-black/50 px-3 py-1 text-sm text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 mt-1"
-                          >
-                            <option value="Ahorros">Ahorros</option>
-                            <option value="Corriente">Corriente</option>
-                          </select>
-                        </div>
-                        <div>
-                          <Label className="text-xs text-zinc-400">N° de Cuenta</Label>
-                          <Input value={paymentOpts.ach.accountNumber} onChange={(e) => setPaymentOpts({...paymentOpts, ach: {...paymentOpts.ach, accountNumber: e.target.value}})} className="bg-black/50 border-white/10 mt-1" />
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

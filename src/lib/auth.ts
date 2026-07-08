@@ -1,9 +1,18 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
-import { rateLimit } from "./rate-limit"
+import { validateLoginAttempt, recordFailedLogin, recordSuccessfulLogin } from "@/actions/auth-actions"
 import bcrypt from "bcryptjs"
+import { CredentialsSignin } from "next-auth"
 import { authConfig } from "../auth.config"
+
+class CustomAuthError extends CredentialsSignin {
+  code: string
+  constructor(message: string) {
+    super()
+    this.code = message
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -19,12 +28,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        const ip = request?.headers?.get("x-forwarded-for")?.split(",")[0]?.trim()
-          || request?.headers?.get("x-real-ip")
-          || "unknown"
-        const rl = rateLimit(`login:${ip}`, 5, 15 * 60 * 1000)
-        if (!rl.success) {
-          return null
+        // Validate lock status before password check
+        const validation = await validateLoginAttempt(credentials.email as string)
+        if (validation.error) {
+          throw new CustomAuthError(validation.error)
         }
 
         const user = await prisma.user.findUnique({
@@ -41,8 +48,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )
 
         if (!isPasswordValid) {
-          return null
+          const failRes = await recordFailedLogin(credentials.email as string)
+          throw new CustomAuthError(failRes.error || "Credenciales incorrectas")
         }
+
+        await recordSuccessfulLogin(credentials.email as string)
 
         return {
           id: user.id,

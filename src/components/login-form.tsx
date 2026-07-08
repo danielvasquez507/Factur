@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { validateLoginAttempt, getRemainingAttempts } from "@/actions/auth-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,6 +23,13 @@ export function LoginForm() {
     setLoading(true)
     setError("")
 
+    const preCheck = await validateLoginAttempt(email)
+    if (preCheck.error) {
+      setError(preCheck.error)
+      setLoading(false)
+      return
+    }
+
     const res = await signIn("credentials", {
       email,
       password,
@@ -29,7 +37,12 @@ export function LoginForm() {
     })
 
     if (res?.error) {
-      setError("Credenciales incorrectas")
+      const attemptsState = await getRemainingAttempts(email)
+      if (attemptsState?.error) {
+        setError(attemptsState.error)
+      } else {
+        setError("Credenciales incorrectas")
+      }
       setLoading(false)
     } else {
       router.push("/")

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { BackButton } from "@/components/ui/back-button"
 import { ClientSubscriptions } from "@/components/clients/client-subscriptions"
 import { AssignServiceDialog } from "@/components/clients/assign-service-dialog"
+import { EditClientButton } from "@/components/clients/edit-client-button"
 import { Smartphone, Mail, Phone, MapPin, UserCheck, Receipt, CirclePlus, Link2, Layers } from "lucide-react"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
@@ -66,9 +67,12 @@ export default async function ClientDetailsPage(
         <BackButton label="Volver" />
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold tracking-tight text-white">{client.name}</h1>
-          {!client.isActive && (
-            <Badge variant="secondary" className="bg-red-500/10 text-red-500 hover:bg-red-500/20">Inactivo</Badge>
+          {client.isActive ? (
+            <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20">Activo</Badge>
+          ) : (
+            <Badge variant="secondary" className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20">Inactivo</Badge>
           )}
+          <EditClientButton client={client} />
         </div>
       </div>
 

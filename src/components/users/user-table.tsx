@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Users, Search, ShieldCheck, User } from "lucide-react"
+import { Users, Search, ShieldCheck, User, Lock, Unlock } from "lucide-react"
 import { EditUserDialog } from "./edit-user-dialog"
 import { AssignCompanyDialog } from "./assign-company-dialog"
+import { unlockUser } from "@/actions/users"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 
 const roleOptions = [
   { value: "", label: "Todos los roles" },
@@ -91,12 +94,13 @@ export function UserTable({ users, companies }: { users: any[], companies: any[]
               <TableHead className="text-zinc-400 font-medium">Usuario</TableHead>
               <TableHead className="text-zinc-400 font-medium">Rol</TableHead>
               <TableHead className="text-zinc-400 font-medium">Empresas Asignadas</TableHead>
+              <TableHead className="text-zinc-400 font-medium text-right">Estado</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow className="border-0">
-                <TableCell colSpan={3} className="text-center text-zinc-500 py-12">
+                <TableCell colSpan={4} className="text-center text-zinc-500 py-12">
                   Ningún usuario coincide con la búsqueda.
                 </TableCell>
               </TableRow>
@@ -145,6 +149,25 @@ export function UserTable({ users, companies }: { users: any[], companies: any[]
                           </span>
                         )}
                       </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                    {user.lockedUntil && new Date() < new Date(user.lockedUntil) ? (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={async () => {
+                          const res = await unlockUser(user.id)
+                          if (res.success) toast.success("Usuario desbloqueado")
+                          else toast.error("Error al desbloquear")
+                        }}
+                      >
+                        <Unlock className="w-4 h-4 mr-1" />
+                        <span className="hidden sm:inline">Desbloquear</span>
+                      </Button>
+                    ) : (
+                       <span className="text-zinc-600 text-xs">-</span>
                     )}
                   </TableCell>
                 </TableRow>

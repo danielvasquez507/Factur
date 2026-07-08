@@ -36,9 +36,7 @@ export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] })
           <TableRow className="border-white/10 hover:bg-transparent">
             <TableHead className="text-zinc-400 font-medium">Servicio</TableHead>
             <TableHead className="text-zinc-400 font-medium">Precio Pactado</TableHead>
-            <TableHead className="text-zinc-400 font-medium">Frecuencia</TableHead>
             <TableHead className="text-zinc-400 font-medium">Impuestos</TableHead>
-            <TableHead className="text-zinc-400 font-medium">Próxima Facturación</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -47,22 +45,7 @@ export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] })
               <TableCell className="font-medium text-white">{sub.service.name}</TableCell>
               <TableCell className="text-zinc-300 font-semibold">${Number(sub.agreedPrice).toFixed(2)}</TableCell>
               <TableCell className="text-zinc-400">
-                <Badge variant="outline" className="border-white/10 text-zinc-300 font-normal">
-                  {getFreqLabel(sub.billingFrequency)}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-zinc-400">
                 {sub.applyTax ? `ITBMS (${Number(sub.taxRate) * 100}%)` : <span className="text-zinc-600">Exento</span>}
-              </TableCell>
-              <TableCell className="text-zinc-400">
-                {sub.nextBillingDate ? (
-                   <span className="flex items-center gap-1">
-                     <CalendarClock className="w-3 h-3" />
-                     {formatDate(sub.nextBillingDate)}
-                   </span>
-                ) : (
-                  <span className="text-zinc-600">-</span>
-                )}
               </TableCell>
             </TableRow>
           ))}

@@ -5,12 +5,18 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { User, Smartphone, Mail, Phone, MapPin, Users, Loader2 } from "lucide-react"
 import { updateClient } from "@/actions/clients"
 
 export function EditClientDialog({ client, open, onOpenChange }: { client: any, open: boolean, onOpenChange: (open: boolean) => void }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [isActive, setIsActive] = useState(client?.isActive ?? true)
+
+  useEffect(() => {
+    if (client) setIsActive(client.isActive)
+  }, [client])
 
   useEffect(() => {
     if (open) setError("")
@@ -72,7 +78,7 @@ export function EditClientDialog({ client, open, onOpenChange }: { client: any, 
               <Label htmlFor={`celular-${client?.id}`} className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Celular <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Smartphone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <Input id={`celular-${client?.id}`} name="celular" defaultValue={client?.celular || ""} required className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                <Input id={`celular-${client?.id}`} name="celular" type="tel" maxLength={8} pattern="\d{8}" required defaultValue={client?.celular || ""} className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
               </div>
             </div>
 
@@ -88,7 +94,7 @@ export function EditClientDialog({ client, open, onOpenChange }: { client: any, 
                 <Label htmlFor={`phone-${client?.id}`} className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Teléfono</Label>
                 <div className="relative">
                   <Phone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <Input id={`phone-${client?.id}`} name="phone" type="tel" defaultValue={client?.phone || ""} className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                  <Input id={`phone-${client?.id}`} name="phone" type="tel" maxLength={8} pattern="\d{8}" defaultValue={client?.phone || ""} className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
                 </div>
               </div>
             </div>
@@ -108,6 +114,20 @@ export function EditClientDialog({ client, open, onOpenChange }: { client: any, 
                 <Input id={`auth-${client?.id}`} name="authorizedPersons" defaultValue={client?.authorizedPersons?.join(", ") || ""} placeholder="Juan Pérez, Ana Gómez" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
               </div>
               <p className="text-[10px] text-zinc-600 mt-1">Separar por comas (,)</p>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-white/5 rounded-lg border border-white/[0.07] mt-2">
+              <Checkbox 
+                id={`isActive-${client?.id}`} 
+                checked={isActive} 
+                onCheckedChange={(c) => setIsActive(!!c)} 
+                className="mt-0.5 border-white/20 data-[state=checked]:bg-emerald-500 data-[state=checked]:text-white data-[state=checked]:border-emerald-500"
+              />
+              <input type="hidden" name="isActive" value={isActive.toString()} />
+              <div className="space-y-1">
+                <Label htmlFor={`isActive-${client?.id}`} className="text-sm font-medium text-white cursor-pointer">Cliente Activo</Label>
+                <p className="text-[11px] text-zinc-400 leading-snug">Si desmarcas esta opción, el cliente se mostrará como inactivo.</p>
+              </div>
             </div>
 
             <Button type="submit" disabled={loading} className="w-full h-9 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-medium text-sm shadow-lg shadow-blue-900/20 border-0">
