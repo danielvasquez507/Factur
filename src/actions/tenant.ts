@@ -37,3 +37,26 @@ export async function getActiveTenantId() {
   const cookieStore = await cookies()
   return cookieStore.get(TENANT_COOKIE_NAME)?.value || null
 }
+
+export async function getActiveCompanyRole() {
+  const session = await auth()
+  if (!session?.user) return null
+
+  const activeTenantId = await getActiveTenantId()
+  if (!activeTenantId) return null
+
+  const prisma = getBypassPrisma()
+  const uc = await prisma.userCompany.findUnique({
+    where: {
+      userId_companyId: {
+        userId: session.user.id,
+        companyId: activeTenantId
+      }
+    },
+    select: {
+      roleInCompany: true
+    }
+  })
+
+  return uc?.roleInCompany || null
+}

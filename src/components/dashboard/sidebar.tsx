@@ -9,9 +9,10 @@ import { useSidebar } from "./sidebar-provider"
 interface SidebarProps {
   userRole: string
   pendingRequestsCount?: number
+  activeCompanyRole?: string | null
 }
 
-export function Sidebar({ userRole, pendingRequestsCount = 0 }: SidebarProps) {
+export function Sidebar({ userRole, pendingRequestsCount = 0, activeCompanyRole }: SidebarProps) {
   const pathname = usePathname()
   const { open, setOpen } = useSidebar()
   
@@ -75,7 +76,12 @@ export function Sidebar({ userRole, pendingRequestsCount = 0 }: SidebarProps) {
     },
   ]
 
-  const visibleRoutes = routes.filter((route) => route.roles.includes(userRole))
+  const visibleRoutes = routes.filter((route) => {
+    if (route.href === "/configuracion" && activeCompanyRole !== "OWNER") {
+      return false
+    }
+    return route.roles.includes(userRole)
+  })
 
   return (
     <>

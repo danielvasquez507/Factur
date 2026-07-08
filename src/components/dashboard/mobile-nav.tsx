@@ -104,12 +104,14 @@ export function AutoHideHeader({
   userRole,
   companies,
   activeTenantId,
+  activeCompanyRole,
 }: {
   userName?: string | null
   userEmail?: string | null
   userRole?: string
   companies: any[]
   activeTenantId: string | null
+  activeCompanyRole?: string | null
 }) {
   const [visible, setVisible] = useState(true)
   const { setTheme, theme } = useTheme()
@@ -194,7 +196,7 @@ export function AutoHideHeader({
               </DropdownMenuSub>
               <DropdownMenuSeparator className="bg-white/10" />
               
-              {userRole !== "SUPER_ADMIN" && (
+              {userRole !== "SUPER_ADMIN" && activeCompanyRole === "OWNER" && (
                 <DropdownMenuItem
                   className="cursor-pointer hover:bg-white/10 focus:bg-white/10 p-0"
                   render={
