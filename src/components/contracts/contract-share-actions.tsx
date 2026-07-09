@@ -2,21 +2,23 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Download, Send, Mail, Link, Check } from "lucide-react"
+import { Download, Send, Mail, Link as LinkIcon, Check } from "lucide-react"
 
 type Props = {
-  invoiceId: string
-  publicLink: string
+  contractId: string
   clientEmail: string | null
-  invNum: string
+  contractTitle: string
   companyName: string
   template?: string
   color?: string
   children?: React.ReactNode
 }
 
-export function InvoiceShareActions({ invoiceId, publicLink, clientEmail, invNum, companyName, template, color, children }: Props) {
+export function ContractShareActions({ contractId, clientEmail, contractTitle, companyName, template, color, children }: Props) {
   const [copied, setCopied] = useState(false)
+
+  // Asignamos una ruta que en un futuro podría ser pública, por ahora compartimos el enlace al PDF
+  const publicLink = typeof window !== 'undefined' ? `${window.location.origin}/api/contracts/${contractId}/pdf` : `/api/contracts/${contractId}/pdf`
 
   const copyLink = async () => {
     try {
@@ -36,18 +38,18 @@ export function InvoiceShareActions({ invoiceId, publicLink, clientEmail, invNum
     window.open(publicLink, '_blank')
   }
 
-  const whatsappMsg = `Hola, te comparto la factura FAC-${invNum}. Puedes descargarla de forma segura aquí: ${publicLink}`
+  const whatsappMsg = `Hola, te comparto el contrato "${contractTitle}". Puedes descargarlo de forma segura aquí: ${publicLink}`
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`
 
-  const emailMsg = `Hola,\n\nTe compartimos el enlace para descargar tu factura FAC-${invNum}:\n\n${publicLink}\n\nGracias por tu preferencia.`
-  const emailUrl = `mailto:${clientEmail || ""}?subject=Factura FAC-${invNum} - ${companyName}&body=${encodeURIComponent(emailMsg)}`
+  const emailMsg = `Hola,\n\nTe compartimos el enlace para descargar tu contrato "${contractTitle}":\n\n${publicLink}\n\nGracias por tu preferencia.`
+  const emailUrl = `mailto:${clientEmail || ""}?subject=Contrato: ${contractTitle} - ${companyName}&body=${encodeURIComponent(emailMsg)}`
 
   return (
     <div className="flex items-center gap-2 sm:gap-3 flex-wrap mb-4">
       <Button
         variant="outline"
         className="group bg-zinc-900/80 backdrop-blur border-white/10 hover:bg-white hover:text-black text-white shadow-xl rounded-full transition-all duration-300 h-10 px-4 py-2 sm:h-9"
-        render={<a href={`/api/invoices/${invoiceId}/pdf${template || color ? `?${template ? `template=${template}` : ''}${template && color ? '&' : ''}${color ? `color=${color}` : ''}&download=true` : '?download=true'}`} target="_blank" />}
+        render={<a href={`/api/contracts/${contractId}/pdf?download=true`} target="_blank" />}
         nativeButton={false}
       >
         <Download className="w-4 h-4 mr-2 text-zinc-400 group-hover:text-black transition-colors" />
@@ -78,7 +80,7 @@ export function InvoiceShareActions({ invoiceId, publicLink, clientEmail, invNum
         className="group bg-zinc-900/80 backdrop-blur border-white/10 hover:bg-zinc-800 hover:border-white/20 text-zinc-300 hover:text-white shadow-xl rounded-full transition-all duration-300 h-10 px-4 py-2 sm:h-9"
         onClick={copyLink}
       >
-        {copied ? <Check className="w-4 h-4 mr-2 text-emerald-400" /> : <Link className="w-4 h-4 mr-2 text-zinc-400 group-hover:text-white transition-colors" />}
+        {copied ? <Check className="w-4 h-4 mr-2 text-emerald-400" /> : <LinkIcon className="w-4 h-4 mr-2 text-zinc-400 group-hover:text-white transition-colors" />}
         {copied ? <span className="text-emerald-400">Copiado</span> : <span>Enlace</span>}
       </Button>
       {children}

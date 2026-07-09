@@ -12,12 +12,12 @@ import { Plus, Trash2, Loader2, Save } from "lucide-react"
 import { createManualInvoice } from "@/actions/invoices"
 import { ServiceDialog } from "@/components/services/service-dialog"
 
-export function InvoiceForm({ clients, services, companyId }: { clients: any[], services: any[], companyId?: string }) {
+export function InvoiceForm({ clients, services, companyId, defaultClientId }: { clients: any[], services: any[], companyId?: string, defaultClientId?: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const [clientId, setClientId] = useState("")
+  const [clientId, setClientId] = useState(defaultClientId || "")
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0])
   const [dueDate, setDueDate] = useState("")
   const [notes, setNotes] = useState("")
@@ -247,7 +247,7 @@ export function InvoiceForm({ clients, services, companyId }: { clients: any[], 
         />
       </div>
 
-      <Button type="submit" disabled={loading || items.length === 0} className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 h-11 text-base">
+      <Button type="submit" disabled={loading || items.length === 0 || items.some(item => !item.serviceId)} className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 h-11 text-base">
         {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
         Generar Factura
       </Button>

@@ -109,11 +109,17 @@ export function ClientTable({ clients }: { clients: any[] }) {
                     <DropdownMenuContent align="end" className="bg-zinc-950 border-white/10 text-white shadow-xl shadow-black">
                       <DropdownMenuGroup>
                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           className="focus:bg-white/10 cursor-pointer"
                           onClick={() => setEditingClient(client)}
                         >
                           Editar Cliente
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer" onClick={() => router.push(`/facturas/new?clientId=${client.id}`)}>
+                          Crear Factura
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer" onClick={() => router.push(`/contratos/new?clientId=${client.id}`)}>
+                          Generar Contrato
                         </DropdownMenuItem>
                         <DropdownMenuItem className="focus:bg-white/10 cursor-pointer" onClick={() => window.location.href = `/clientes/${client.id}`}>
                           Ver Servicios

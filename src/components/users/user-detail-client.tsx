@@ -11,16 +11,18 @@ import { Button } from "@/components/ui/button"
 import { EditUserDialog } from "./edit-user-dialog"
 import { AssignCompanyDialog } from "./assign-company-dialog"
 import { UnlinkCompanyButton } from "./unlink-company-button"
-import { deleteUser } from "@/actions/users"
+import { deleteUser, unlockUser } from "@/actions/users"
 import { toast } from "sonner"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { formatDate } from "@/lib/utils"
+import { LockOpen } from "lucide-react"
 
 export function UserDetailClient({ user, companies }: { user: any; companies: any[] }) {
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [assigning, setAssigning] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [unlocking, setUnlocking] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const activeUserCompanies = user.userCompanies?.filter((uc: any) => uc.company?.isActive) ?? []
@@ -38,6 +40,19 @@ export function UserDetailClient({ user, companies }: { user: any; companies: an
       router.push("/usuarios")
     }
   }
+
+  const handleUnlock = async () => {
+    setUnlocking(true)
+    const res = await unlockUser(user.id)
+    setUnlocking(false)
+    if (res?.error) {
+      toast.error(res.error)
+    } else {
+      toast.success("Cuenta desbloqueada exitosamente")
+    }
+  }
+
+  const isLocked = user.lockedUntil && new Date(user.lockedUntil) > new Date()
 
   return (
     <div className="space-y-6">
@@ -92,6 +107,25 @@ export function UserDetailClient({ user, companies }: { user: any; companies: an
                 </div>
               </div>
             </div>
+            {isLocked && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 col-span-1 sm:col-span-2 lg:col-span-3">
+                <div className="flex-1">
+                  <p className="text-sm text-red-400 font-medium">Cuenta bloqueada temporalmente</p>
+                  <p className="text-xs text-red-500/80">
+                    Bloqueada hasta: {formatDate(user.lockedUntil)}
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleUnlock} 
+                  disabled={unlocking}
+                  size="sm"
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {unlocking ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LockOpen className="w-4 h-4 mr-2" />}
+                  Desbloquear
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

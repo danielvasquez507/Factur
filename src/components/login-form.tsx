@@ -45,8 +45,7 @@ export function LoginForm() {
       }
       setLoading(false)
     } else {
-      router.push("/")
-      router.refresh()
+      window.location.href = "/"
     }
   }
 

@@ -5,13 +5,16 @@ import { getActiveTenantId } from "@/actions/tenant"
 import { getServices } from "@/actions/services"
 import { getClientSubscriptions } from "@/actions/subscriptions"
 import { getClientInvoices } from "@/actions/clients"
+import { getClientContracts } from "@/actions/contracts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { BackButton } from "@/components/ui/back-button"
+import { ClickableTableRow } from "@/components/ui/clickable-table-row"
 import { ClientSubscriptions } from "@/components/clients/client-subscriptions"
 import { AssignServiceDialog } from "@/components/clients/assign-service-dialog"
 import { EditClientButton } from "@/components/clients/edit-client-button"
-import { Smartphone, Mail, Phone, MapPin, UserCheck, Receipt, CirclePlus, Link2, Layers } from "lucide-react"
+import { Smartphone, Mail, Phone, MapPin, UserCheck, Receipt, CirclePlus, Link2, Layers, FileText } from "lucide-react"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
 
@@ -55,10 +58,11 @@ export default async function ClientDetailsPage(
     return <div className="p-6 text-zinc-400">Cliente no encontrado.</div>
   }
 
-  const [services, subscriptions, invoices] = await Promise.all([
+  const [services, subscriptions, invoices, contracts] = await Promise.all([
     getServices(),
     getClientSubscriptions(client.id),
     getClientInvoices(client.id),
+    getClientContracts(client.id),
   ])
 
   return (
@@ -187,7 +191,7 @@ export default async function ClientDetailsPage(
                 </thead>
                 <tbody>
                   {invoices.map((inv) => (
-                    <tr key={inv.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                    <ClickableTableRow key={inv.id} href={`/facturas/${inv.id}`} className="border-b border-white/10 hover:bg-white/5 transition-colors">
                       <td className="px-4 py-3 text-white font-medium">{inv.invoiceNumber}</td>
                       <td className="px-4 py-3 text-zinc-400">{formatDate(inv.issueDate)}</td>
                       <td className="px-4 py-3 text-zinc-400 hidden sm:table-cell">
@@ -195,11 +199,15 @@ export default async function ClientDetailsPage(
                       </td>
                       <td className="px-4 py-3 text-white font-semibold text-right">${inv.total.toFixed(2)}</td>
                       <td className="px-4 py-3 text-center">
-                        <Badge className={`${statusColor[inv.status] || "bg-zinc-500/20 text-zinc-400"} border text-xs`}>
-                          {statusLabel[inv.status] || inv.status}
-                        </Badge>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          inv.status === "PAID" ? "bg-green-500/10 text-green-400 border border-green-500/20" :
+                          inv.status === "DRAFT" ? "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20" :
+                          "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                        }`}>
+                          {inv.status === "PAID" ? "Pagada" : inv.status === "DRAFT" ? "Borrador" : "Pendiente"}
+                        </span>
                       </td>
-                    </tr>
+                    </ClickableTableRow>
                   ))}
                 </tbody>
               </table>
@@ -207,6 +215,84 @@ export default async function ClientDetailsPage(
           )}
         </CardContent>
       </Card>
+
+      {/* Historial de Contratos */}
+      <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
+        <CardHeader>
+          <CardTitle className="text-xl flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-400" />
+            Historial de Contratos
+            <Link href={`/contratos/new?clientId=${client.id}`} title="Nuevo contrato" className="ml-auto text-zinc-500 hover:text-emerald-400 transition-colors">
+              <CirclePlus className="w-5 h-5" />
+            </Link>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {contracts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                <FileText className="w-6 h-6 text-zinc-500" />
+              </div>
+              <h3 className="text-lg font-medium text-white mb-1">Sin contratos</h3>
+              <p className="text-zinc-400 text-sm max-w-sm">Este cliente aún no tiene contratos generados.</p>
+            </div>
+          ) : (
+            <div className="relative overflow-x-auto rounded-md">
+              <table className="w-full caption-bottom text-sm">
+                <thead className="bg-white/5">
+                  <tr className="border-b border-white/10">
+                    <th className="text-zinc-400 font-medium text-left h-10 px-4">Título</th>
+                    <th className="text-zinc-400 font-medium text-left h-10 px-4">Servicio</th>
+                    <th className="text-zinc-400 font-medium text-left h-10 px-4 hidden sm:table-cell">Fecha Inicio</th>
+                    <th className="text-zinc-400 font-medium text-center h-10 px-4">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contracts.map((contract) => (
+                    <ClickableTableRow key={contract.id} href={`/contratos/${contract.id}`} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-3 text-white font-medium">
+                        {contract.title}
+                      </td>
+                      <td className="px-4 py-3 text-zinc-400">
+                        {contract.clientService ? contract.clientService.service.name : "N/A"}
+                      </td>
+                      <td className="px-4 py-3 text-zinc-400 hidden sm:table-cell">
+                        {formatDate(contract.startDate)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Badge className={`${
+                          contract.status === "ACTIVE" ? "bg-green-500/20 text-green-400 border-green-500/30" : 
+                          contract.status === "DRAFT" ? "bg-zinc-500/20 text-zinc-400 border-zinc-500/30" : 
+                          contract.status === "EXPIRED" ? "bg-orange-500/20 text-orange-400 border-orange-500/30" : 
+                          "bg-red-500/20 text-red-400 border-red-500/30"
+                        } border text-xs`}>
+                          {contract.status === "ACTIVE" ? "Activo" : contract.status === "DRAFT" ? "Borrador" : contract.status === "EXPIRED" ? "Vencido" : "Cancelado"}
+                        </Badge>
+                      </td>
+                    </ClickableTableRow>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Botones de Acción Principal */}
+      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
+        <Link href={`/contratos/new?clientId=${client.id}`} className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto border-white/10 hover:bg-white/5 text-zinc-300 h-11 px-8 text-base">
+            <FileText className="w-5 h-5 mr-2" />
+            Generar Contrato
+          </Button>
+        </Link>
+        <Link href={`/facturas/new?clientId=${client.id}`} className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 h-11 px-8 text-base">
+            <Receipt className="w-5 h-5 mr-2" />
+            Generar Factura
+          </Button>
+        </Link>
+      </div>
     </div>
   )
 }

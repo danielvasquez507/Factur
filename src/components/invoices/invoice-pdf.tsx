@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   // Classic Layout
   c_page: { padding: 40 },
   c_header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40, borderBottomWidth: 1, borderBottomColor: '#e4e4e7', paddingBottom: 20 },
-  c_logo: { width: 120, height: 60, objectFit: 'contain' },
+  c_logo: { width: 216, height: 108, objectFit: 'contain' },
   c_companyInfo: { fontSize: 9, color: '#71717a', textAlign: 'right' },
   c_sectionInfo: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
   c_infoBlock: { width: '45%' },
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   // Modern Layout
   m_page: { padding: 0 },
   m_headerBanner: { height: 120, paddingHorizontal: 40, paddingTop: 40, flexDirection: 'row', justifyContent: 'space-between' },
-  m_logo: { width: 140, height: 60, objectFit: 'contain' },
+  m_logo: { width: 252, height: 108, objectFit: 'contain' },
   m_headerContent: { paddingHorizontal: 40, marginTop: 30, flexDirection: 'row', justifyContent: 'space-between' },
   m_invoiceDetails: { backgroundColor: '#f4f4f5', padding: 15, borderRadius: 8, width: '45%' },
   m_clientDetails: { width: '45%' },
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   e_page: { padding: 45 },
   e_borderTop: { height: 8, marginBottom: 30 },
   e_header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 35 },
-  e_logo: { width: 130, height: 65, objectFit: 'contain' },
+  e_logo: { width: 234, height: 117, objectFit: 'contain' },
   e_invoiceTitle: { fontSize: 28, fontFamily: 'Helvetica-Bold', letterSpacing: -1, marginBottom: 8 },
   e_invoiceNumber: { fontSize: 11, color: '#71717a' },
   e_divider: { height: 1, backgroundColor: '#e4e4e7', marginBottom: 25 },
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   b_page: { padding: 0 },
   b_header: { padding: 40, paddingBottom: 30 },
   b_logoContainer: { marginBottom: 20 },
-  b_logo: { width: 120, height: 60, objectFit: 'contain' },
+  b_logo: { width: 216, height: 108, objectFit: 'contain' },
   b_titleSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   b_title: { fontSize: 36, fontFamily: 'Helvetica-Bold', letterSpacing: -1.5 },
   b_invoiceNum: { fontSize: 14, fontFamily: 'Helvetica-Bold' },
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   p_page: { padding: 0 },
   p_sidebar: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 180 },
   p_content: { marginLeft: 180, padding: 40 },
-  p_logo: { width: 110, height: 55, objectFit: 'contain', marginBottom: 25 },
+  p_logo: { width: 198, height: 99, objectFit: 'contain', marginBottom: 25 },
   p_companyInfo: { marginBottom: 30 },
   p_companyName: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: '#ffffff', marginBottom: 8 },
   p_companyText: { fontSize: 8, color: 'rgba(255,255,255,0.8)', marginBottom: 3 },
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   // Creative Layout
   cr_page: { padding: 0 },
   cr_headerBanner: { height: 140, paddingHorizontal: 40, paddingTop: 35, paddingBottom: 25, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cr_logo: { width: 130, height: 65, objectFit: 'contain' },
+  cr_logo: { width: 234, height: 117, objectFit: 'contain' },
   cr_invoiceInfo: { alignItems: 'flex-end' },
   cr_invoiceTitle: { fontSize: 28, fontFamily: 'Helvetica-Bold', color: '#ffffff', marginBottom: 8 },
   cr_invoiceNumber: { fontSize: 12, color: 'rgba(255,255,255,0.9)' },
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   ex_page: { padding: 50 },
   ex_header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40 },
   ex_logoSection: { width: '50%' },
-  ex_logo: { width: 140, height: 70, objectFit: 'contain' },
+  ex_logo: { width: 252, height: 126, objectFit: 'contain' },
   ex_companyName: { fontSize: 18, fontFamily: 'Helvetica-Bold', color: '#18181b', marginTop: 10, letterSpacing: -0.5 },
   ex_companyText: { fontSize: 8, color: '#71717a', marginTop: 3 },
   ex_invoiceSection: { width: '50%', alignItems: 'flex-end' },
@@ -470,7 +470,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 50 }}>
             <View>
               {logoUrl ? (
-                <Image src={logoUrl} style={{ width: 100, height: 50, objectFit: 'contain' }} />
+                <Image src={logoUrl} style={{ width: 180, height: 90, objectFit: 'contain' }} />
               ) : (
                 <Text style={{ fontSize: 22, fontFamily: 'Helvetica-Bold', color: '#18181b', letterSpacing: -0.3 }}>{company.name}</Text>
               )}
@@ -573,7 +573,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flexDirection: 'row', gap: 15, alignItems: 'center' }}>
                 {logoUrl ? (
-                  <Image src={logoUrl} style={{ width: 80, height: 50, objectFit: 'contain' }} />
+                  <Image src={logoUrl} style={{ width: 144, height: 90, objectFit: 'contain' }} />
                 ) : null}
                 <View>
                   <Text style={{ fontSize: 20, fontFamily: 'Helvetica-Bold', color: '#18181b', letterSpacing: -0.5 }}>{company.name}</Text>

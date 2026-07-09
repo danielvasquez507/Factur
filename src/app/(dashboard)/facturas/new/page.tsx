@@ -7,10 +7,11 @@ import { getClients } from "@/actions/clients"
 import { InvoiceForm } from "@/components/invoices/invoice-form"
 import { BackButton } from "@/components/ui/back-button"
 
-export default async function NewInvoicePage(props: { searchParams: Promise<{ companyId?: string }> }) {
+export default async function NewInvoicePage(props: { searchParams: Promise<{ companyId?: string, clientId?: string }> }) {
   const session = await auth()
   const searchParams = await props.searchParams
   const companyId = searchParams.companyId
+  const clientId = searchParams.clientId
   const activeTenantId = companyId || await getActiveTenantId()
 
   if (!session?.user) redirect("/login")
@@ -31,7 +32,7 @@ export default async function NewInvoicePage(props: { searchParams: Promise<{ co
         <h1 className="text-3xl font-bold tracking-tight text-white">Generar Factura</h1>
       </div>
 
-      <InvoiceForm clients={clients} services={services} companyId={companyId} />
+      <InvoiceForm clients={clients} services={services} companyId={companyId} defaultClientId={clientId} />
     </div>
   )
 }

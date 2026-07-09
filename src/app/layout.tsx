@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import "./globals.css";
+import { PwaRegister } from "@/components/pwa-register";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,13 +37,14 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="aurora"
+          defaultTheme="login"
           enableSystem={false}
           themes={["light", "dark", "login", "aurora"]}
         >
           {children}
           <Toaster richColors position="top-right" theme="system" />
         </ThemeProvider>
+        <PwaRegister />
       </body>
     </html>
   );

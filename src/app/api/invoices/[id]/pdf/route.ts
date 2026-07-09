@@ -10,6 +10,7 @@ import React from "react"
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const searchParams = req.nextUrl.searchParams
+  const isDownload = searchParams.get('download') === 'true'
   const token = searchParams.get("token")
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
@@ -96,7 +97,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return new NextResponse(webStream, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="Factura_${fullInvoice.invoiceNumber}.pdf"`,
+        "Content-Disposition": `${isDownload ? 'attachment' : 'inline'}; filename="Factura_${fullInvoice.invoiceNumber}.pdf"`,
       }
     })
   } catch (error) {

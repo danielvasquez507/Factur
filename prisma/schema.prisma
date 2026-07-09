@@ -106,6 +106,7 @@ model Company {
   services       Service[]
   clientServices ClientService[]
   invoices       Invoice[]
+  contracts      Contract[]
 
   @@map("companies")
 }
@@ -164,6 +165,7 @@ model Client {
   company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   clientServices ClientService[]
   invoices       Invoice[]
+  contracts      Contract[]
 
   @@map("clients")
 }
@@ -202,8 +204,43 @@ model ClientService {
   client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
   service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contracts Contract[]
 
   @@map("client_services")
+}
+
+// -----------------------------------------------------------------------------
+// CONTRACTS DOMAIN
+// -----------------------------------------------------------------------------
+
+model Contract {
+  id              String   @id @default(uuid()) @db.Uuid
+  companyId       String   @map("company_id") @db.Uuid
+  clientId        String   @map("client_id") @db.Uuid
+  clientServiceId String?  @map("client_service_id") @db.Uuid
+
+  title           String
+  description     String?
+  startDate       DateTime @db.Date @map("start_date")
+  endDate         DateTime? @db.Date @map("end_date")
+  status          ContractStatus @default(DRAFT)
+  
+  clauses          Json    
+  responsibilities Json    
+  conditions       Json    
+  exceptions       Json    
+
+  pdfTemplate      String   @default("professional") @map("pdf_template")
+  pdfColor         String   @default("slate") @map("pdf_color")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientService ClientService? @relation(fields: [clientServiceId], references: [id], onDelete: SetNull)
+
+  @@map("contracts")
 }
 
 model Invoice {
@@ -293,4 +330,11 @@ enum InvoiceStatus {
 enum GenerationType {
   AUTOMATIC
   MANUAL
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  CANCELLED
 }

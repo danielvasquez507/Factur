@@ -4,8 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { FileText, CalendarClock } from "lucide-react"
 import { formatDate } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] }) {
+  const router = useRouter()
   if (subscriptions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -41,11 +43,15 @@ export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] })
         </TableHeader>
         <TableBody>
           {subscriptions.map((sub) => (
-            <TableRow key={sub.id} className="border-white/10 hover:bg-white/5 transition-colors">
+            <TableRow 
+              key={sub.id} 
+              className="border-white/10 hover:bg-white/5 transition-colors cursor-pointer"
+              onClick={() => router.push(`/servicios/${sub.serviceId}`)}
+            >
               <TableCell className="font-medium text-white">{sub.service.name}</TableCell>
               <TableCell className="text-zinc-300 font-semibold">${Number(sub.agreedPrice).toFixed(2)}</TableCell>
               <TableCell className="text-zinc-400">
-                {sub.applyTax ? `ITBMS (${Number(sub.taxRate) * 100}%)` : <span className="text-zinc-600">Exento</span>}
+                {sub.applyTax ? `ITBMS (${Number((Number(sub.taxRate) * 100).toFixed(2))}%)` : <span className="text-zinc-600">Exento</span>}
               </TableCell>
             </TableRow>
           ))}
