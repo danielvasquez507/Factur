@@ -102,7 +102,7 @@ function ModernTemplate({ invoice, company, invNum, primaryColor }: any) {
       <div className="h-28 px-8 pt-8 flex justify-between items-start" style={{ backgroundColor: primaryColor }}>
         <div className="w-3/5">
           {company.logoUrl ? (
-            <img src={company.logoUrl} alt={company.name} className="h-24 object-contain" />
+            <img src={company.logoUrl} alt={company.name} className="h-24 object-contain object-left" />
           ) : (
             <div className="text-3xl font-bold text-white tracking-tight">{company.name}</div>
           )}
@@ -197,7 +197,7 @@ function ClassicTemplate({ invoice, company, invNum, primaryColor }: any) {
       <div className="flex justify-between items-center mb-10 pb-5" style={{ borderBottomWidth: 1, borderBottomColor: "#e4e4e7" }}>
         <div className="w-1/2">
           {company.logoUrl ? (
-            <img src={company.logoUrl} alt={company.name} className="h-28 object-contain" />
+            <img src={company.logoUrl} alt={company.name} className="h-28 object-contain object-left" />
           ) : (
             <div className="text-2xl font-bold tracking-tight" style={{ color: primaryColor }}>{company.name}</div>
           )}
@@ -292,7 +292,7 @@ function MinimalTemplate({ invoice, company, invNum, primaryColor }: any) {
       <div className="flex justify-between mb-12">
         <div>
           {company.logoUrl ? (
-            <img src={company.logoUrl} alt={company.name} className="h-20 object-contain" />
+            <img src={company.logoUrl} alt={company.name} className="h-20 object-contain object-left" />
           ) : (
             <div className="text-xl font-bold tracking-tight text-zinc-900">{company.name}</div>
           )}
@@ -380,7 +380,7 @@ function CorporateTemplate({ invoice, company, invNum, primaryColor }: any) {
         <div className="flex justify-between items-start">
           <div className="flex gap-4 items-center">
             {company.logoUrl ? (
-              <img src={company.logoUrl} alt={company.name} className="h-24 object-contain" />
+              <img src={company.logoUrl} alt={company.name} className="h-24 object-contain object-left" />
             ) : null}
             <div>
               <div className="text-xl font-bold tracking-tight text-zinc-900">{company.name}</div>
