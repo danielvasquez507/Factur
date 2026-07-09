@@ -209,9 +209,13 @@ const styles = StyleSheet.create({
 
 const resolveImageUrl = (url: string) => {
   if (!url) return undefined;
-  if (url.startsWith('http')) return url;
+  // Base64 data URI - react-pdf lo soporta directamente
+  if (url.startsWith('data:')) return url;
+  // URL absoluta - usar directamente
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  // URL relativa - construir URL absoluta con la variable de entorno
   if (url.startsWith('/')) {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://factur.danielvasquez.cloud';
     return `${baseUrl}${url}`;
   }
   return url;

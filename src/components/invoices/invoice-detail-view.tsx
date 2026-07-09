@@ -71,6 +71,19 @@ function formatCurrency(val: number | string) {
   return `$${Number(val).toFixed(2)}`
 }
 
+function safeFormatDate(dateVal: any) {
+  if (!dateVal) return ""
+  try {
+    const d = new Date(dateVal)
+    const dd = String(d.getUTCDate()).padStart(2, "0")
+    const mm = String(d.getUTCMonth() + 1).padStart(2, "0")
+    const yyyy = d.getUTCFullYear()
+    return `${dd}/${mm}/${yyyy}`
+  } catch {
+    return ""
+  }
+}
+
 function getPaymentOptions(company: any) {
   try {
     if (company.paymentDetails) {
@@ -110,12 +123,12 @@ function ModernTemplate({ invoice, company, invNum, primaryColor }: any) {
         <div className="w-[45%] bg-zinc-50 p-4 rounded-lg">
           <div className="flex justify-between mb-2">
             <span className="text-[10px] uppercase tracking-wider text-zinc-400">Emisión</span>
-            <span className="text-sm font-semibold">{format(new Date(invoice.issueDate), "dd/MM/yyyy")}</span>
+            <span className="text-sm font-semibold">{safeFormatDate(invoice.issueDate)}</span>
           </div>
           {invoice.dueDate && (
             <div className="flex justify-between">
               <span className="text-[10px] uppercase tracking-wider text-zinc-400">Vencimiento</span>
-              <span className="text-sm font-semibold">{format(new Date(invoice.dueDate), "dd/MM/yyyy")}</span>
+              <span className="text-sm font-semibold">{safeFormatDate(invoice.dueDate)}</span>
             </div>
           )}
         </div>
@@ -209,12 +222,12 @@ function ClassicTemplate({ invoice, company, invNum, primaryColor }: any) {
           </div>
           <div className="flex justify-end mb-2">
             <span className="text-[10px] uppercase tracking-wider text-zinc-400 mr-4 w-24 text-right">Emisión:</span>
-            <span className="text-sm w-24 text-right">{format(new Date(invoice.issueDate), "dd/MM/yyyy")}</span>
+            <span className="text-sm w-24 text-right">{safeFormatDate(invoice.issueDate)}</span>
           </div>
           {invoice.dueDate && (
             <div className="flex justify-end">
               <span className="text-[10px] uppercase tracking-wider text-zinc-400 mr-4 w-24 text-right">Vencimiento:</span>
-              <span className="text-sm w-24 text-right">{format(new Date(invoice.dueDate), "dd/MM/yyyy")}</span>
+              <span className="text-sm w-24 text-right">{safeFormatDate(invoice.dueDate)}</span>
             </div>
           )}
         </div>
@@ -299,8 +312,8 @@ function MinimalTemplate({ invoice, company, invNum, primaryColor }: any) {
         </div>
         <div className="text-right">
           <div className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">Emisión</div>
-          <div className="text-sm font-bold text-zinc-900">{format(new Date(invoice.issueDate), "dd/MM/yyyy")}</div>
-          {invoice.dueDate && <div className="text-sm text-zinc-500 mt-1">Vence: {format(new Date(invoice.dueDate), "dd/MM/yyyy")}</div>}
+          <div className="text-sm font-bold text-zinc-900">{safeFormatDate(invoice.issueDate)}</div>
+          {invoice.dueDate && <div className="text-sm text-zinc-500 mt-1">Vence: {safeFormatDate(invoice.dueDate)}</div>}
         </div>
       </div>
       <div className="flex border-b border-zinc-300 pb-2 mb-1">
@@ -395,12 +408,12 @@ function CorporateTemplate({ invoice, company, invNum, primaryColor }: any) {
         <div className="flex-1 bg-zinc-50 p-4 rounded text-right">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Emisión</div>
-            <div className="font-bold text-zinc-900">{format(new Date(invoice.issueDate), "dd/MM/yyyy")}</div>
+            <div className="font-bold text-zinc-900">{safeFormatDate(invoice.issueDate)}</div>
           </div>
           {invoice.dueDate && (
             <div className="mt-3">
               <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Vencimiento</div>
-              <div className="font-bold text-zinc-900">{format(new Date(invoice.dueDate), "dd/MM/yyyy")}</div>
+              <div className="font-bold text-zinc-900">{safeFormatDate(invoice.dueDate)}</div>
             </div>
           )}
         </div>

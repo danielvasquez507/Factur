@@ -11,8 +11,10 @@ services:
       - DATABASE_URL=postgresql://facturdv:${DB_PASSWORD:-secret}@db:5432/facturdv
       - AUTH_SECRET=${AUTH_SECRET:-supersecret}
       - AUTH_URL=https://factur.danielvasquez.cloud
+      - NEXTAUTH_URL=https://factur.danielvasquez.cloud
       - AUTH_TRUST_HOST=true
       - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=https://factur.danielvasquez.cloud
     depends_on:
       db:
         condition: service_healthy

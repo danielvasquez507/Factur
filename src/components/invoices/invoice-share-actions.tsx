@@ -47,7 +47,7 @@ export function InvoiceShareActions({ invoiceId, publicLink, clientEmail, invNum
       <Button
         variant="outline"
         className="group bg-zinc-900/80 backdrop-blur border-white/10 hover:bg-white hover:text-black text-white shadow-xl rounded-full transition-all duration-300 h-10 px-4 py-2 sm:h-9"
-        render={<a href={`/api/invoices/${invoiceId}/pdf${template || color ? `?${template ? `template=${template}` : ''}${template && color ? '&' : ''}${color ? `color=${color}` : ''}&download=true` : '?download=true'}`} target="_blank" />}
+        render={<a href={`/api/invoices/${invoiceId}/pdf${template || color ? `?${template ? `template=${template}` : ''}${template && color ? '&' : ''}${color ? `color=${color}` : ''}&download=true` : '?download=true'}`} />}
         nativeButton={false}
       >
         <Download className="w-4 h-4 mr-2 text-zinc-400 group-hover:text-black transition-colors" />
