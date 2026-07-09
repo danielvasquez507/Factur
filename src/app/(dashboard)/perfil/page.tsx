@@ -20,7 +20,8 @@ export default async function ProfilePage() {
       email: true, 
       role: true,
       userCompanies: {
-        include: {
+        select: {
+          roleInCompany: true,
           company: {
             select: { id: true, name: true, logoUrl: true, isActive: true }
           }

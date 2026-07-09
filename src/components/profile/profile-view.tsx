@@ -61,7 +61,7 @@ export function ProfileView({ user, activeCompanyId }: { user: any, activeCompan
                               </Badge>
                             )}
                           </h4>
-                          {uc.role === "OWNER" && (
+                          {uc.roleInCompany === "OWNER" && (
                             <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-zinc-300">
                               Propietario
                             </span>
@@ -69,7 +69,7 @@ export function ProfileView({ user, activeCompanyId }: { user: any, activeCompan
                         </div>
                       </div>
                     </div>
-                    {uc.role === "OWNER" && (
+                    {uc.roleInCompany === "OWNER" && (
                       <Link href={`/configuracion`} className="mt-4">
                         <Button variant="outline" size="sm" className="w-full h-8 bg-transparent border-white/10 hover:bg-white/10 text-zinc-300">
                           <Settings className="w-3.5 h-3.5 mr-2" />
