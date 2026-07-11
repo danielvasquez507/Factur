@@ -11,14 +11,12 @@ export async function getUserCompanies() {
   if (!session?.user) return []
 
   const prisma = getBypassPrisma()
-  // Si es super admin, cargamos todas las empresas (para que pueda entrar a probar)
   if (session.user.role === "SUPER_ADMIN") {
       return await prisma.company.findMany({
           orderBy: { name: 'asc' }
       })
   }
 
-  // Si es company admin, cargamos solo sus empresas
   const userCompanies = await prisma.userCompany.findMany({
     where: { userId: session.user.id },
     include: { company: true },
@@ -30,12 +28,42 @@ export async function getUserCompanies() {
 
 export async function setActiveTenant(companyId: string) {
   const cookieStore = await cookies()
-  cookieStore.set(TENANT_COOKIE_NAME, companyId, { path: "/", maxAge: 60 * 60 * 24 * 30 }) // 30 days
+  cookieStore.set(TENANT_COOKIE_NAME, companyId, { path: "/", maxAge: 60 * 60 * 24 * 30 })
 }
 
 export async function getActiveTenantId() {
   const cookieStore = await cookies()
-  return cookieStore.get(TENANT_COOKIE_NAME)?.value || null
+  const cookieValue = cookieStore.get(TENANT_COOKIE_NAME)?.value || null
+
+  if (!cookieValue) return null
+
+  const session = await auth()
+  if (!session?.user) return null
+
+  if (session.user.role === "SUPER_ADMIN") {
+    return cookieValue
+  }
+
+  const prisma = getBypassPrisma()
+  const userCompany = await prisma.userCompany.findFirst({
+    where: { userId: session.user.id, companyId: cookieValue },
+    select: { companyId: true }
+  })
+
+  if (userCompany) return cookieValue
+
+  const firstCompany = await prisma.userCompany.findFirst({
+    where: { userId: session.user.id },
+    select: { companyId: true },
+    orderBy: { createdAt: "asc" }
+  })
+
+  if (firstCompany) {
+    cookieStore.set(TENANT_COOKIE_NAME, firstCompany.companyId, { path: "/", maxAge: 60 * 60 * 24 * 30 })
+    return firstCompany.companyId
+  }
+
+  return null
 }
 
 export async function getActiveCompanyRole() {
@@ -44,6 +72,8 @@ export async function getActiveCompanyRole() {
 
   const activeTenantId = await getActiveTenantId()
   if (!activeTenantId) return null
+
+  if (session.user.role === "SUPER_ADMIN") return "OWNER"
 
   const prisma = getBypassPrisma()
   const uc = await prisma.userCompany.findUnique({

@@ -31,7 +31,7 @@ export const getTenantPrisma = (companyId: string) => {
     query: {
       $allModels: {
         async $allOperations({ model, operation, args, query }) {
-          const tenantModels = ['Invoice', 'Client', 'Service', 'ChangeRequest']
+          const tenantModels = ['Invoice', 'Client', 'Service', 'ChangeRequest', 'ClientService', 'Contract']
           
           if (tenantModels.includes(model)) {
             // Si la operación es de lectura o escritura que acepta 'where'
