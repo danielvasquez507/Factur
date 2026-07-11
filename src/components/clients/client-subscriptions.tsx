@@ -1,9 +1,7 @@
 "use client"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { FileText, CalendarClock } from "lucide-react"
-import { formatDate } from "@/lib/utils"
+import { FileText, Check, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] }) {
@@ -20,16 +18,7 @@ export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] })
     )
   }
 
-  const getFreqLabel = (freq: string) => {
-    switch (freq) {
-      case "MONTHLY": return "Mensual"
-      case "BIWEEKLY": return "Quincenal"
-      case "WEEKLY": return "Semanal"
-      case "DAILY": return "Diario"
-      case "MANUAL": return "Manual"
-      default: return freq
-    }
-  }
+  const totalCost = subscriptions.reduce((sum, sub) => sum + Number(sub.agreedPrice), 0)
 
   return (
     <div className="relative overflow-x-auto rounded-md">
@@ -37,8 +26,8 @@ export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] })
         <TableHeader className="bg-white/5">
           <TableRow className="border-white/10 hover:bg-transparent">
             <TableHead className="text-zinc-400 font-medium">Servicio</TableHead>
-            <TableHead className="text-zinc-400 font-medium">Precio Pactado</TableHead>
-            <TableHead className="text-zinc-400 font-medium">Impuestos</TableHead>
+            <TableHead className="text-zinc-400 font-medium">Precio</TableHead>
+            <TableHead className="text-zinc-400 font-medium">ITBMS 7%</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -51,10 +40,19 @@ export function ClientSubscriptions({ subscriptions }: { subscriptions: any[] })
               <TableCell className="font-medium text-white">{sub.service.name}</TableCell>
               <TableCell className="text-zinc-300 font-semibold">${Number(sub.agreedPrice).toFixed(2)}</TableCell>
               <TableCell className="text-zinc-400">
-                {sub.applyTax ? `ITBMS (${Number((Number(sub.taxRate) * 100).toFixed(2))}%)` : <span className="text-zinc-600">Exento</span>}
+                {sub.applyTax ? (
+                  <Check className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <X className="w-4 h-4 text-zinc-600" />
+                )}
               </TableCell>
             </TableRow>
           ))}
+          <TableRow className="border-t-2 border-white/10 bg-white/5">
+            <TableCell className="font-semibold text-white">Total</TableCell>
+            <TableCell className="text-white font-bold">${totalCost.toFixed(2)}</TableCell>
+            <TableCell></TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </div>

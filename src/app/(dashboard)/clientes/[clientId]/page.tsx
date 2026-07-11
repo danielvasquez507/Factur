@@ -143,6 +143,8 @@ export default async function ClientDetailsPage(
           <CardTitle className="text-xl flex items-center gap-2">
             <Layers className="w-5 h-5 text-blue-400" />
             <span className="text-zinc-300">Servicios Asignados</span>
+            <span className="ml-2 text-sm font-semibold text-white bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">{subscriptions.length}</span>
+            <span className="ml-2 text-sm font-semibold text-emerald-400">${subscriptions.reduce((sum, s) => sum + Number(s.agreedPrice), 0).toFixed(2)}</span>
             <div className="ml-auto flex items-center gap-1">
               <AssignServiceDialog clientId={client.id} services={services} trigger={
                 <button type="button" title="Asignar servicio existente" className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-blue-400 transition-colors">
@@ -156,6 +158,22 @@ export default async function ClientDetailsPage(
           <ClientSubscriptions subscriptions={subscriptions} />
         </CardContent>
       </Card>
+
+      {/* Botones de Acción Principal */}
+      <div className="flex flex-col sm:flex-row justify-end gap-3">
+        <Link href={`/facturas/new?clientId=${client.id}`} className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 h-11 px-8 text-base">
+            <Receipt className="w-5 h-5 mr-2" />
+            Generar Factura
+          </Button>
+        </Link>
+        <Link href={`/contratos/new?clientId=${client.id}`} className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto border-white/10 hover:bg-white/5 text-zinc-300 h-11 px-8 text-base">
+            <FileText className="w-5 h-5 mr-2" />
+            Generar Contrato
+          </Button>
+        </Link>
+      </div>
 
       {/* Facturas Emitidas */}
       <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
@@ -278,21 +296,6 @@ export default async function ClientDetailsPage(
         </CardContent>
       </Card>
 
-      {/* Botones de Acción Principal */}
-      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
-        <Link href={`/contratos/new?clientId=${client.id}`} className="w-full sm:w-auto">
-          <Button variant="outline" className="w-full sm:w-auto border-white/10 hover:bg-white/5 text-zinc-300 h-11 px-8 text-base">
-            <FileText className="w-5 h-5 mr-2" />
-            Generar Contrato
-          </Button>
-        </Link>
-        <Link href={`/facturas/new?clientId=${client.id}`} className="w-full sm:w-auto">
-          <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 h-11 px-8 text-base">
-            <Receipt className="w-5 h-5 mr-2" />
-            Generar Factura
-          </Button>
-        </Link>
-      </div>
     </div>
   )
 }

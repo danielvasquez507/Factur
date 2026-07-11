@@ -42,7 +42,7 @@ export default async function ClientsPage() {
       </div>
 
       <Tabs defaultValue="clientes" className="w-full">
-        <TabsList className="bg-black/40 border border-white/5 backdrop-blur-xl mb-6 p-1.5 rounded-2xl flex w-max max-w-full overflow-x-auto gap-1 shadow-2xl no-scrollbar h-auto">
+        <TabsList className="bg-black/40 border border-white/5 backdrop-blur-xl mb-6 p-0 rounded-2xl flex w-max max-w-full overflow-x-auto gap-1 shadow-2xl no-scrollbar h-auto">
           <TabsTrigger value="clientes" className="relative group flex-1 sm:flex-none items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 data-active:bg-blue-600 data-active:text-white data-active:shadow-[0_4px_20px_rgba(37,99,235,0.4)] text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border-none h-auto">
             <Users className="w-4 h-4 mr-2.5 opacity-80 group-data-active:opacity-100" />
             Clientes

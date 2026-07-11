@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, FileText, DollarSign, Clock } from "lucide-react"
+import { Users, FileText, DollarSign } from "lucide-react"
 import { getCompanyMetrics } from "@/actions/dashboard"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
@@ -40,7 +40,7 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
           <h1 className="text-3xl font-bold tracking-tight text-white">{companyName}</h1>
         </div>
       )}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <Card className="relative overflow-hidden bg-zinc-950/80 border border-white/10 shadow-2xl transition-all hover:-translate-y-1 hover:border-purple-500/50 group !p-0">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-purple-500/30 transition-colors"></div>
@@ -61,7 +61,7 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-blue-500/30 transition-colors"></div>
           <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="flex flex-row items-center justify-between p-4 pb-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-zinc-400 group-hover:text-blue-300 transition-colors">Servicios Catálogo</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-400 group-hover:text-blue-300 transition-colors">Servicios</CardTitle>
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)] group-hover:scale-110 transition-transform">
               <FileText className="w-5 h-5" />
             </div>
@@ -71,33 +71,18 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-zinc-950/80 border border-white/10 shadow-2xl transition-all hover:-translate-y-1 hover:border-emerald-500/50 group !p-0">
+        <Card className="relative overflow-hidden bg-zinc-950/80 border border-white/10 shadow-2xl transition-all hover:-translate-y-1 hover:border-emerald-500/50 group !p-0 col-span-2 md:col-span-1">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-emerald-500/30 transition-colors"></div>
           <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="flex flex-row items-center justify-between p-4 pb-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-zinc-400 group-hover:text-emerald-300 transition-colors" title="Facturación">Facturas emitidas (total)</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-400 group-hover:text-emerald-300 transition-colors" title="Facturación">Facturas Emitidas</CardTitle>
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] group-hover:scale-110 transition-transform">
               <DollarSign className="w-5 h-5" />
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-3 relative z-10">
             <div className="text-3xl xl:text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-emerald-200 drop-shadow-sm flex items-center flex-wrap gap-x-1"><span className="shrink-0">{formatCurrency(stats.incomeThisMonth).replace(' USD', '')}</span><span className="text-base lg:text-lg font-bold text-emerald-500/70 mt-1">USD</span></div>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden bg-zinc-950/80 border border-white/10 shadow-2xl transition-all hover:-translate-y-1 hover:border-amber-500/50 group !p-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-amber-500/30 transition-colors"></div>
-          <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <CardHeader className="flex flex-row items-center justify-between p-4 pb-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-zinc-400 group-hover:text-amber-300 transition-colors">Cuentas por Cobrar</CardTitle>
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)] group-hover:scale-110 transition-transform">
-              <Clock className="w-5 h-5" />
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 pt-3 relative z-10">
-            <div className="text-3xl xl:text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-amber-200 drop-shadow-sm flex items-center flex-wrap gap-x-1"><span className="shrink-0">{formatCurrency(stats.pendingAmount).replace(' USD', '')}</span><span className="text-base lg:text-lg font-bold text-amber-500/70 mt-1">USD</span></div>
           </CardContent>
         </Card>
       </div>
