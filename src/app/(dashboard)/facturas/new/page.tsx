@@ -4,6 +4,7 @@ import { getTenantPrisma } from "@/lib/prisma"
 import { getActiveTenantId } from "@/actions/tenant"
 import { getServices } from "@/actions/services"
 import { getClients } from "@/actions/clients"
+import { getClientSubscriptions } from "@/actions/subscriptions"
 import { InvoiceForm } from "@/components/invoices/invoice-form"
 import { BackButton } from "@/components/ui/back-button"
 
@@ -25,6 +26,13 @@ export default async function NewInvoicePage(props: { searchParams: Promise<{ co
     defaultPrice: Number(s.defaultPrice)
   }))
 
+  let clientServices: any[] = []
+  if (clientId) {
+    try {
+      clientServices = await getClientSubscriptions(clientId)
+    } catch {}
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -32,7 +40,7 @@ export default async function NewInvoicePage(props: { searchParams: Promise<{ co
         <h1 className="text-3xl font-bold tracking-tight text-white">Generar Factura</h1>
       </div>
 
-      <InvoiceForm clients={clients} services={services} companyId={companyId} defaultClientId={clientId} />
+      <InvoiceForm clients={clients} services={services} companyId={companyId} defaultClientId={clientId} clientServices={clientServices} />
     </div>
   )
 }

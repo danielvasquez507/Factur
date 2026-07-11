@@ -2,6 +2,7 @@
 
 import { toast } from "sonner"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Layers, MoreHorizontal } from "lucide-react"
@@ -10,6 +11,7 @@ import { EditServiceDialog } from "./edit-service-dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export function ServiceTable({ services }: { services: any[] }) {
+  const router = useRouter()
   const [editingService, setEditingService] = useState<any>(null)
   const [deletingService, setDeletingService] = useState<any>(null)
   const [deleting, setDeleting] = useState(false)
@@ -53,7 +55,8 @@ export function ServiceTable({ services }: { services: any[] }) {
             {services.map((service) => (
               <TableRow 
                 key={service.id} 
-                className="border-0 border-b border-white/[0.03] hover:bg-gradient-to-r hover:from-white/[0.04] hover:to-transparent hover:border-l-2 hover:border-l-blue-500/50 transition-all duration-200"
+                className="border-0 border-b border-white/[0.03] hover:bg-gradient-to-r hover:from-white/[0.04] hover:to-transparent hover:border-l-2 hover:border-l-blue-500/50 cursor-pointer transition-all duration-200"
+                onClick={() => router.push(`/servicios/${service.id}`)}
               >
                 <TableCell className="py-2.5">
                   <div className="font-medium text-white flex items-center gap-2 text-sm">
@@ -71,7 +74,7 @@ export function ServiceTable({ services }: { services: any[] }) {
                 <TableCell className="text-zinc-300 font-semibold py-2.5 text-sm">
                   ${Number(service.defaultPrice).toFixed(2)}
                 </TableCell>
-                <TableCell className="text-right py-2.5">
+                <TableCell className="text-right py-2.5" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md h-8 w-8 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/20">
                       <span className="sr-only">Abrir menú</span>

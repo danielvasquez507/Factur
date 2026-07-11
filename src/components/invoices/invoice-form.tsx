@@ -12,7 +12,7 @@ import { Plus, Trash2, Loader2, Save } from "lucide-react"
 import { createManualInvoice } from "@/actions/invoices"
 import { ServiceDialog } from "@/components/services/service-dialog"
 
-export function InvoiceForm({ clients, services, companyId, defaultClientId }: { clients: any[], services: any[], companyId?: string, defaultClientId?: string }) {
+export function InvoiceForm({ clients, services, companyId, defaultClientId, clientServices = [] }: { clients: any[], services: any[], companyId?: string, defaultClientId?: string, clientServices?: any[] }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -22,14 +22,25 @@ export function InvoiceForm({ clients, services, companyId, defaultClientId }: {
   const [dueDate, setDueDate] = useState("")
   const [notes, setNotes] = useState("")
 
-  const [items, setItems] = useState<any[]>([{
-    serviceId: "",
-    description: "",
-    quantity: 1,
-    unitPrice: 0,
-    applyTax: false,
-    taxRate: 0.07,
-  }])
+  const initialItems = clientServices.length > 0
+    ? clientServices.map((cs: any) => ({
+        serviceId: cs.serviceId,
+        description: cs.service?.name || "",
+        quantity: 1,
+        unitPrice: Number(cs.agreedPrice),
+        applyTax: cs.applyTax,
+        taxRate: Number(cs.taxRate),
+      }))
+    : [{
+        serviceId: "",
+        description: "",
+        quantity: 1,
+        unitPrice: 0,
+        applyTax: false,
+        taxRate: 0.07,
+      }]
+
+  const [items, setItems] = useState<any[]>(initialItems)
 
   const handleAddItem = () => {
     setItems([...items, { serviceId: "", description: "", quantity: 1, unitPrice: 0, applyTax: false, taxRate: 0.07 }])

@@ -26,15 +26,17 @@ import { Button } from "@/components/ui/button"
 const superAdminItems = [
   { label: "Panel", icon: LayoutDashboard, href: "/" },
   { label: "Usuarios", icon: UserIcon, href: "/usuarios" },
+  { label: "logo", icon: null, href: "/perfil" },
   { label: "Empresas", icon: Briefcase, href: "/empresas" },
   { label: "Solicitudes", icon: Bell, href: "/solicitudes" },
 ]
 
 const userItems = [
   { label: "Panel", icon: LayoutDashboard, href: "/" },
-  { label: "Facturas", icon: Receipt, href: "/facturas" },
-  { label: "Servicios", icon: Layers, href: "/servicios" },
   { label: "Clientes", icon: Users, href: "/clientes" },
+  { label: "logo", icon: null, href: "/" },
+  { label: "Historial", icon: Receipt, href: "/facturas" },
+  { label: "Perfil", icon: UserIcon, href: "/perfil" },
 ]
 
 interface MobileBottomNavProps {
@@ -58,6 +60,22 @@ export function MobileBottomNav({ userRole, pendingRequestsCount = 0 }: MobileBo
           {items.map((item) => {
             const active = isActive(item.href)
             const showBadge = item.label === "Solicitudes" && pendingRequestsCount > 0
+            const isLogo = item.label === "logo"
+            
+            if (isLogo) {
+              return (
+                <Link
+                  key="logo-center"
+                  href="/"
+                  className="relative flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-all duration-200 active:scale-95 shrink-0"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <span className="text-white font-black text-sm">F</span>
+                  </div>
+                </Link>
+              )
+            }
+            
             return (
               <Link
                 key={item.href}
