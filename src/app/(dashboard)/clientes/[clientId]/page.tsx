@@ -137,12 +137,12 @@ export default async function ClientDetailsPage(
         </CardContent>
       </Card>
 
-      {/* Servicios Asignados */}
-      <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
+      {/* Servicios */}
+      <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl pb-0">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <Layers className="w-5 h-5 text-blue-400" />
-            <span className="text-zinc-300">Servicios Asignados</span>
+            <span className="text-zinc-300">Servicios</span>
             <span className="ml-2 text-sm font-semibold text-white bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">{subscriptions.length}</span>
             <span className="ml-2 text-sm font-semibold text-emerald-400">${subscriptions.reduce((sum, s) => sum + Number(s.agreedPrice), 0).toFixed(2)}</span>
             <div className="ml-auto flex items-center gap-1">
@@ -176,7 +176,7 @@ export default async function ClientDetailsPage(
       </div>
 
       {/* Facturas Emitidas */}
-      <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
+      <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl pb-0">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <Receipt className="w-5 h-5 text-blue-400" />
@@ -204,7 +204,6 @@ export default async function ClientDetailsPage(
                     <th className="text-zinc-400 font-medium text-left h-10 px-4">Fecha</th>
                     <th className="text-zinc-400 font-medium text-left h-10 px-4 hidden sm:table-cell">Vencimiento</th>
                     <th className="text-zinc-400 font-medium text-right h-10 px-4">Total</th>
-                    <th className="text-zinc-400 font-medium text-center h-10 px-4">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -216,15 +215,6 @@ export default async function ClientDetailsPage(
                         {inv.dueDate ? formatDate(inv.dueDate) : "-"}
                       </td>
                       <td className="px-4 py-3 text-white font-semibold text-right">${inv.total.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          inv.status === "PAID" ? "bg-green-500/10 text-green-400 border border-green-500/20" :
-                          inv.status === "DRAFT" ? "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20" :
-                          "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
-                        }`}>
-                          {inv.status === "PAID" ? "Pagada" : inv.status === "DRAFT" ? "Borrador" : "Pendiente"}
-                        </span>
-                      </td>
                     </ClickableTableRow>
                   ))}
                 </tbody>
@@ -235,7 +225,7 @@ export default async function ClientDetailsPage(
       </Card>
 
       {/* Historial de Contratos */}
-      <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
+      <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl pb-0">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <FileText className="w-5 h-5 text-blue-400" />

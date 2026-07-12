@@ -37,8 +37,8 @@ export function ClientDialog({ trigger, companyId }: { trigger?: ReactElement, c
       {trigger ? (
         <DialogTrigger render={trigger} />
       ) : (
-        <DialogTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white h-8 px-3 gap-1.5">
-          <Plus className="w-3.5 h-3.5" />
+        <DialogTrigger className="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white h-11 px-4 gap-2">
+          <Plus className="w-4 h-4" />
           Nuevo Cliente
         </DialogTrigger>
       )}

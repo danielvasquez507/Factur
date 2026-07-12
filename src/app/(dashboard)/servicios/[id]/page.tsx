@@ -3,9 +3,9 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { getServiceById } from "@/actions/services"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { BackButton } from "@/components/ui/back-button"
-import { Layers, DollarSign, Building2, FileText } from "lucide-react"
+import { EditServiceButton } from "@/components/services/edit-service-button"
+import { Layers, DollarSign, Building2 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 
 export default async function ServiceDetailPage(
@@ -26,9 +26,7 @@ export default async function ServiceDetailPage(
 
       <div className="flex items-center gap-3">
         <h1 className="text-3xl font-bold tracking-tight text-white">{service.name}</h1>
-        <Badge variant={service.isActive ? "default" : "secondary"} className={service.isActive ? "bg-green-500/10 text-green-400 border-green-500/20" : ""}>
-          {service.isActive ? "Activo" : "Inactivo"}
-        </Badge>
+        <EditServiceButton service={service} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

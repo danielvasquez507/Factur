@@ -106,26 +106,23 @@ export function ClientTable({ clients }: { clients: any[] }) {
                       <span className="sr-only">Abrir menú</span>
                       <MoreHorizontal className="h-4 w-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-zinc-950 border-white/10 text-white shadow-xl shadow-black">
+                    <DropdownMenuContent align="end" className="bg-zinc-950 border-white/10 text-white shadow-xl shadow-black min-w-48">
                       <DropdownMenuGroup>
                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                         <DropdownMenuItem
-                          className="focus:bg-white/10 cursor-pointer"
+                          className="focus:bg-white/10 cursor-pointer text-base py-3"
                           onClick={() => setEditingClient(client)}
                         >
                           Editar Cliente
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer" onClick={() => router.push(`/facturas/new?clientId=${client.id}`)}>
-                          Crear Factura
+                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer text-base py-3" onClick={() => router.push(`/facturas/new?clientId=${client.id}`)}>
+                          Generar Factura
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer" onClick={() => router.push(`/contratos/new?clientId=${client.id}`)}>
+                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer text-base py-3" onClick={() => router.push(`/contratos/new?clientId=${client.id}`)}>
                           Generar Contrato
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="focus:bg-white/10 cursor-pointer" onClick={() => window.location.href = `/clientes/${client.id}`}>
-                          Ver Servicios
-                        </DropdownMenuItem>
                         <DropdownMenuItem 
-                          className="focus:bg-yellow-500/20 focus:text-yellow-400 text-yellow-400 cursor-pointer"
+                          className="focus:bg-yellow-500/20 focus:text-yellow-400 text-yellow-400 cursor-pointer text-base py-3"
                           onClick={async () => {
                             const { toggleClientStatus } = await import("@/actions/clients")
                             const res = await toggleClientStatus(client.id, !client.isActive)
@@ -136,7 +133,7 @@ export function ClientTable({ clients }: { clients: any[] }) {
                           {client.isActive ? "Desactivar" : "Activar"}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          className="focus:bg-red-500/20 focus:text-red-500 text-red-500 cursor-pointer"
+                          className="focus:bg-red-500/20 focus:text-red-500 text-red-500 cursor-pointer text-base py-3"
                           onClick={() => setDeletingClient(client)}
                         >
                           Eliminar

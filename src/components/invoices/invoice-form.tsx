@@ -206,8 +206,8 @@ export function InvoiceForm({ clients, services, companyId, defaultClientId, cli
                     type="number" 
                     min="1" 
                     required 
-                    value={item.quantity} 
-                    onChange={(e) => updateItem(index, "quantity", Number(e.target.value))} 
+                    value={item.quantity === "" ? "" : item.quantity} 
+                    onChange={(e) => updateItem(index, "quantity", e.target.value === "" ? "" : parseInt(e.target.value, 10))} 
                     className="bg-black/50 border-white/10 focus-visible:ring-blue-500 w-16 h-8" 
                   />
 

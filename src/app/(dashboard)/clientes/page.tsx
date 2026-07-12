@@ -56,9 +56,7 @@ export default async function ClientsPage() {
         </TabsList>
         
         <TabsContent value="clientes" className="mt-0 space-y-4">
-          <div className="flex justify-end">
-            <ClientDialog />
-          </div>
+          <ClientDialog />
           <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl [--card-spacing:0px]">
             <CardContent className="p-0">
               <ClientTable clients={clients} />
@@ -67,9 +65,7 @@ export default async function ClientsPage() {
         </TabsContent>
         
         <TabsContent value="servicios" className="mt-0 space-y-4">
-          <div className="flex justify-end">
-            <ServiceDialog />
-          </div>
+          <ServiceDialog />
           <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl [--card-spacing:0px]">
             <CardContent className="p-0">
               <ServiceTable services={services} />

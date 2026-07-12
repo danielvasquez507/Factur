@@ -77,7 +77,7 @@ export function EditServiceDialog({ service, open, onOpenChange }: { service: an
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`price-${service?.id}`} className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Precio Base</Label>
+              <Label htmlFor={`price-${service?.id}`} className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Precio</Label>
               <div className="relative">
                 <DollarSign className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <Input id={`price-${service?.id}`} name="defaultPrice" type="number" step="0.01" min="0" defaultValue={service?.defaultPrice || 0} required className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />

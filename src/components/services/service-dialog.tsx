@@ -37,9 +37,9 @@ export function ServiceDialog({ trigger, companyId }: { trigger?: ReactElement, 
       {trigger ? (
         <DialogTrigger render={trigger} />
       ) : (
-        <DialogTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white h-8 px-3 gap-1.5">
-          <Plus className="w-3.5 h-3.5" />
-          Crear Servicio
+        <DialogTrigger className="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white h-11 px-4 gap-2">
+          <Plus className="w-4 h-4" />
+          Nuevo Servicio
         </DialogTrigger>
       )}
       <DialogContent className="sm:max-w-[400px] bg-zinc-950/95 border-white/[0.08] text-white backdrop-blur-xl shadow-2xl p-0 gap-0">
@@ -84,7 +84,7 @@ export function ServiceDialog({ trigger, companyId }: { trigger?: ReactElement, 
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="defaultPrice" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Precio Base</Label>
+              <Label htmlFor="defaultPrice" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Precio</Label>
               <div className="relative">
                 <DollarSign className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <Input id="defaultPrice" name="defaultPrice" type="number" step="0.01" min="0" required placeholder="0.00" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />

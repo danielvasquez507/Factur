@@ -47,8 +47,8 @@ export function ServiceTable({ services }: { services: any[] }) {
             <TableRow className="border-0 border-b border-white/[0.06] hover:bg-transparent">
               <TableHead className="text-zinc-400 font-medium">Nombre</TableHead>
               <TableHead className="text-zinc-400 font-medium max-sm:hidden">Descripción</TableHead>
-              <TableHead className="text-zinc-400 font-medium">Precio Base</TableHead>
-              <TableHead className="text-zinc-400 font-medium text-right">Acciones</TableHead>
+              <TableHead className="text-zinc-400 font-medium whitespace-nowrap">Precio</TableHead>
+              <TableHead className="text-zinc-400 font-medium text-right w-10">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -71,26 +71,26 @@ export function ServiceTable({ services }: { services: any[] }) {
                 <TableCell className="text-zinc-400 max-w-xs truncate py-2.5 max-sm:hidden text-sm">
                   {service.description || <span className="text-zinc-600">-</span>}
                 </TableCell>
-                <TableCell className="text-zinc-300 font-semibold py-2.5 text-sm">
+                <TableCell className="text-zinc-300 font-semibold py-2.5 text-sm whitespace-nowrap">
                   ${Number(service.defaultPrice).toFixed(2)}
                 </TableCell>
-                <TableCell className="text-right py-2.5" onClick={(e) => e.stopPropagation()}>
+                <TableCell className="text-right py-2.5 w-10" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md h-8 w-8 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/20">
                       <span className="sr-only">Abrir menú</span>
                       <MoreHorizontal className="h-4 w-4" />
                     </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-zinc-950 border-white/10 text-white shadow-xl shadow-black">
+                      <DropdownMenuContent align="end" className="bg-zinc-950 border-white/10 text-white shadow-xl shadow-black min-w-48">
                         <DropdownMenuGroup>
                           <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                           <DropdownMenuItem 
-                            className="focus:bg-white/10 cursor-pointer"
+                            className="focus:bg-white/10 cursor-pointer text-base py-3"
                             onClick={() => setEditingService(service)}
                           >
                             Editar Servicio
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            className="focus:bg-red-500/20 focus:text-red-500 text-red-500 cursor-pointer"
+                            className="focus:bg-red-500/20 focus:text-red-500 text-red-500 cursor-pointer text-base py-3"
                             onClick={() => setDeletingService(service)}
                           >
                             Eliminar
