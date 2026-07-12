@@ -50,7 +50,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const fullContract = await prisma.contract.findUnique({
     where: { id, companyId: authorizedCompanyId },
     include: {
-      client: true,
+      client: {
+        include: {
+          clientServices: {
+            include: { service: true }
+          }
+        }
+      },
       clientService: {
         include: { service: true }
       },
@@ -60,8 +66,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (!fullContract) return new NextResponse("Contrato no encontrado", { status: 404 })
 
+  const ownerRelation = await prisma.userCompany.findFirst({
+    where: { companyId: authorizedCompanyId, roleInCompany: "OWNER" },
+    include: { user: { select: { name: true } } }
+  })
+  const ownerName = ownerRelation?.user?.name || fullContract.company.name
+
   try {
-    const pdfStream = await renderToStream(React.createElement(ContractPDF, { contract: fullContract, company: fullContract.company }) as any)
+    const pdfStream = await renderToStream(React.createElement(ContractPDF, { contract: fullContract, company: fullContract.company, ownerName }) as any)
 
     const webStream = new ReadableStream({
       start(controller) {

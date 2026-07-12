@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect, notFound } from "next/navigation"
 import { getContractById } from "@/actions/contracts"
-import { getTenantPrisma } from "@/lib/prisma"
+import { getTenantPrisma, getBypassPrisma } from "@/lib/prisma"
 import { getActiveTenantId } from "@/actions/tenant"
 import { ContractDetailView } from "@/components/contracts/contract-detail-view"
 import { BackButton } from "@/components/ui/back-button"
@@ -26,8 +26,13 @@ export default async function ContractPage(props: { params: Promise<{ id: string
   
   if (!company) return notFound()
 
-  // Serialize complex dates or objects if necessary, but getContractById should already return clean data 
-  // Let's ensure contract is serializable for client component
+  const bypassPrisma = getBypassPrisma()
+  const ownerRelation = await bypassPrisma.userCompany.findFirst({
+    where: { companyId: activeTenantId, roleInCompany: "OWNER" },
+    include: { user: { select: { name: true } } }
+  })
+  const ownerName = ownerRelation?.user?.name || company.name
+
   const serializedContract = {
     ...contract,
     startDate: contract.startDate.toISOString(),
@@ -58,7 +63,7 @@ export default async function ContractPage(props: { params: Promise<{ id: string
         </div>
       </div>
 
-      <ContractDetailView contract={serializedContract} company={company} />
+      <ContractDetailView contract={serializedContract} company={company} ownerName={ownerName} />
     </div>
   )
 }

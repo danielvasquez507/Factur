@@ -74,33 +74,44 @@ function Section({ title, items, primaryColor }: { title: string, items: any[], 
 }
 
 function ContractDetails({ contract, company, primaryColor }: any) {
-  const service = contract.clientService
-  if (!service) return null
+  const clientServices = contract.client?.clientServices || []
+  const services = clientServices.length > 0 ? clientServices : (contract.clientService ? [contract.clientService] : [])
+  if (services.length === 0) return null
 
-  const getBillingFreq = (freq: string) => {
-    const map: Record<string, string> = { MONTHLY: "Mensual", QUARTERLY: "Trimestral", ANNUALLY: "Anual", ONE_TIME: "Único" }
-    return map[freq] || freq
-  }
+  let subtotal = 0
+  let totalTax = 0
+  services.forEach((s: any) => {
+    const price = Number(s.agreedPrice)
+    const tax = s.applyTax ? price * Number(s.taxRate) : 0
+    subtotal += price
+    totalTax += tax
+  })
+  const total = subtotal + totalTax
 
   return (
     <View style={[styles.detailsBox, { borderLeftWidth: 3, borderLeftColor: primaryColor }]}>
-      <View style={styles.detailCol}>
-        <Text style={styles.detailLabel}>Servicio Contratado</Text>
-        <Text style={styles.detailValue}>{service.service.name}</Text>
+      <View style={{ width: '100%', marginBottom: 8 }}>
+        <Text style={styles.detailLabel}>Servicios Contratados</Text>
       </View>
-      <View style={styles.detailCol}>
-        <Text style={styles.detailLabel}>Frecuencia de Cobro</Text>
-        <Text style={styles.detailValue}>{getBillingFreq(service.billingFrequency)}</Text>
-      </View>
-      <View style={styles.detailCol}>
-        <Text style={styles.detailLabel}>Precio Pactado (Subtotal)</Text>
-        <Text style={styles.detailValue}>${Number(service.agreedPrice).toFixed(2)}</Text>
-      </View>
-      <View style={styles.detailCol}>
-        <Text style={styles.detailLabel}>Impuestos Aplicables</Text>
-        <Text style={styles.detailValue}>
-          {service.applyTax ? `ITBMS (${(Number(service.taxRate) * 100).toFixed(0)}%)` : 'Exento'}
-        </Text>
+      {services.map((s: any, i: number) => (
+        <View key={s.id || i} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 4 }}>
+          <Text style={styles.detailValue}>{s.service?.name || "Servicio"}</Text>
+          <Text style={styles.detailValue}>${Number(s.agreedPrice).toFixed(2)}</Text>
+        </View>
+      ))}
+      <View style={{ width: '100%', borderTopWidth: 1, borderTopColor: '#d4d4d8', marginTop: 6, paddingTop: 6 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+          <Text style={{ fontSize: 9, color: '#71717a' }}>Subtotal</Text>
+          <Text style={styles.detailValue}>${subtotal.toFixed(2)}</Text>
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+          <Text style={{ fontSize: 9, color: '#71717a' }}>ITBMS</Text>
+          <Text style={styles.detailValue}>${totalTax.toFixed(2)}</Text>
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#18181b' }}>Total</Text>
+          <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#18181b' }}>${total.toFixed(2)}</Text>
+        </View>
       </View>
     </View>
   )
@@ -169,9 +180,16 @@ function ClassicHeader({ contract, company, primaryColor }: any) {
   )
 }
 
-export function ContractPDF({ contract, company }: any) {
+export function ContractPDF({ contract, company, ownerName }: any) {
   const primaryColor = colorMap[contract.pdfColor] || colorMap.slate
   const templateType = contract.pdfTemplate || "professional"
+
+  const servicesList = contract.client?.clientServices || []
+  const servicesDesc = servicesList.length > 0
+    ? `los servicios de ${servicesList.map((s: any) => s.service?.name).filter(Boolean).join(", ")}`
+    : contract.clientService
+      ? `servicios de ${contract.clientService.service.name}`
+      : "los servicios descritos a continuación"
 
   return (
     <Document>
@@ -181,7 +199,7 @@ export function ContractPDF({ contract, company }: any) {
         {templateType === "professional" && <ProfessionalHeader contract={contract} company={company} primaryColor={primaryColor} />}
 
         <Text style={styles.intro}>
-          Este documento constituye un acuerdo legal vinculante y formal entre <Text style={styles.fontBold}>{company.name}</Text> (en adelante "El Proveedor"){company.ruc ? ` con RUC ${company.ruc}${company.dv ? `-${company.dv}` : ""}` : ""} y <Text style={styles.fontBold}>{contract.client.name}</Text>{contract.client.email ? ` (${contract.client.email})` : ""} (en adelante "El Cliente"), para la prestación de {contract.clientService ? `servicios de ${contract.clientService.service.name}` : "los servicios descritos a continuación"}. Ambas partes reconocen tener la capacidad legal necesaria para celebrar este contrato bajo los términos y condiciones estipulados a continuación.
+          Este documento constituye un acuerdo legal vinculante y formal entre <Text style={styles.fontBold}>{company.name}</Text> (en adelante "El Proveedor"){company.ruc ? ` con RUC ${company.ruc}${company.dv ? `-${company.dv}` : ""}` : ""} y <Text style={styles.fontBold}>{contract.client.name}</Text>{contract.client.email ? ` (${contract.client.email})` : ""} (en adelante "El Cliente"), para la prestación de {servicesDesc}. Ambas partes reconocen tener la capacidad legal necesaria para celebrar este contrato bajo los términos y condiciones estipulados a continuación.
         </Text>
 
         <ContractDetails contract={contract} company={company} primaryColor={primaryColor} />
@@ -194,8 +212,8 @@ export function ContractPDF({ contract, company }: any) {
         <View style={styles.signatures} wrap={false}>
           <View style={styles.sigBox}>
             <View style={styles.sigLine} />
-            <Text style={styles.sigName}>{company.name}</Text>
-            <Text style={styles.sigRole}>Firma del Proveedor</Text>
+            <Text style={styles.sigName}>{ownerName || company.name}</Text>
+            <Text style={styles.sigRole}>{company.name}</Text>
           </View>
           <View style={styles.sigBox}>
             <View style={styles.sigLine} />

@@ -18,7 +18,19 @@ function toPlainContract(c: any) {
         ...c.clientService.service,
         defaultPrice: c.clientService.service.defaultPrice ? Number(c.clientService.service.defaultPrice) : 0
       } : null
-    } : null
+    } : null,
+    client: c.client ? {
+      ...c.client,
+      clientServices: c.client.clientServices ? c.client.clientServices.map((cs: any) => ({
+        ...cs,
+        agreedPrice: Number(cs.agreedPrice),
+        taxRate: Number(cs.taxRate),
+        service: cs.service ? {
+          ...cs.service,
+          defaultPrice: Number(cs.service.defaultPrice)
+        } : null
+      })) : []
+    } : c.client
   }
 }
 
@@ -49,7 +61,13 @@ export async function getContracts(companyIdParam?: string) {
   const contracts = await prisma.contract.findMany({
     where: { companyId: activeTenantId },
     include: {
-      client: true,
+      client: {
+        include: {
+          clientServices: {
+            include: { service: true }
+          }
+        }
+      },
       clientService: {
         include: { service: true }
       }
@@ -91,7 +109,13 @@ export async function getContractById(id: string, companyIdParam?: string) {
   const contract = await prisma.contract.findUnique({
     where: { id, companyId: activeTenantId },
     include: {
-      client: true,
+      client: {
+        include: {
+          clientServices: {
+            include: { service: true }
+          }
+        }
+      },
       clientService: {
         include: { service: true }
       }

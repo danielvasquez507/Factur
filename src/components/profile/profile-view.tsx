@@ -155,7 +155,7 @@ export function ProfileView({ user, activeCompanyId }: { user: any, activeCompan
         <DeveloperCredits variant="card" />
 
         <div className="text-xs text-center text-zinc-600 pt-2">
-          Factur DV v0.1.52
+          Factur DV v0.1.54
         </div>
       </div>
     </div>

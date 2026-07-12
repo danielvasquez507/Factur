@@ -71,39 +71,58 @@ function renderSection(title: string, items: any[], primaryColor: string) {
 }
 
 function ContractDetailsHTML({ contract, primaryColor }: any) {
-  const service = contract.clientService
-  if (!service) return null
+  const clientServices = contract.client?.clientServices || []
+  if (clientServices.length === 0 && !contract.clientService) return null
 
-  const getBillingFreq = (freq: string) => {
-    const map: Record<string, string> = { MONTHLY: "Mensual", QUARTERLY: "Trimestral", ANNUALLY: "Anual", ONE_TIME: "Único" }
-    return map[freq] || freq
-  }
+  const services = clientServices.length > 0 ? clientServices : (contract.clientService ? [contract.clientService] : [])
+
+  let subtotal = 0
+  let totalTax = 0
+  services.forEach((s: any) => {
+    const price = Number(s.agreedPrice)
+    const tax = s.applyTax ? price * Number(s.taxRate) : 0
+    subtotal += price
+    totalTax += tax
+  })
+  const total = subtotal + totalTax
 
   return (
-    <div className="bg-zinc-100 p-4 rounded-md mb-6 flex flex-wrap" style={{ borderLeftWidth: 3, borderLeftColor: primaryColor }}>
-      <div className="w-1/2 mb-3">
-        <div className="text-[8px] text-zinc-500 uppercase font-bold mb-1">Servicio Contratado</div>
-        <div className="text-[10px] text-zinc-900">{service.service.name}</div>
+    <div className="bg-zinc-100 p-4 rounded-md mb-6" style={{ borderLeftWidth: 3, borderLeftColor: primaryColor }}>
+      <div className="text-[8px] text-zinc-500 uppercase font-bold mb-2">Servicios Contratados</div>
+      <div className="space-y-1.5 mb-3">
+        {services.map((s: any, i: number) => (
+          <div key={s.id || i} className="flex justify-between text-[10px]">
+            <span className="text-zinc-900">{s.service?.name || "Servicio"}</span>
+            <span className="text-zinc-900 font-medium">${Number(s.agreedPrice).toFixed(2)}</span>
+          </div>
+        ))}
       </div>
-      <div className="w-1/2 mb-3">
-        <div className="text-[8px] text-zinc-500 uppercase font-bold mb-1">Frecuencia de Cobro</div>
-        <div className="text-[10px] text-zinc-900">{getBillingFreq(service.billingFrequency)}</div>
-      </div>
-      <div className="w-1/2 mb-3">
-        <div className="text-[8px] text-zinc-500 uppercase font-bold mb-1">Precio Pactado (Subtotal)</div>
-        <div className="text-[10px] text-zinc-900">${Number(service.agreedPrice).toFixed(2)}</div>
-      </div>
-      <div className="w-1/2 mb-3">
-        <div className="text-[8px] text-zinc-500 uppercase font-bold mb-1">Impuestos Aplicables</div>
-        <div className="text-[10px] text-zinc-900">
-          {service.applyTax ? `ITBMS (${(Number(service.taxRate) * 100).toFixed(0)}%)` : 'Exento'}
+      <div className="border-t border-zinc-300 pt-2 space-y-1">
+        <div className="flex justify-between text-[10px]">
+          <span className="text-zinc-500">Subtotal</span>
+          <span className="text-zinc-900">${subtotal.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between text-[10px]">
+          <span className="text-zinc-500">ITBMS</span>
+          <span className="text-zinc-900">${totalTax.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between text-[11px] font-bold">
+          <span className="text-zinc-900">Total</span>
+          <span className="text-zinc-900">${total.toFixed(2)}</span>
         </div>
       </div>
     </div>
   )
 }
 
-function CommonBody({ contract, company, primaryColor }: any) {
+function CommonBody({ contract, company, primaryColor, ownerName }: any) {
+  const servicesList = contract.client?.clientServices || []
+  const servicesDesc = servicesList.length > 0
+    ? `los servicios de ${servicesList.map((s: any) => s.service?.name).filter(Boolean).join(", ")}`
+    : contract.clientService
+      ? `servicios de ${contract.clientService.service.name}`
+      : "los servicios descritos a continuación"
+
   return (
     <>
       <div className="mb-6">
@@ -111,7 +130,7 @@ function CommonBody({ contract, company, primaryColor }: any) {
           Este documento constituye un acuerdo legal vinculante y formal entre <strong className="text-zinc-900">{company.name}</strong> (en adelante "El Proveedor")
           {company.ruc ? ` con RUC ${company.ruc}${company.dv ? `-${company.dv}` : ""}` : ""} y
           <strong className="text-zinc-900"> {contract.client.name}</strong>{contract.client.email ? ` (${contract.client.email})` : ""} (en adelante "El Cliente"), para la prestación de
-          {contract.clientService ? ` servicios de ${contract.clientService.service.name}` : " los servicios descritos a continuación"}. Ambas partes reconocen tener la capacidad legal necesaria para celebrar este contrato bajo los términos y condiciones estipulados a continuación.
+          {` ${servicesDesc}`}. Ambas partes reconocen tener la capacidad legal necesaria para celebrar este contrato bajo los términos y condiciones estipulados a continuación.
         </p>
       </div>
 
@@ -125,8 +144,8 @@ function CommonBody({ contract, company, primaryColor }: any) {
       <div className="mt-12 pt-10 flex justify-around border-t border-zinc-200">
         <div className="w-2/5 text-center">
           <div className="border-t border-zinc-500 w-full mb-1" />
-          <p className="font-bold text-[11px] text-zinc-900">{company.name}</p>
-          <p className="text-[9px] text-zinc-500 mt-0.5">Firma del Proveedor</p>
+          <p className="font-bold text-[11px] text-zinc-900">{ownerName || company.name}</p>
+          <p className="text-[9px] text-zinc-500 mt-0.5">{company.name}</p>
         </div>
         <div className="w-2/5 text-center">
           <div className="border-t border-zinc-500 w-full mb-1" />
@@ -138,7 +157,7 @@ function CommonBody({ contract, company, primaryColor }: any) {
   )
 }
 
-function ProfessionalTemplate({ contract, company, primaryColor }: any) {
+function ProfessionalTemplate({ contract, company, primaryColor, ownerName }: any) {
   return (
     <div className="bg-white p-10 min-h-full font-sans">
       <div className="flex justify-between items-start mb-8 pb-5 border-b-2" style={{ borderBottomColor: primaryColor }}>
@@ -161,12 +180,12 @@ function ProfessionalTemplate({ contract, company, primaryColor }: any) {
           )}
         </div>
       </div>
-      <CommonBody contract={contract} company={company} primaryColor={primaryColor} />
+      <CommonBody contract={contract} company={company} primaryColor={primaryColor} ownerName={ownerName} />
     </div>
   )
 }
 
-function ModernTemplate({ contract, company, primaryColor }: any) {
+function ModernTemplate({ contract, company, primaryColor, ownerName }: any) {
   return (
     <div className="bg-white p-10 min-h-full font-sans">
       <div className="flex justify-between items-start mb-10 p-5 rounded-lg bg-slate-50 border-l-4" style={{ borderLeftColor: primaryColor }}>
@@ -185,12 +204,12 @@ function ModernTemplate({ contract, company, primaryColor }: any) {
           )}
         </div>
       </div>
-      <CommonBody contract={contract} company={company} primaryColor={primaryColor} />
+      <CommonBody contract={contract} company={company} primaryColor={primaryColor} ownerName={ownerName} />
     </div>
   )
 }
 
-function ClassicTemplate({ contract, company, primaryColor }: any) {
+function ClassicTemplate({ contract, company, primaryColor, ownerName }: any) {
   return (
     <div className="bg-white p-10 min-h-full font-sans">
       <div className="flex flex-col items-center mb-8 pb-5 border-b" style={{ borderBottomColor: primaryColor }}>
@@ -204,17 +223,17 @@ function ClassicTemplate({ contract, company, primaryColor }: any) {
           Suscrito el <span className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
         </div>
       </div>
-      <CommonBody contract={contract} company={company} primaryColor={primaryColor} />
+      <CommonBody contract={contract} company={company} primaryColor={primaryColor} ownerName={ownerName} />
     </div>
   )
 }
 
-function ContractContent({ contract, company, template, primaryColor }: any) {
+function ContractContent({ contract, company, template, primaryColor, ownerName }: any) {
   switch (template) {
-    case "modern": return <ModernTemplate contract={contract} company={company} primaryColor={primaryColor} />
-    case "classic": return <ClassicTemplate contract={contract} company={company} primaryColor={primaryColor} />
+    case "modern": return <ModernTemplate contract={contract} company={company} primaryColor={primaryColor} ownerName={ownerName} />
+    case "classic": return <ClassicTemplate contract={contract} company={company} primaryColor={primaryColor} ownerName={ownerName} />
     case "professional":
-    default: return <ProfessionalTemplate contract={contract} company={company} primaryColor={primaryColor} />
+    default: return <ProfessionalTemplate contract={contract} company={company} primaryColor={primaryColor} ownerName={ownerName} />
   }
 }
 
@@ -453,9 +472,11 @@ function TemplateSelector({ template, color, primaryColor, onTemplateChange, onC
 export function ContractDetailView({
   contract,
   company,
+  ownerName,
 }: {
   contract: any
   company: any
+  ownerName?: string
 }) {
   const [templateOpen, setTemplateOpen] = useState(false)
   const [template, setTemplate] = useState(contract.pdfTemplate || "professional")
@@ -571,6 +592,7 @@ export function ContractDetailView({
               company={company}
               template={template}
               primaryColor={primaryColor}
+              ownerName={ownerName}
             />
           </Card>
         </A4PreviewWrapper>

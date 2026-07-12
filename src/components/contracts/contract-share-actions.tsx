@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Download, Send, Mail, Link as LinkIcon, Check } from "lucide-react"
 
@@ -16,9 +16,11 @@ type Props = {
 
 export function ContractShareActions({ contractId, clientEmail, contractTitle, companyName, template, color, children }: Props) {
   const [copied, setCopied] = useState(false)
+  const [publicLink, setPublicLink] = useState(`/api/contracts/${contractId}/pdf`)
 
-  // Asignamos una ruta que en un futuro podría ser pública, por ahora compartimos el enlace al PDF
-  const publicLink = typeof window !== 'undefined' ? `${window.location.origin}/api/contracts/${contractId}/pdf` : `/api/contracts/${contractId}/pdf`
+  useEffect(() => {
+    setPublicLink(`${window.location.origin}/api/contracts/${contractId}/pdf`)
+  }, [contractId])
 
   const copyLink = async () => {
     try {
