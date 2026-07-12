@@ -30,12 +30,12 @@ const styles = StyleSheet.create({
   headerTextBold: { fontFamily: 'Helvetica-Bold', color: '#18181b' },
 
   // Typography
-  intro: { fontSize: 10, color: '#3f3f46', lineHeight: 1.5, marginBottom: 20, textAlign: 'justify' },
+  intro: { fontSize: 10, color: '#3f3f46', lineHeight: 1.5, marginBottom: 20, textAlign: 'justify', wordBreak: 'keep-all' },
   section: { marginBottom: 15 },
   sectionTitle: { fontSize: 11, fontFamily: 'Helvetica-Bold', textTransform: 'uppercase', marginBottom: 8 },
   listItem: { flexDirection: 'row', marginBottom: 6 },
   listBullet: { width: 15, fontSize: 10, color: '#3f3f46' },
-  listContent: { flex: 1, fontSize: 10, color: '#3f3f46', lineHeight: 1.4, textAlign: 'justify' },
+  listContent: { flex: 1, fontSize: 10, color: '#3f3f46', lineHeight: 1.4, textAlign: 'justify', wordBreak: 'keep-all' },
 
   // Signatures
   signatures: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 60, paddingTop: 40, borderTopWidth: 1, borderTopColor: '#e4e4e7' },

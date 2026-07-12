@@ -155,7 +155,7 @@ export default async function ClientDetailsPage(
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <ClientSubscriptions subscriptions={subscriptions} />
+          <ClientSubscriptions subscriptions={subscriptions} clientId={client.id} />
         </CardContent>
       </Card>
 

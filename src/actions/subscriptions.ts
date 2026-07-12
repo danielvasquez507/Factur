@@ -74,3 +74,24 @@ export async function assignServiceToClient(formData: FormData) {
     return { error: "Error al asignar el servicio al cliente" }
   }
 }
+
+export async function unlinkClientService(clientServiceId: string, clientId: string) {
+  const session = await auth()
+  const activeTenantId = await getActiveTenantId()
+
+  if (!session?.user || !activeTenantId) return { error: "No autorizado" }
+
+  const prisma = getTenantPrisma(activeTenantId)
+
+  try {
+    await prisma.clientService.delete({
+      where: { id: clientServiceId, clientId, companyId: activeTenantId }
+    })
+
+    revalidatePath(`/clientes/${clientId}`)
+    return { success: true }
+  } catch (error) {
+    console.error("Error unlinking service:", error)
+    return { error: "Error al desvincular el servicio del cliente" }
+  }
+}
