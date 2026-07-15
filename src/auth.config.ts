@@ -22,13 +22,14 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
       const isLoginPage = nextUrl.pathname === '/login'
+      const isLandingPage = nextUrl.pathname === '/'
       const isApiRoute = nextUrl.pathname.startsWith('/api')
 
       if (isLoggedIn && isLoginPage) {
-        return Response.redirect(new URL('/', nextUrl))
+        return Response.redirect(new URL('/panel', nextUrl))
       }
 
-      if (isLoginPage || isApiRoute) return true
+      if (isLoginPage || isApiRoute || isLandingPage) return true
 
       if (!isLoggedIn) return false
 

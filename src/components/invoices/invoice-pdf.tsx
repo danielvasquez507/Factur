@@ -226,7 +226,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   
   const template = company.invoiceTemplate || 'modern'
   const invNum = String(invoice.invoiceNumber).padStart(6, '0')
-  const logoUrl = resolveImageUrl(company.logoUrl)
+  const logoUrl = resolveImageUrl(company.logoUrl || '/icon-512.png')
   
   const colorMap: Record<string, string> = {
     blue: '#2563eb',

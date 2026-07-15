@@ -215,3 +215,28 @@
 .animate-slide-down {
   animation: slide-down 0.3s ease;
 }
+/* Landing Page Styles */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(11, 17, 32, 0.95); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.4); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
+::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.7); }
+
+.accordion-content {
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+.accordion-content.active {
+    opacity: 1;
+    max-height: 800px; 
+}
+.accordion-icon {
+    transition: transform 0.3s ease;
+}
+.accordion-item.open .accordion-icon {
+    transform: rotate(180deg);
+}
