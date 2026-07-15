@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 
 const superAdminItems = [
-  { label: "Panel", icon: LayoutDashboard, href: "/" },
+  { label: "Panel", icon: LayoutDashboard, href: "/panel" },
   { label: "Usuarios", icon: UserIcon, href: "/usuarios" },
   { label: "logo", icon: null, href: "/perfil" },
   { label: "Empresas", icon: Briefcase, href: "/empresas" },
@@ -32,7 +32,7 @@ const superAdminItems = [
 ]
 
 const userItems = [
-  { label: "Panel", icon: LayoutDashboard, href: "/" },
+  { label: "Panel", icon: LayoutDashboard, href: "/panel" },
   { label: "Clientes", icon: Users, href: "/clientes" },
   { label: "logo", icon: null, href: "/" },
   { label: "Historial", icon: Receipt, href: "/facturas" },

@@ -13,6 +13,7 @@ import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { setActiveTenant } from "@/actions/tenant"
 import { useRouter } from "next/navigation"
+import packageJson from "../../../package.json"
 
 export function ProfileView({ user, activeCompanyId }: { user: any, activeCompanyId?: string | null }) {
   const { setTheme, theme } = useTheme()
@@ -178,7 +179,7 @@ export function ProfileView({ user, activeCompanyId }: { user: any, activeCompan
 
         <div className="text-center pt-2">
           <span className="text-xs font-black tracking-tighter text-zinc-500">Factur<span className="text-blue-500">.</span></span>
-          <span className="text-[10px] text-zinc-600 ml-1">v0.1.55</span>
+          <span className="text-[10px] text-zinc-600 ml-1">v{packageJson.version}</span>
         </div>
       </div>
     </div>

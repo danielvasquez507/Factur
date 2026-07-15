@@ -20,8 +20,8 @@ export function Sidebar({ userRole, pendingRequestsCount = 0, activeCompanyRole 
     {
       label: "Panel",
       icon: LayoutDashboard,
-      href: "/",
-      active: pathname === "/",
+      href: "/panel",
+      active: pathname === "/panel",
       roles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
     },
     {

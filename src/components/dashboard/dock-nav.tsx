@@ -22,14 +22,14 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
   const isSuperAdmin = userRole === "SUPER_ADMIN"
 
   const regularItems = [
-    { href: "/", label: "Panel", icon: LayoutDashboard },
+    { href: "/panel", label: "Panel", icon: LayoutDashboard },
     { href: "/clientes", label: "Clientes", icon: Users },
     { href: "/historial", label: "Historial", icon: History },
     { href: "/perfil", label: "Perfil", icon: UserCircle },
   ]
 
   const adminItems = [
-    { href: "/", label: "Panel", icon: LayoutDashboard },
+    { href: "/panel", label: "Panel", icon: LayoutDashboard },
     { href: "/usuarios", label: "Usuarios", icon: Users },
     { href: "/empresas", label: "Empresas", icon: Building2 },
     { 
