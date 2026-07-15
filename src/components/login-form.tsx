@@ -45,7 +45,7 @@ export function LoginForm() {
       }
       setLoading(false)
     } else {
-      window.location.href = "/"
+      window.location.href = "/panel"
     }
   }
 

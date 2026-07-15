@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "FacturDV - Facturación",
     short_name: "Factur",
     description: "Plataforma de Facturación B2B Multi-Tenant",
-    start_url: "/",
+    start_url: "/login",
     display: "standalone",
     background_color: "#09090b",
     theme_color: "#6366f1",
