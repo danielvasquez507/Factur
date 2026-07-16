@@ -10,12 +10,16 @@ type Props = {
   clientEmail: string | null
   invNum: string
   companyName: string
+  companyRuc?: string | null
+  companyDv?: string | null
+  companyAddress?: string | null
   template?: string
   color?: string
+  orientation?: string
   children?: React.ReactNode
 }
 
-export function InvoiceShareActions({ invoiceId, publicLink, clientEmail, invNum, companyName, template, color, children }: Props) {
+export function InvoiceShareActions({ invoiceId, publicLink, clientEmail, invNum, companyName, companyRuc, companyDv, companyAddress, template, color, orientation, children }: Props) {
   const [copied, setCopied] = useState(false)
 
   const copyLink = async () => {
@@ -36,10 +40,14 @@ export function InvoiceShareActions({ invoiceId, publicLink, clientEmail, invNum
     window.open(publicLink, '_blank')
   }
 
-  const whatsappMsg = `Hola, te comparto la factura FAC-${invNum}. Puedes descargarla de forma segura aquí: ${publicLink}`
+  const pdfUrl = `/api/invoices/${invoiceId}/pdf${template || color || orientation ? `?${template ? `template=${template}` : ''}${template && color ? '&' : ''}${color ? `color=${color}` : ''}${(template || color) && orientation ? '&' : ''}${orientation ? `orientation=${orientation}` : ''}&download=true` : '?download=true'}`
+
+  const companyInfo = `${companyName}\n${companyRuc ? `RUC: ${companyRuc}${companyDv ? ` DV: ${companyDv}` : ''}` : ''}\n${companyAddress ? `${companyAddress}` : ''}`.trim()
+
+  const whatsappMsg = `*DOCUMENTO TRIBUTARIO - FACTURA N° FAC-${invNum}*\n\nEstimado cliente, reciba un cordial saludo de *${companyName}*.\n\nAdjuntamos el enlace directo y seguro para la descarga de su factura electrónica en formato PDF:\n\n👉 *Verlo Aquí:* ${publicLink}\n\n*Datos del Emisor:*\n${companyInfo}\n\nGracias por su preferencia.`
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`
 
-  const emailMsg = `Hola,\n\nTe compartimos el enlace para descargar tu factura FAC-${invNum}:\n\n${publicLink}\n\nGracias por tu preferencia.`
+  const emailMsg = `Estimado cliente,\n\nReciba un cordial saludo de parte de ${companyName}.\n\nPor este medio le compartimos el enlace directo para la descarga de su Factura N° FAC-${invNum} en formato PDF:\n\n👉 Verlo Aquí: ${publicLink}\n\nAtentamente,\n\n${companyInfo}\n\nGracias por su preferencia.`
   const emailUrl = `mailto:${clientEmail || ""}?subject=Factura FAC-${invNum} - ${companyName}&body=${encodeURIComponent(emailMsg)}`
 
   return (
@@ -47,7 +55,7 @@ export function InvoiceShareActions({ invoiceId, publicLink, clientEmail, invNum
       <Button
         variant="outline"
         className="group bg-zinc-900/80 backdrop-blur border-white/10 hover:bg-white hover:text-black text-white shadow-xl rounded-full transition-all duration-300 h-10 px-4 py-2 sm:h-9"
-        render={<a href={`/api/invoices/${invoiceId}/pdf${template || color ? `?${template ? `template=${template}` : ''}${template && color ? '&' : ''}${color ? `color=${color}` : ''}&download=true` : '?download=true'}`} />}
+        render={<a href={pdfUrl} />}
         nativeButton={false}
       >
         <Download className="w-4 h-4 mr-2 text-zinc-400 group-hover:text-black transition-colors" />

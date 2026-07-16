@@ -81,9 +81,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const template = searchParams.get("template") || fullInvoice.company.invoiceTemplate || "modern"
   const color = searchParams.get("color") || fullInvoice.company.invoiceColor || "slate"
+  const orientation = (searchParams.get("orientation") as "portrait" | "landscape") || "portrait"
 
   try {
-    const pdfStream = await renderToStream(React.createElement(InvoicePDF, { invoice: fullInvoice, company: { ...fullInvoice.company, invoiceTemplate: template, invoiceColor: color } }) as any)
+    const pdfStream = await renderToStream(React.createElement(InvoicePDF, { invoice: fullInvoice, company: { ...fullInvoice.company, invoiceTemplate: template, invoiceColor: color }, orientation: orientation }) as any)
 
     // El stream retornado por react-pdf es un stream de NodeJS, lo envolvemos en un ReadableStream de web para NextResponse
     const webStream = new ReadableStream({

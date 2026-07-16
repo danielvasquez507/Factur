@@ -180,7 +180,7 @@ function ClassicHeader({ contract, company, primaryColor }: any) {
   )
 }
 
-export function ContractPDF({ contract, company, ownerName }: any) {
+export function ContractPDF({ contract, company, ownerName, orientation = "portrait" }: any) {
   const primaryColor = colorMap[contract.pdfColor] || colorMap.slate
   const templateType = contract.pdfTemplate || "professional"
 
@@ -193,7 +193,7 @@ export function ContractPDF({ contract, company, ownerName }: any) {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" orientation={orientation} style={styles.page}>
         {templateType === "modern" && <ModernHeader contract={contract} company={company} primaryColor={primaryColor} />}
         {templateType === "classic" && <ClassicHeader contract={contract} company={company} primaryColor={primaryColor} />}
         {templateType === "professional" && <ProfessionalHeader contract={contract} company={company} primaryColor={primaryColor} />}

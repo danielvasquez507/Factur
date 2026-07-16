@@ -43,7 +43,7 @@ export default async function InvoiceDetailsPage(
             <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-white">
               FAC-{invNum}
             </h1>
-            <InvoiceStatusSelector invoiceId={invoice.id} currentStatus={invoice.status} />
+            {/* <InvoiceStatusSelector invoiceId={invoice.id} currentStatus={invoice.status} /> */}
           </div>
         </div>
 

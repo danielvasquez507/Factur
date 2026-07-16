@@ -1,0 +1,13 @@
+const fs = require('fs');
+let content = fs.readFileSync('src/components/landing/landing-content.tsx', 'utf-8');
+content = content.replace(/stroke-width/g, 'strokeWidth');
+content = content.replace(/stroke-linecap/g, 'strokeLinecap');
+content = content.replace(/stroke-linejoin/g, 'strokeLinejoin');
+content = content.replace(/fill-rule/g, 'fillRule');
+content = content.replace(/clip-rule/g, 'clipRule');
+content = content.replace(/text-anchor/g, 'textAnchor');
+content = content.replace(/font-family/g, 'fontFamily');
+content = content.replace(/font-size/g, 'fontSize');
+content = content.replace(/font-weight/g, 'fontWeight');
+fs.writeFileSync('src/components/landing/landing-content.tsx', content);
+console.log("Fixed!");

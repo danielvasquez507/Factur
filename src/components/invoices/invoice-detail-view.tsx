@@ -794,8 +794,12 @@ export function InvoiceDetailView({
         clientEmail={invoice.client.email}
         invNum={invNum}
         companyName={company.name}
+        companyRuc={company.ruc}
+        companyDv={company.dv}
+        companyAddress={company.address}
         template={template}
         color={color}
+        orientation={orientation}
       >
         <Button
           variant="outline"

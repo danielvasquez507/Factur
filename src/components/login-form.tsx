@@ -101,11 +101,11 @@ export function LoginForm() {
             type="submit" 
             disabled={loading}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Entrar a mi cuenta"}
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Iniciar sesión"}
           </Button>
           <div className="text-center">
             <Link href="/" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors inline-flex items-center gap-1">
-              Volver al inicio
+              Ir al Sitio Web
             </Link>
           </div>
         </div>

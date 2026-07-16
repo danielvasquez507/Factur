@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   
   // Modern Layout
   m_page: { padding: 0 },
-  m_headerBanner: { height: 120, paddingHorizontal: 40, paddingTop: 40, flexDirection: 'row', justifyContent: 'space-between' },
+  m_headerBanner: { minHeight: 120, paddingHorizontal: 40, paddingTop: 40, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between' },
   m_logo: { width: 252, height: 108, objectFit: 'contain', objectPosition: 'left' },
   m_headerContent: { paddingHorizontal: 40, marginTop: 30, flexDirection: 'row', justifyContent: 'space-between' },
   m_invoiceDetails: { backgroundColor: '#f4f4f5', padding: 15, borderRadius: 8, width: '45%' },
@@ -221,7 +221,7 @@ const resolveImageUrl = (url: string) => {
   return url;
 }
 
-export function InvoicePDF({ invoice, company }: { invoice: any, company: any }) {
+export function InvoicePDF({ invoice, company, orientation = "portrait" }: { invoice: any, company: any, orientation?: "portrait" | "landscape" }) {
   const formatCurrency = (val: number | string) => `$${Number(val).toFixed(2)}`
   
   const template = company.invoiceTemplate || 'modern'
@@ -279,7 +279,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderClassic() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, styles.c_page]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, styles.c_page]}>
           <View style={styles.c_header}>
             <View style={{ width: '50%' }}>
               {logoUrl ? (
@@ -292,6 +292,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
               <Text style={[styles.c_companyInfo, styles.fontBold, { color: '#18181b', fontSize: 11, marginBottom: 2 }]}>{company.name}</Text>
               {company.ruc && <Text style={styles.c_companyInfo}>RUC: {company.ruc} {company.dv && `DV: ${company.dv}`}</Text>}
               {company.phone && <Text style={styles.c_companyInfo}>Tel: {company.phone}</Text>}
+              {company.address && <Text style={styles.c_companyInfo}>{company.address}</Text>}
             </View>
           </View>
           <View style={styles.c_sectionInfo}>
@@ -376,7 +377,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderModern() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, styles.m_page]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, styles.m_page]}>
           <View style={[styles.m_headerBanner, { backgroundColor: primaryColor }]}>
             <View style={{ width: '60%' }}>
               {logoUrl ? (
@@ -384,7 +385,9 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
               ) : (
                 <Text style={{ fontSize: 32, fontFamily: 'Helvetica-Bold', color: '#ffffff', letterSpacing: -1 }}>{company.name}</Text>
               )}
-              {company.ruc && <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 8 }}>RUC: {company.ruc} {company.dv && `DV: ${company.dv}`}</Text>}
+              {company.ruc && <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.9)', marginTop: 8 }}>RUC: {company.ruc} {company.dv && `DV: ${company.dv}`}</Text>}
+              {company.phone && <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>Tel: {company.phone}</Text>}
+              {company.address && <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{company.address}</Text>}
             </View>
             <View style={{ width: '40%', alignItems: 'flex-end' }}>
               <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.9)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Factura N°</Text>
@@ -469,7 +472,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderMinimal() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, { padding: 50 }]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, { padding: 50 }]}>
           {/* Header - minimal */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 50 }}>
             <View>
@@ -561,7 +564,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
 
           {/* Footer */}
           <View style={{ position: 'absolute', bottom: 30, left: 50, right: 50, borderTopWidth: 1, borderTopColor: '#e4e4e7', paddingTop: 8, flexDirection: 'row', justifyContent: 'center' }}>
-            <Text style={{ fontSize: 7, color: '#a1a1aa' }}>{company.ruc ? `RUC: ${company.ruc}${company.dv ? ` DV: ${company.dv}` : ''}  ·  ` : ''}{company.phone || ''}</Text>
+            <Text style={{ fontSize: 7, color: '#a1a1aa' }}>{company.ruc ? `RUC: ${company.ruc}${company.dv ? ` DV: ${company.dv}` : ''}  ·  ` : ''}{company.phone ? `${company.phone}  ·  ` : ''}{company.address || ''}</Text>
           </View>
         </Page>
       </Document>
@@ -571,7 +574,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderCorporate() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, { padding: 40 }]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, { padding: 40 }]}>
           {/* Letterhead header */}
           <View style={{ borderBottomWidth: 3, borderBottomColor: primaryColor, paddingBottom: 15, marginBottom: 5 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -686,6 +689,8 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
             <View style={{ backgroundColor: primaryColor, paddingVertical: 8, paddingHorizontal: 40, flexDirection: 'row', justifyContent: 'center' }}>
               <Text style={{ fontSize: 7, color: '#ffffff', letterSpacing: 0.5 }}>{company.name}</Text>
               {company.ruc && <Text style={{ fontSize: 7, color: '#ffffff', letterSpacing: 0.5 }}>  ·  RUC: {company.ruc}{company.dv ? `-${company.dv}` : ''}</Text>}
+              {company.phone && <Text style={{ fontSize: 7, color: '#ffffff', letterSpacing: 0.5 }}>  ·  {company.phone}</Text>}
+              {company.address && <Text style={{ fontSize: 7, color: '#ffffff', letterSpacing: 0.5 }}>  ·  {company.address}</Text>}
             </View>
           </View>
         </Page>
@@ -696,7 +701,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderElegant() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, styles.e_page]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, styles.e_page]}>
           {/* Top border accent */}
           <View style={[styles.e_borderTop, { backgroundColor: primaryColor }]} />
           
@@ -710,6 +715,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
               )}
               {company.ruc && <Text style={{ fontSize: 9, color: '#71717a', marginTop: 6 }}>RUC: {company.ruc}{company.dv ? ` DV: ${company.dv}` : ''}</Text>}
               {company.phone && <Text style={{ fontSize: 9, color: '#71717a', marginTop: 2 }}>Tel: {company.phone}</Text>}
+              {company.address && <Text style={{ fontSize: 9, color: '#71717a', marginTop: 2 }}>{company.address}</Text>}
             </View>
             <View style={{ width: '50%', alignItems: 'flex-end' }}>
               <Text style={[styles.e_invoiceTitle, { color: primaryColor }]}>FACTURA</Text>
@@ -809,7 +815,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderBold() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, styles.b_page]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, styles.b_page]}>
           {/* Header with background */}
           <View style={[styles.b_header, { backgroundColor: primaryColor }]}>
             <View style={styles.b_logoContainer}>
@@ -928,7 +934,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderProfessional() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, styles.p_page]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, styles.p_page]}>
           {/* Sidebar */}
           <View style={[styles.p_sidebar, { backgroundColor: primaryColor }]}>
             <View style={{ padding: 30, paddingTop: 40 }}>
@@ -1042,7 +1048,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderCreative() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, styles.cr_page]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, styles.cr_page]}>
           {/* Header Banner */}
           <View style={[styles.cr_headerBanner, { backgroundColor: primaryColor }]}>
             <View style={{ width: '50%' }}>
@@ -1159,7 +1165,7 @@ export function InvoicePDF({ invoice, company }: { invoice: any, company: any })
   function renderExecutive() {
     return (
       <Document>
-        <Page size="A4" style={[styles.page, styles.ex_page]}>
+        <Page size="A4" orientation={orientation} style={[styles.page, styles.ex_page]}>
           {/* Header */}
           <View style={styles.ex_header}>
             <View style={styles.ex_logoSection}>

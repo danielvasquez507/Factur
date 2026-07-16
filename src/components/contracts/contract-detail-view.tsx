@@ -524,8 +524,12 @@ export function ContractDetailView({
         clientEmail={contract.client?.email || null}
         contractTitle={contract.title}
         companyName={company.name}
+        companyRuc={company.ruc}
+        companyDv={company.dv}
+        companyAddress={company.address}
         template={template}
         color={color}
+        orientation={orientation}
       >
         <Button
           variant="outline"

@@ -72,8 +72,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   })
   const ownerName = ownerRelation?.user?.name || fullContract.company.name
 
+  const orientation = (searchParams.get("orientation") as "portrait" | "landscape") || "portrait"
+
   try {
-    const pdfStream = await renderToStream(React.createElement(ContractPDF, { contract: fullContract, company: fullContract.company, ownerName }) as any)
+    const pdfStream = await renderToStream(React.createElement(ContractPDF, { contract: fullContract, company: fullContract.company, ownerName, orientation }) as any)
 
     const webStream = new ReadableStream({
       start(controller) {
