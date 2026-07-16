@@ -215,7 +215,9 @@ const resolveImageUrl = (url: string) => {
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
   // URL relativa - construir URL absoluta con la variable de entorno
   if (url.startsWith('/')) {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://factur.danielvasquez.cloud';
+    const baseUrl = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : (process.env.NEXT_PUBLIC_APP_URL || 'https://factur.danielvasquez.cloud');
     return `${baseUrl}${url}`;
   }
   return url;

@@ -1,19 +1,10 @@
 "use client"
 
-import { useState, useTransition, useRef, useCallback, useEffect } from "react"
-import { format } from "date-fns"
+import { useState, useTransition, useEffect } from "react"
 import { Maximize2, X, Printer, Palette, LayoutTemplate, CheckCircle2, Loader2, RotateCcw, ZoomIn, CircleDot, ChevronDown, Coins, Smartphone, Landmark } from "lucide-react"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { updateInvoiceStatus } from "@/actions/invoices"
-import { Card } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -23,6 +14,14 @@ import {
 } from "@/components/ui/dialog"
 import { InvoiceShareActions } from "@/components/invoices/invoice-share-actions"
 import { updateCompanyInvoiceStyle } from "@/actions/companies"
+import dynamic from "next/dynamic"
+
+// Import PDFCanvasViewer dynamically with ssr false
+const PDFCanvasViewer = dynamic(
+  () => import("./pdf-canvas-viewer"),
+  { ssr: false, loading: () => <div className="w-full h-full min-h-[500px] flex items-center justify-center text-zinc-400 bg-white border border-zinc-200"><Loader2 className="w-8 h-8 animate-spin" /></div> }
+)
+import { InvoicePDF } from "./invoice-pdf"
 
 const colorMap: Record<string, string> = {
   blue: "#2563eb",
@@ -67,458 +66,10 @@ const templates = [
   { id: "corporate", name: "Corporativa" },
 ]
 
-function formatCurrency(val: number | string) {
-  return `$${Number(val).toFixed(2)}`
-}
+function TemplateSelector({ template: initialTemplate, color: initialColor, primaryColor, onApply }: any) {
+  const [template, setTemplate] = useState(initialTemplate)
+  const [color, setColor] = useState(initialColor)
 
-function safeFormatDate(dateVal: any) {
-  if (!dateVal) return ""
-  try {
-    const d = new Date(dateVal)
-    const dd = String(d.getUTCDate()).padStart(2, "0")
-    const mm = String(d.getUTCMonth() + 1).padStart(2, "0")
-    const yyyy = d.getUTCFullYear()
-    return `${dd}/${mm}/${yyyy}`
-  } catch {
-    return ""
-  }
-}
-
-function getPaymentOptions(company: any) {
-  try {
-    if (company.paymentDetails) {
-      const parsed = JSON.parse(company.paymentDetails)
-      if (typeof parsed === "object") return parsed
-    }
-  } catch {}
-  return null
-}
-
-// --- MODERN TEMPLATE ---
-function ModernTemplate({ invoice, company, invNum, primaryColor }: any) {
-  const paymentOpts = getPaymentOptions(company)
-  return (
-    <div className="bg-white text-zinc-900">
-      <div className="h-28 px-8 pt-8 flex justify-between items-start" style={{ backgroundColor: primaryColor }}>
-        <div className="w-3/5">
-          {company.logoUrl ? (
-            <img src={company.logoUrl} alt={company.name} className="h-24 object-contain object-left" />
-          ) : (
-            <div className="text-3xl font-bold text-white tracking-tight">{company.name}</div>
-          )}
-          {company.ruc && <div className="text-xs text-white/80 mt-2">RUC: {company.ruc}{company.dv ? ` DV: ${company.dv}` : ""}</div>}
-        </div>
-        <div className="w-2/5 text-right">
-          <div className="text-[10px] text-white/80 uppercase tracking-wider mb-1">Factura N°</div>
-          <div className="text-2xl font-bold text-white">FAC-{invNum}</div>
-        </div>
-      </div>
-      <div className="px-8 mt-6 flex justify-between">
-        <div className="w-[45%]">
-          <div className="text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Facturado A</div>
-          <div className="font-bold text-lg text-zinc-900">{invoice.client.name}</div>
-          {invoice.client.email && <div className="text-sm text-zinc-500">{invoice.client.email}</div>}
-          {invoice.client.phone && <div className="text-sm text-zinc-500">{invoice.client.phone}</div>}
-        </div>
-        <div className="w-[45%] bg-zinc-50 p-4 rounded-lg">
-          <div className="flex justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-zinc-400">Emisión</span>
-            <span className="text-sm font-semibold">{safeFormatDate(invoice.issueDate)}</span>
-          </div>
-          {invoice.dueDate && (
-            <div className="flex justify-between">
-              <span className="text-[10px] uppercase tracking-wider text-zinc-400">Vencimiento</span>
-              <span className="text-sm font-semibold">{safeFormatDate(invoice.dueDate)}</span>
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="px-8 mt-6">
-        <div className="flex px-4 py-3 rounded-lg mb-1" style={{ backgroundColor: primaryColor }}>
-          <div className="text-xs font-bold text-white uppercase tracking-wider w-[50%]">Descripción</div>
-          <div className="text-xs font-bold text-white uppercase tracking-wider w-[15%] text-center">Cant.</div>
-          <div className="text-xs font-bold text-white uppercase tracking-wider w-[15%] text-right">Precio Unit.</div>
-          <div className="text-xs font-bold text-white uppercase tracking-wider w-[20%] text-right">Total</div>
-        </div>
-        {invoice.items.map((item: any, i: number) => (
-          <div key={item.id} className="flex px-4 py-3 border-b border-zinc-100" style={{ backgroundColor: i % 2 === 0 ? "#ffffff" : "#fafafa" }}>
-            <div className="w-[50%] pr-3">
-              <div className="text-sm font-semibold text-zinc-900">{item.description}</div>
-              {item.service && <div className="text-[11px] text-zinc-400 mt-0.5">Ref: {item.service.name}</div>}
-            </div>
-            <div className="w-[15%] text-sm text-zinc-600 text-center self-center">{item.quantity}</div>
-            <div className="w-[15%] text-sm text-zinc-600 text-right self-center">{formatCurrency(item.unitPrice)}</div>
-            <div className="w-[20%] text-sm font-bold text-right self-center" style={{ color: primaryColor }}>{formatCurrency(item.lineTotal || item.total)}</div>
-          </div>
-        ))}
-      </div>
-      <div className="px-8 mt-4 flex justify-end">
-        <div className="w-[45%] bg-zinc-50 p-5 rounded-lg">
-          <div className="flex justify-between py-2">
-            <span className="text-sm text-zinc-500">Subtotal</span>
-            <span className="text-sm font-semibold text-zinc-900">{formatCurrency(invoice.subtotal)}</span>
-          </div>
-          <div className="flex justify-between py-2">
-            <span className="text-sm text-zinc-500">ITBMS (7%)</span>
-            <span className="text-sm font-semibold text-zinc-900">{formatCurrency(invoice.taxAmount)}</span>
-          </div>
-          <div className="flex justify-between pt-3 mt-2 font-bold text-base" style={{ borderTopWidth: 2, borderTopColor: primaryColor }}>
-            <span style={{ color: primaryColor }}>Total USD</span>
-            <span style={{ color: primaryColor }}>{formatCurrency(invoice.total)}</span>
-          </div>
-        </div>
-      </div>
-      {(invoice.notes || company.paymentDetails) && (
-        <div className="px-8 mt-6 pb-8">
-          {invoice.notes && (
-            <div className="border-l-4 p-4 mb-4" style={{ borderLeftColor: primaryColor, backgroundColor: "#f4f4f5" }}>
-              <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Notas / Términos</div>
-              <p className="text-sm text-zinc-600 leading-relaxed">{invoice.notes}</p>
-            </div>
-          )}
-          {company.paymentDetails && (
-            <div className="border-l-4 p-4" style={{ borderLeftColor: primaryColor, backgroundColor: "#f4f4f5" }}>
-              <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Opciones de Pago</div>
-              <RenderPaymentOptions paymentOpts={paymentOpts} company={company} />
-            </div>
-          )}
-        </div>
-      )}
-      <div className="h-5" style={{ backgroundColor: primaryColor, opacity: 0.8 }} />
-    </div>
-  )
-}
-
-// --- CLASSIC TEMPLATE ---
-function ClassicTemplate({ invoice, company, invNum, primaryColor }: any) {
-  const paymentOpts = getPaymentOptions(company)
-  return (
-    <div className="bg-white text-zinc-900 p-10">
-      <div className="flex justify-between items-center mb-10 pb-5" style={{ borderBottomWidth: 1, borderBottomColor: "#e4e4e7" }}>
-        <div className="w-1/2">
-          {company.logoUrl ? (
-            <img src={company.logoUrl} alt={company.name} className="h-28 object-contain object-left" />
-          ) : (
-            <div className="text-2xl font-bold tracking-tight" style={{ color: primaryColor }}>{company.name}</div>
-          )}
-        </div>
-        <div className="w-1/2 text-right">
-          <div className="text-sm font-bold text-zinc-900 mb-1">{company.name}</div>
-          {company.ruc && <div className="text-[11px] text-zinc-400">RUC: {company.ruc}{company.dv ? ` DV: ${company.dv}` : ""}</div>}
-          {company.phone && <div className="text-[11px] text-zinc-400">Tel: {company.phone}</div>}
-        </div>
-      </div>
-      <div className="flex justify-between mb-8">
-        <div className="w-[45%]">
-          <div className="text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Facturado A:</div>
-          <div className="font-bold text-base text-zinc-900">{invoice.client.name}</div>
-          {invoice.client.email && <div className="text-sm text-zinc-500">{invoice.client.email}</div>}
-          {invoice.client.phone && <div className="text-sm text-zinc-500">{invoice.client.phone}</div>}
-        </div>
-        <div className="w-[45%] text-right">
-          <div className="flex justify-end mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-zinc-400 mr-4 w-24 text-right">Factura N°:</span>
-            <span className="text-sm font-bold w-24 text-right" style={{ color: primaryColor }}>FAC-{invNum}</span>
-          </div>
-          <div className="flex justify-end mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-zinc-400 mr-4 w-24 text-right">Emisión:</span>
-            <span className="text-sm w-24 text-right">{safeFormatDate(invoice.issueDate)}</span>
-          </div>
-          {invoice.dueDate && (
-            <div className="flex justify-end">
-              <span className="text-[10px] uppercase tracking-wider text-zinc-400 mr-4 w-24 text-right">Vencimiento:</span>
-              <span className="text-sm w-24 text-right">{safeFormatDate(invoice.dueDate)}</span>
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="flex border-b-2 pb-2 mb-2" style={{ borderBottomColor: primaryColor }}>
-        <div className="text-xs font-bold uppercase tracking-wider w-[50%]" style={{ color: primaryColor }}>Descripción</div>
-        <div className="text-xs font-bold uppercase tracking-wider w-[15%] text-center" style={{ color: primaryColor }}>Cant.</div>
-        <div className="text-xs font-bold uppercase tracking-wider w-[15%] text-right" style={{ color: primaryColor }}>Precio Unit.</div>
-        <div className="text-xs font-bold uppercase tracking-wider w-[20%] text-right" style={{ color: primaryColor }}>Total</div>
-      </div>
-      {invoice.items.map((item: any) => (
-        <div key={item.id} className="flex py-3 border-b border-zinc-100">
-          <div className="w-[50%] pr-3">
-            <div className="text-sm font-semibold text-zinc-900">{item.description}</div>
-            {item.service && <div className="text-[11px] text-zinc-400 mt-0.5">Ref: {item.service.name}</div>}
-          </div>
-          <div className="w-[15%] text-sm text-zinc-600 text-center self-center">{item.quantity}</div>
-          <div className="w-[15%] text-sm text-zinc-600 text-right self-center">{formatCurrency(item.unitPrice)}</div>
-          <div className="w-[20%] text-sm font-bold text-right self-center">{formatCurrency(item.lineTotal || item.total)}</div>
-        </div>
-      ))}
-      <div className="w-[40%] ml-auto mt-5 pt-3" style={{ borderTopWidth: 1, borderTopColor: "#e4e4e7" }}>
-        <div className="flex justify-between py-1">
-          <span className="text-sm text-zinc-500">Subtotal</span>
-          <span className="text-sm font-semibold">{formatCurrency(invoice.subtotal)}</span>
-        </div>
-        <div className="flex justify-between py-1">
-          <span className="text-sm text-zinc-500">ITBMS (7%)</span>
-          <span className="text-sm font-semibold">{formatCurrency(invoice.taxAmount)}</span>
-        </div>
-        <div className="flex justify-between pt-3 mt-2 font-bold text-base" style={{ borderTopWidth: 2, borderTopColor: primaryColor }}>
-          <span style={{ color: primaryColor }}>Total USD</span>
-          <span style={{ color: primaryColor }}>{formatCurrency(invoice.total)}</span>
-        </div>
-      </div>
-      <div className="flex mt-10 gap-6">
-        {invoice.notes && (
-          <div className="flex-1 pt-3" style={{ borderTopWidth: 2, borderTopColor: "#f4f4f5" }}>
-            <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: primaryColor }}>Notas / Términos</div>
-            <p className="text-sm text-zinc-600 leading-relaxed">{invoice.notes}</p>
-          </div>
-        )}
-        {company.paymentDetails && (
-          <div className="flex-1 pt-3" style={{ borderTopWidth: 2, borderTopColor: "#f4f4f5" }}>
-            <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: primaryColor }}>Opciones de Pago</div>
-            <RenderPaymentOptions paymentOpts={paymentOpts} company={company} />
-          </div>
-        )}
-      </div>
-      <div className="mt-10 pt-3 text-center" style={{ borderTopWidth: 1, borderTopColor: "#e4e4e7" }}>
-        <div className="text-[11px] text-zinc-400 tracking-wider">{company.name} • Gracias por su preferencia</div>
-      </div>
-    </div>
-  )
-}
-
-// --- MINIMAL TEMPLATE ---
-function MinimalTemplate({ invoice, company, invNum, primaryColor }: any) {
-  const paymentOpts = getPaymentOptions(company)
-  return (
-    <div className="bg-white text-zinc-900 p-12">
-      <div className="flex justify-between mb-12">
-        <div>
-          {company.logoUrl ? (
-            <img src={company.logoUrl} alt={company.name} className="h-20 object-contain object-left" />
-          ) : (
-            <div className="text-xl font-bold tracking-tight text-zinc-900">{company.name}</div>
-          )}
-        </div>
-        <div className="text-right">
-          <div className="text-[10px] text-zinc-400 uppercase tracking-widest mb-1">Factura</div>
-          <div className="text-lg font-bold" style={{ color: primaryColor }}>FAC-{invNum}</div>
-        </div>
-      </div>
-      <div className="h-px bg-zinc-200 mb-8" />
-      <div className="flex justify-between mb-10">
-        <div>
-          <div className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">Cliente</div>
-          <div className="font-bold text-zinc-900">{invoice.client.name}</div>
-          {invoice.client.email && <div className="text-sm text-zinc-500">{invoice.client.email}</div>}
-          {invoice.client.phone && <div className="text-sm text-zinc-500">{invoice.client.phone}</div>}
-        </div>
-        <div className="text-right">
-          <div className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">Emisión</div>
-          <div className="text-sm font-bold text-zinc-900">{safeFormatDate(invoice.issueDate)}</div>
-          {invoice.dueDate && <div className="text-sm text-zinc-500 mt-1">Vence: {safeFormatDate(invoice.dueDate)}</div>}
-        </div>
-      </div>
-      <div className="flex border-b border-zinc-300 pb-2 mb-1">
-        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider w-[50%]">Descripción</div>
-        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider w-[15%] text-center">Cant</div>
-        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider w-[15%] text-right">Precio</div>
-        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider w-[20%] text-right">Total</div>
-      </div>
-      {invoice.items.map((item: any) => (
-        <div key={item.id} className="flex py-3 border-b border-zinc-100">
-          <div className="w-[50%] pr-3">
-            <div className="text-sm font-semibold text-zinc-900">{item.description}</div>
-          </div>
-          <div className="w-[15%] text-sm text-zinc-600 text-center self-center">{item.quantity}</div>
-          <div className="w-[15%] text-sm text-zinc-600 text-right self-center">{formatCurrency(item.unitPrice)}</div>
-          <div className="w-[20%] text-sm font-bold text-zinc-900 text-right self-center">{formatCurrency(item.lineTotal || item.total)}</div>
-        </div>
-      ))}
-      <div className="flex justify-end mt-4">
-        <div className="w-44">
-          <div className="flex justify-between py-1">
-            <span className="text-sm text-zinc-500">Subtotal</span>
-            <span className="text-sm text-zinc-900">{formatCurrency(invoice.subtotal)}</span>
-          </div>
-          <div className="flex justify-between py-1">
-            <span className="text-sm text-zinc-500">ITBMS (7%)</span>
-            <span className="text-sm text-zinc-900">{formatCurrency(invoice.taxAmount)}</span>
-          </div>
-          <div className="flex justify-between pt-2 mt-1 font-bold text-base" style={{ borderTopWidth: 2, borderTopColor: "#18181b" }}>
-            <span className="text-zinc-900">Total USD</span>
-            <span style={{ color: primaryColor }}>{formatCurrency(invoice.total)}</span>
-          </div>
-        </div>
-      </div>
-      <div className="mt-10">
-        {invoice.notes && (
-          <div className="mb-4">
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">Notas</div>
-            <p className="text-sm text-zinc-600 leading-relaxed">{invoice.notes}</p>
-          </div>
-        )}
-        {company.paymentDetails && (
-          <div>
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">Métodos de Pago</div>
-            <RenderPaymentOptions paymentOpts={paymentOpts} company={company} />
-          </div>
-        )}
-      </div>
-      <div className="mt-12 pt-3 text-center" style={{ borderTopWidth: 1, borderTopColor: "#e4e4e7" }}>
-        <div className="text-[11px] text-zinc-400">
-          {company.ruc ? `RUC: ${company.ruc}${company.dv ? ` DV: ${company.dv}` : ""}${company.phone ? "  ·  " : ""}` : ""}{company.phone || ""}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// --- CORPORATE TEMPLATE ---
-function CorporateTemplate({ invoice, company, invNum, primaryColor }: any) {
-  const paymentOpts = getPaymentOptions(company)
-  return (
-    <div className="bg-white text-zinc-900 p-10">
-      <div className="pb-4 mb-1" style={{ borderBottomWidth: 3, borderBottomColor: primaryColor }}>
-        <div className="flex justify-between items-start">
-          <div className="flex gap-4 items-center">
-            {company.logoUrl ? (
-              <img src={company.logoUrl} alt={company.name} className="h-24 object-contain object-left" />
-            ) : null}
-            <div>
-              <div className="text-xl font-bold tracking-tight text-zinc-900">{company.name}</div>
-              {company.ruc && <div className="text-[11px] text-zinc-500">RUC: {company.ruc}{company.dv ? `-${company.dv}` : ""}</div>}
-              {company.phone && <div className="text-[11px] text-zinc-500">Tel: {company.phone}</div>}
-              {company.address && <div className="text-[11px] text-zinc-500">{company.address}</div>}
-            </div>
-          </div>
-          <div className="px-4 py-2 rounded-sm" style={{ backgroundColor: primaryColor }}>
-            <div className="text-sm font-bold text-white uppercase tracking-wider">FAC-{invNum}</div>
-          </div>
-        </div>
-      </div>
-      <div className="h-px bg-zinc-200 mb-6" />
-      <div className="text-base font-bold uppercase tracking-wider mb-6" style={{ color: primaryColor }}>
-        Factura Comercial
-      </div>
-      <div className="flex justify-between mb-8 gap-4">
-        <div className="flex-1 bg-zinc-50 p-4 rounded">
-          <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Facturado a</div>
-          <div className="font-bold text-zinc-900">{invoice.client.name}</div>
-          {invoice.client.email && <div className="text-sm text-zinc-500">{invoice.client.email}</div>}
-          {invoice.client.phone && <div className="text-sm text-zinc-500">{invoice.client.phone}</div>}
-        </div>
-        <div className="flex-1 bg-zinc-50 p-4 rounded text-right">
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Emisión</div>
-            <div className="font-bold text-zinc-900">{safeFormatDate(invoice.issueDate)}</div>
-          </div>
-          {invoice.dueDate && (
-            <div className="mt-3">
-              <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Vencimiento</div>
-              <div className="font-bold text-zinc-900">{safeFormatDate(invoice.dueDate)}</div>
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="flex py-2 px-3 rounded-sm mb-1" style={{ backgroundColor: primaryColor }}>
-        <div className="text-[10px] font-bold text-white uppercase tracking-wider w-[50%]">Descripción</div>
-        <div className="text-[10px] font-bold text-white uppercase tracking-wider w-[12%] text-center">Cant.</div>
-        <div className="text-[10px] font-bold text-white uppercase tracking-wider w-[15%] text-right">P. Unit.</div>
-        <div className="text-[10px] font-bold text-white uppercase tracking-wider w-[10%] text-right">ITBMS</div>
-        <div className="text-[10px] font-bold text-white uppercase tracking-wider w-[13%] text-right">Total</div>
-      </div>
-      {invoice.items.map((item: any, i: number) => (
-        <div key={item.id} className="flex py-2 px-3 border-b border-zinc-100" style={{ backgroundColor: i % 2 === 0 ? "#ffffff" : "#fafafa" }}>
-          <div className="w-[50%] pr-3">
-            <div className="text-sm font-semibold text-zinc-900">{item.description}</div>
-            {item.service && <div className="text-[11px] text-zinc-400">Ref: {item.service.name}</div>}
-          </div>
-          <div className="w-[12%] text-sm text-zinc-600 text-center self-center">{item.quantity}</div>
-          <div className="w-[15%] text-sm text-zinc-600 text-right self-center">{formatCurrency(item.unitPrice)}</div>
-          <div className="w-[10%] text-sm text-zinc-600 text-right self-center">{item.applyTax ? formatCurrency(item.taxAmount || 0) : "$0.00"}</div>
-          <div className="w-[13%] text-sm font-bold text-right self-center">{formatCurrency(item.lineTotal || item.total)}</div>
-        </div>
-      ))}
-      <div className="flex justify-end mt-6">
-        <div className="w-64 space-y-2">
-          <div className="flex justify-between py-1">
-            <span className="text-sm text-zinc-500">Subtotal</span>
-            <span className="text-sm font-semibold text-zinc-900">{formatCurrency(invoice.subtotal)}</span>
-          </div>
-          <div className="flex justify-between py-1">
-            <span className="text-sm text-zinc-500">ITBMS (7%)</span>
-            <span className="text-sm font-semibold text-zinc-900">{formatCurrency(invoice.taxAmount)}</span>
-          </div>
-          <div className="flex justify-between py-2 px-3 mt-2 rounded-sm font-bold text-sm" style={{ backgroundColor: "#f8f8f8", borderTopWidth: 2, borderTopColor: primaryColor }}>
-            <span style={{ color: primaryColor }}>Total USD</span>
-            <span style={{ color: primaryColor }}>{formatCurrency(invoice.total)}</span>
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-4 mt-6">
-        {invoice.notes && (
-          <div className="flex-1">
-            <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Notas</div>
-            <p className="text-sm text-zinc-600 leading-relaxed">{invoice.notes}</p>
-          </div>
-        )}
-        {company.paymentDetails && (
-          <div className="flex-1">
-            <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>Métodos de Pago</div>
-            <RenderPaymentOptions paymentOpts={paymentOpts} company={company} />
-          </div>
-        )}
-      </div>
-      <div className="mt-8 -mx-10 -mb-10 py-2 text-center" style={{ backgroundColor: primaryColor }}>
-        <div className="text-[11px] text-white tracking-wider">
-          {company.name}{company.ruc ? `  ·  RUC: ${company.ruc}${company.dv ? `-${company.dv}` : ""}` : ""}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function RenderPaymentOptions({ paymentOpts, company }: any) {
-  if (!paymentOpts) {
-    if (!company.paymentDetails) return null
-    return <p className="text-sm text-zinc-600">{company.paymentDetails}</p>
-  }
-  return (
-    <div className="text-sm text-zinc-600 space-y-2 mt-2">
-      {paymentOpts.cash && (
-        <div className="flex items-center gap-2">
-          <Coins className="w-4 h-4 text-zinc-400 shrink-0" />
-          <span>Efectivo</span>
-        </div>
-      )}
-      {paymentOpts.yappy?.enabled && (
-        <div className="flex items-center gap-2">
-          <Smartphone className="w-4 h-4 text-zinc-400 shrink-0" />
-          <span>Yappy</span>
-        </div>
-      )}
-      {paymentOpts.ach?.enabled && (
-        <div className="flex items-center gap-2">
-          <Landmark className="w-4 h-4 text-zinc-400 shrink-0" />
-          <span>Transferencia ACH</span>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function InvoiceContent({ invoice, company, invNum, template, primaryColor }: any) {
-  switch (template) {
-    case "classic":
-      return <ClassicTemplate invoice={invoice} company={company} invNum={invNum} primaryColor={primaryColor} />
-    case "minimal":
-      return <MinimalTemplate invoice={invoice} company={company} invNum={invNum} primaryColor={primaryColor} />
-    case "corporate":
-      return <CorporateTemplate invoice={invoice} company={company} invNum={invNum} primaryColor={primaryColor} />
-    default:
-      return <ModernTemplate invoice={invoice} company={company} invNum={invNum} primaryColor={primaryColor} />
-  }
-}
-
-function TemplateSelector({ template, color, primaryColor, onTemplateChange, onColorChange }: any) {
   const colors = [
     { id: "blue", hex: "bg-blue-500", shadow: "shadow-[0_0_15px_rgba(59,130,246,0.6)]", ring: "ring-blue-500", name: "Azul Corporativo" },
     { id: "emerald", hex: "bg-emerald-500", shadow: "shadow-[0_0_15px_rgba(16,185,129,0.6)]", ring: "ring-emerald-500", name: "Verde Esmeralda" },
@@ -542,7 +93,7 @@ function TemplateSelector({ template, color, primaryColor, onTemplateChange, onC
           {templates.map((t: any) => (
             <div
               key={t.id}
-              onClick={() => onTemplateChange(t.id)}
+              onClick={() => setTemplate(t.id)}
               className={`relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 overflow-hidden group ${
                 template === t.id
                   ? "border-transparent"
@@ -582,7 +133,7 @@ function TemplateSelector({ template, color, primaryColor, onTemplateChange, onC
           {colors.map((c: any) => (
             <div
               key={c.id}
-              onClick={() => onColorChange(c.id)}
+              onClick={() => setColor(c.id)}
               className={`group relative p-3 rounded-2xl border flex flex-col items-center gap-3 cursor-pointer transition-all duration-300 ${
                 color === c.id
                   ? `border-white/20 bg-white/10 ${c.shadow}`
@@ -599,140 +150,14 @@ function TemplateSelector({ template, color, primaryColor, onTemplateChange, onC
           ))}
         </div>
       </div>
-    </div>
-  )
-}
-
-function A4PreviewWrapper({ children, orientation = "portrait" }: { children: React.ReactNode, orientation?: "portrait" | "landscape" }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [baseScale, setBaseScale] = useState(1)
-  const [zoom, setZoom] = useState(1)
-  const touchRef = useRef<{ dist: number } | null>(null)
-  
-  const targetWidth = orientation === "landscape" ? 1123 : 794
-  const defaultHeight = orientation === "landscape" ? 794 : 1123
-  
-  const [contentHeight, setContentHeight] = useState(defaultHeight)
-
-  useEffect(() => {
-    if (!containerRef.current || !contentRef.current) return
-
-    const updateDimensions = () => {
-      const parentWidth = containerRef.current?.clientWidth || 0
-      const currentHeight = contentRef.current?.clientHeight || defaultHeight
-
-      let currentScale = 1
-      if (parentWidth < targetWidth && parentWidth > 0) {
-        currentScale = parentWidth / targetWidth
-      }
-
-      setBaseScale(currentScale)
-      setContentHeight(currentHeight)
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateDimensions()
-    })
-
-    resizeObserver.observe(containerRef.current)
-    if (contentRef.current) {
-      resizeObserver.observe(contentRef.current)
-    }
-
-    updateDimensions()
-    return () => resizeObserver.disconnect()
-  }, [targetWidth, defaultHeight])
-
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault()
-      setZoom(z => Math.max(0.5, Math.min(4, z + (e.deltaY > 0 ? -0.05 : 0.05))))
-    }
-  }, [])
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
-      const dist = Math.hypot(
-         e.touches[0].clientX - e.touches[1].clientX,
-         e.touches[0].clientY - e.touches[1].clientY
-      )
-      touchRef.current = { dist }
-    }
-  }, [])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    try {
-      if (e.touches.length === 2 && touchRef.current && touchRef.current.dist) {
-        const dist = Math.hypot(
-           e.touches[0].clientX - e.touches[1].clientX,
-           e.touches[0].clientY - e.touches[1].clientY
-        )
-        setZoom(z => Math.max(0.5, Math.min(4, z + (dist - touchRef.current!.dist) * 0.005)))
-        touchRef.current = { dist }
-      }
-    } catch (err) {
-      console.warn("Touch zoom error ignored", err)
-    }
-  }, [])
-
-  const handleTouchEnd = useCallback(() => {
-    touchRef.current = null
-  }, [])
-
-  const finalScale = baseScale * zoom
-
-  return (
-    <div className="w-full flex flex-col gap-2 relative">
-      {/* Floating zoom indicator and reset */}
-      {zoom !== 1 && (
-        <div 
-          className="absolute top-2 right-2 z-10 bg-zinc-900/90 text-white px-3 py-1.5 rounded-lg text-xs backdrop-blur-sm border border-white/10 shadow-lg cursor-pointer hover:bg-zinc-800 transition-colors"
-          onClick={() => setZoom(1)}
+      <div className="pt-4 flex justify-end">
+        <Button 
+          onClick={() => onApply(template, color)}
+          className="w-full sm:w-auto font-semibold"
+          style={{ backgroundColor: primaryColor }}
         >
-          {Math.round(zoom * 100)}% - Restablecer
-        </div>
-      )}
-      
-      <div 
-        ref={containerRef} 
-        className="w-full overflow-auto rounded-xl border border-zinc-200/10 shadow-inner hide-scrollbar"
-        style={{ maxHeight: '80vh' }}
-        onWheel={handleWheel}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div 
-          className="flex justify-center min-w-full"
-          style={{ 
-            minWidth: `${targetWidth * finalScale}px`,
-            height: `${contentHeight * finalScale}px`,
-          }}
-        >
-          <div 
-            style={{
-              width: `${targetWidth * finalScale}px`,
-              height: `${contentHeight * finalScale}px`,
-              position: 'relative'
-            }}
-          >
-            <div 
-              ref={contentRef} 
-              style={{ 
-                transform: `scale(${finalScale})`, 
-                transformOrigin: 'top left',
-                width: `${targetWidth}px`,
-                position: 'absolute',
-                top: 0,
-                left: 0
-              }} 
-              className="shrink-0 transition-transform duration-75"
-            >
-              {children}
-            </div>
-          </div>
-        </div>
+          Aplicar Cambios
+        </Button>
       </div>
     </div>
   )
@@ -752,22 +177,35 @@ export function InvoiceDetailView({
   const [color, setColor] = useState(company.invoiceColor || "slate")
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait")
   const [isPending, startTransition] = useTransition()
+  const [isMaximized, setIsMaximized] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
-  const handleTemplateChange = (newTemplate: string) => {
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // Fix body scroll when maximized
+  useEffect(() => {
+    if (isMaximized) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "auto"
+    }
+    return () => {
+      document.body.style.overflow = "auto"
+    }
+  }, [isMaximized])
+
+  // Temporarily override company settings for live preview
+  const previewCompany = { ...company, invoiceTemplate: template, invoiceColor: color }
+
+  const handleApplyChanges = (newTemplate: string, newColor: string) => {
     setTemplate(newTemplate)
+    setColor(newColor)
+    setTemplateOpen(false)
     startTransition(async () => {
       const fd = new FormData()
       fd.set("invoiceTemplate", newTemplate)
-      fd.set("invoiceColor", color)
-      await updateCompanyInvoiceStyle(fd)
-    })
-  }
-
-  const handleColorChange = (newColor: string) => {
-    setColor(newColor)
-    startTransition(async () => {
-      const fd = new FormData()
-      fd.set("invoiceTemplate", template)
       fd.set("invoiceColor", newColor)
       await updateCompanyInvoiceStyle(fd)
     })
@@ -775,16 +213,6 @@ export function InvoiceDetailView({
 
   const invNum = String(invoice.invoiceNumber).padStart(6, "0")
   const primaryColor = colorMap[color] || colorMap.slate
-
-  const content = (
-    <InvoiceContent
-      invoice={invoice}
-      company={company}
-      invNum={invNum}
-      template={template}
-      primaryColor={primaryColor}
-    />
-  )
 
   return (
     <>
@@ -831,8 +259,7 @@ export function InvoiceDetailView({
               template={template}
               color={color}
               primaryColor={primaryColor}
-              onTemplateChange={handleTemplateChange}
-              onColorChange={handleColorChange}
+              onApply={handleApplyChanges}
             />
           </DialogContent>
         </Dialog>
@@ -843,23 +270,31 @@ export function InvoiceDetailView({
         )}
       </InvoiceShareActions>
 
-      <div className="pb-4 w-full">
-        <A4PreviewWrapper orientation={orientation}>
-          <Card 
-            className="bg-white border-zinc-200 shadow-2xl overflow-hidden shrink-0 h-auto self-start"
-            style={{ 
-              width: orientation === "landscape" ? "1123px" : "794px", 
-              minHeight: orientation === "landscape" ? "794px" : "1123px" 
-            }}
-          >
-            {content}
-          </Card>
-        </A4PreviewWrapper>
-      </div>
-      
-      <div className="flex items-center justify-center gap-1.5 mt-2 mb-8 text-xs text-zinc-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2 w-fit mx-auto">
-        <ZoomIn className="w-3.5 h-3.5 text-zinc-300 shrink-0" />
-        <span>Puedes hacer zoom deslizando la rueda del ratón (Ctrl + Scroll) o pellizcando la pantalla en móviles.</span>
+      <div className={cn(
+        "transition-all duration-300 w-full relative group",
+        isMaximized ? "fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4" : "aspect-[1/1.414]"
+      )}>
+        {/* Maximize Button */}
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={() => setIsMaximized(!isMaximized)}
+          className={cn(
+            "absolute z-10 rounded-full bg-black/50 hover:bg-black/80 text-white border-white/20 transition-all opacity-0 group-hover:opacity-100",
+            isMaximized ? "top-4 right-4" : "top-2 right-2"
+          )}
+        >
+          {isMaximized ? <X className="w-5 h-5" /> : <Maximize2 className="w-4 h-4" />}
+        </Button>
+
+        {isMounted && (
+          <div className={cn(
+            "w-full h-full relative overflow-hidden flex flex-col items-center justify-center",
+            isMaximized ? "max-w-[1200px]" : "rounded-none"
+          )}>
+            <PDFCanvasViewer document={<InvoicePDF invoice={invoice} company={previewCompany} orientation={orientation} />} />
+          </div>
+        )}
       </div>
     </>
   )

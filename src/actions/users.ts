@@ -339,3 +339,48 @@ export async function updateMyProfile(formData: FormData) {
     return { error: "Error al actualizar tu perfil" }
   }
 }
+
+const updatePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Debes ingresar tu contraseña actual"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+})
+
+export async function updateMyPassword(formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) return { error: "No autorizado" }
+
+  const rawData = {
+    currentPassword: formData.get("currentPassword"),
+    password: formData.get("password"),
+  }
+
+  const result = updatePasswordSchema.safeParse(rawData)
+  if (!result.success) return { error: result.error.issues[0]?.message }
+
+  const prisma = getBypassPrisma()
+  const userId = session.user.id
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId }
+  })
+
+  if (!currentUser) return { error: "Usuario no encontrado" }
+  if (!currentUser.passwordHash) return { error: "Este usuario no tiene contraseña configurada" }
+
+  const isValid = await bcrypt.compare(result.data.currentPassword, currentUser.passwordHash)
+  if (!isValid) return { error: "La contraseña actual es incorrecta" }
+
+  const newHash = await bcrypt.hash(result.data.password, 10)
+
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newHash }
+    })
+    
+    return { success: true, message: "Contraseña actualizada exitosamente." }
+  } catch (error) {
+    console.error("Error updating password:", error)
+    return { error: "Error al actualizar tu contraseña" }
+  }
+}

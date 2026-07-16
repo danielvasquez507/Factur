@@ -5,13 +5,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, KeyRound } from "lucide-react"
-import { updateMyProfile } from "@/actions/users"
+import { Loader2, KeyRound, Eye, EyeOff } from "lucide-react"
+import { updateMyPassword } from "@/actions/users"
 import { toast } from "sonner"
 
 export function PasswordForm() {
   const [loading, setLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  
+  const [showCurrent, setShowCurrent] = useState(false)
+  const [showNew, setShowNew] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -38,11 +42,11 @@ export function PasswordForm() {
       return
     }
     
-    const res = await updateMyProfile(formData)
+    const res = await updateMyPassword(formData)
     
-    if (res.error) {
+    if (res?.error) {
       toast.error(res.error)
-    } else if (res.message) {
+    } else if (res?.message) {
       toast.success(res.message)
       const form = e.target as HTMLFormElement
       form.reset()
@@ -78,15 +82,30 @@ export function PasswordForm() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword" className="text-zinc-300">Contraseña Actual</Label>
-                <Input id="currentPassword" name="currentPassword" type="password" placeholder="Requerida para autorizar el cambio" required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                <div className="relative">
+                  <Input id="currentPassword" name="currentPassword" type={showCurrent ? "text" : "password"} placeholder="Requerida para autorizar el cambio" required className="bg-black/50 border-white/10 focus-visible:ring-blue-500 pr-10" />
+                  <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200">
+                    {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-zinc-300">Nueva Contraseña</Label>
-                <Input id="password" name="password" type="password" placeholder="Ingresa la nueva contraseña" required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                <div className="relative">
+                  <Input id="password" name="password" type={showNew ? "text" : "password"} placeholder="Ingresa la nueva contraseña" required className="bg-black/50 border-white/10 focus-visible:ring-blue-500 pr-10" />
+                  <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200">
+                    {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-zinc-300">Confirmar Nueva Contraseña</Label>
-                <Input id="confirmPassword" name="confirmPassword" type="password" placeholder="Repite la nueva contraseña" required className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                <div className="relative">
+                  <Input id="confirmPassword" name="confirmPassword" type={showConfirm ? "text" : "password"} placeholder="Repite la nueva contraseña" required className="bg-black/50 border-white/10 focus-visible:ring-blue-500 pr-10" />
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200">
+                    {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             </CardContent>
             <CardFooter className="pb-6 flex items-center gap-3 border-t border-white/10 pt-6">

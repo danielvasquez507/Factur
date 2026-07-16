@@ -6,11 +6,13 @@ const { auth: originalMiddleware } = NextAuth(authConfig)
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://unpkg.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://factur.danielvasquez.cloud",
   "font-src 'self' data:",
-  "connect-src 'self' http://0.0.0.0:* ws://0.0.0.0:* http://localhost:* ws://localhost:* https://cloudflareinsights.com",
+  "connect-src 'self' http://0.0.0.0:* ws://0.0.0.0:* http://localhost:* ws://localhost:* https://cloudflareinsights.com data: blob: https://factur.danielvasquez.cloud",
+  "frame-src 'self' blob: data:",
+  "worker-src 'self' blob: https://unpkg.com",
   "base-uri 'self'",
   "form-action 'self'",
 ].join("; ")
