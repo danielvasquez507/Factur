@@ -12,34 +12,11 @@ import { toast } from "sonner"
 export function ProfileForm({ user }: { user: any }) {
   const [loading, setLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [isChangingPassword, setIsChangingPassword] = useState(false)
-  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     
     const formData = new FormData(e.currentTarget)
-    const currentPassword = formData.get("currentPassword") as string
-    const password = formData.get("password") as string
-    const confirmPassword = formData.get("confirmPassword") as string
-
-    if (password || currentPassword) {
-      if (!currentPassword) {
-        toast.error("Debes ingresar tu contraseña actual para cambiarla")
-        setLoading(false)
-        return
-      }
-      if (!password) {
-        toast.error("Debes ingresar una nueva contraseña")
-        setLoading(false)
-        return
-      }
-      if (password !== confirmPassword) {
-        toast.error("Las contraseñas nuevas no coinciden")
-        setLoading(false)
-        return
-      }
-    }
     
     const res = await updateMyProfile(formData)
     
@@ -47,12 +24,7 @@ export function ProfileForm({ user }: { user: any }) {
       toast.error(res.error)
     } else if (res.message) {
       toast.success(res.message)
-      const form = e.target as HTMLFormElement
-      if (form.currentPassword) form.currentPassword.value = ""
-      if (form.password) form.password.value = ""
-      if (form.confirmPassword) form.confirmPassword.value = ""
       setIsEditing(false)
-      setIsChangingPassword(false)
     }
     
     setLoading(false)
@@ -94,45 +66,10 @@ export function ProfileForm({ user }: { user: any }) {
               )}
             </div>
           </div>
-
-          <div className="pt-4 border-t border-white/10">
-            {!isChangingPassword ? (
-              <Button type="button" variant="outline" onClick={() => { setIsChangingPassword(true); setIsEditing(true); }} className="w-full bg-white/5 border-white/10 hover:bg-white/10 text-white">
-                <KeyRound className="w-4 h-4 mr-2" />
-                Cambiar Contraseña
-              </Button>
-            ) : (
-              <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/10">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="text-sm font-medium text-white flex items-center gap-2">
-                    <KeyRound className="w-4 h-4 text-blue-400" />
-                    Cambiar Contraseña
-                  </h4>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setIsChangingPassword(false)} className="h-8 w-8 p-0 text-zinc-400 hover:text-white">
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="currentPassword" className="text-zinc-300">Contraseña Actual</Label>
-                    <Input id="currentPassword" name="currentPassword" type="password" placeholder="Requerida para autorizar el cambio" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-zinc-300">Nueva Contraseña</Label>
-                    <Input id="password" name="password" type="password" placeholder="Ingresa la nueva contraseña" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="text-zinc-300">Confirmar Nueva Contraseña</Label>
-                    <Input id="confirmPassword" name="confirmPassword" type="password" placeholder="Repite la nueva contraseña" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
         </CardContent>
         {isEditing && (
           <CardFooter className="pb-6 flex items-center gap-3 border-t border-white/10 pt-6">
-            <Button type="button" variant="outline" onClick={() => { setIsEditing(false); setIsChangingPassword(false); }} className="flex-1 sm:flex-none bg-transparent border-white/10 hover:bg-white/10 text-zinc-300">
+            <Button type="button" variant="outline" onClick={() => setIsEditing(false)} className="flex-1 sm:flex-none bg-transparent border-white/10 hover:bg-white/10 text-zinc-300">
               Cancelar
             </Button>
             <Button type="submit" disabled={loading} className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]">
