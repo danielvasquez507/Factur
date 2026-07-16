@@ -15,6 +15,8 @@ services:
       - AUTH_TRUST_HOST=true
       - NODE_ENV=production
       - NEXT_PUBLIC_APP_URL=https://factur.danielvasquez.cloud
+    volumes:
+      - ./public:/app/public
     depends_on:
       db:
         condition: service_healthy
