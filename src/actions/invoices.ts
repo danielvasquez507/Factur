@@ -46,7 +46,7 @@ export async function createManualInvoice(rawData: any, companyId?: string) {
 
   const result = createInvoiceSchema.safeParse(rawData)
   if (!result.success) {
-    return { error: result.error.errors[0]?.message || "Datos inválidos" }
+    return { error: result.error.issues[0]?.message || "Datos inválidos" }
   }
 
   const { clientId, issueDate, dueDate, notes, items } = result.data
@@ -172,7 +172,7 @@ export async function generateInvoicePublicLink(invoiceId: string) {
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https"
   const baseUrl = `${protocol}://${host}`
   
-  const url = `${baseUrl}/api/invoices/${invoiceId}/pdf?token=${token}`
+  const url = `${baseUrl}/f/${invoiceId}?token=${token}`
   
   return { success: true, url }
 }

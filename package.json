@@ -1,13 +1,14 @@
 {
   "name": "facturdv-temp",
-  "version": "0.1.89",
+  "version": "0.1.90",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:network": "HOST=0.0.0.0 next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prisma:prod": "./scripts/prisma-prod.sh"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

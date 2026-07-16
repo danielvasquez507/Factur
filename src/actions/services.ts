@@ -37,7 +37,7 @@ export async function createService(formData: FormData) {
   }
 
   const result = serviceSchema.safeParse(rawData)
-  if (!result.success) return { error: result.error.errors[0].message }
+  if (!result.success) return { error: result.error.issues[0].message }
 
   // SUPER_ADMIN puede crear servicios en cualquier empresa
   const companyId = session.user.role === "SUPER_ADMIN"
@@ -100,7 +100,7 @@ export async function updateService(serviceId: string, formData: FormData) {
   }
 
   const result = serviceSchema.safeParse(rawData)
-  if (!result.success) return { error: result.error.errors[0].message }
+  if (!result.success) return { error: result.error.issues[0].message }
 
   const prisma = getTenantPrisma(activeTenantId)
 

@@ -22,31 +22,51 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     })
   }
 
-  const session = await auth()
-  if (!session?.user) {
-    return new NextResponse("No autorizado. Inicie sesión.", { status: 401 })
+  const token = searchParams.get("token")
+  let authorizedCompanyId: string | null = null
+
+  if (token) {
+    try {
+      const jwt = (await import("jsonwebtoken")).default
+      const secret = process.env.AUTH_SECRET || "facturdv_fallback_secret"
+      const decoded = jwt.verify(token, secret) as { contractId: string, companyId: string }
+      if (decoded.contractId !== id) {
+        return new NextResponse("Token no válido para este contrato", { status: 403 })
+      }
+      authorizedCompanyId = decoded.companyId
+    } catch (e) {
+      return new NextResponse("Token expirado o inválido", { status: 403 })
+    }
+  } else {
+    const session = await auth()
+    if (!session?.user) {
+      return new NextResponse("No autorizado. Inicie sesión.", { status: 401 })
+    }
+
+    const prisma = getBypassPrisma()
+    const contract = await prisma.contract.findUnique({
+      where: { id },
+      select: { companyId: true }
+    })
+
+    if (!contract) return new NextResponse("Contrato no encontrado", { status: 404 })
+
+    if (session.user.role === "SUPER_ADMIN") {
+      authorizedCompanyId = contract.companyId
+    } else {
+      const userCompany = await prisma.userCompany.findUnique({
+        where: { userId_companyId: { userId: session.user.id, companyId: contract.companyId } }
+      })
+      if (!userCompany) return new NextResponse("No autorizado para esta empresa", { status: 403 })
+      authorizedCompanyId = contract.companyId
+    }
+  }
+
+  if (!authorizedCompanyId) {
+    return new NextResponse("Autorización fallida", { status: 403 })
   }
 
   const prisma = getBypassPrisma()
-  const contract = await prisma.contract.findUnique({
-    where: { id },
-    select: { companyId: true }
-  })
-
-  if (!contract) return new NextResponse("Contrato no encontrado", { status: 404 })
-
-  let authorizedCompanyId: string | null = null
-
-  if (session.user.role === "SUPER_ADMIN") {
-    authorizedCompanyId = contract.companyId
-  } else {
-    const userCompany = await prisma.userCompany.findUnique({
-      where: { userId_companyId: { userId: session.user.id, companyId: contract.companyId } }
-    })
-    if (!userCompany) return new NextResponse("No autorizado para esta empresa", { status: 403 })
-    authorizedCompanyId = contract.companyId
-  }
-
   const fullContract = await prisma.contract.findUnique({
     where: { id, companyId: authorizedCompanyId },
     include: {

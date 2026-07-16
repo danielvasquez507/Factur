@@ -43,7 +43,7 @@ export async function createClient(formData: FormData) {
   }
 
   const result = clientSchema.safeParse(rawData)
-  if (!result.success) return { error: result.error.errors[0].message }
+  if (!result.success) return { error: result.error.issues[0].message }
 
   // SUPER_ADMIN puede crear clientes en cualquier empresa
   const companyId = session.user.role === "SUPER_ADMIN"
@@ -98,7 +98,7 @@ export async function updateClient(clientId: string, formData: FormData) {
   }
 
   const result = clientSchema.safeParse(rawData)
-  if (!result.success) return { error: result.error.errors[0].message }
+  if (!result.success) return { error: result.error.issues[0].message }
 
   let authorizedArray: string[] = []
   if (result.data.authorizedPersons) {

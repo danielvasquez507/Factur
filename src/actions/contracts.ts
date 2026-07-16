@@ -1,7 +1,8 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { getTenantPrisma } from "@/lib/prisma"
+import { getTenantPrisma, getBypassPrisma } from "@/lib/prisma"
+import { incrementRateLimit } from "@/lib/rate-limit"
 import { getActiveTenantId } from "@/actions/tenant"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
@@ -231,4 +232,53 @@ export async function deleteContract(id: string, companyIdParam?: string) {
     console.error("Error deleting contract:", error)
     return { error: "Error al eliminar contrato" }
   }
+}
+
+
+export async function generateContractPublicLink(contractId: string) {
+  const session = await auth()
+  let activeTenantId = await getActiveTenantId()
+
+  if (!session?.user) return { error: "No autorizado" }
+
+  const rl = incrementRateLimit(`publicLink:${session.user.id}`, 30, 60 * 1000)
+  if (!rl.success) return { error: "Demasiadas solicitudes. Espere un momento." }
+
+  let contract;
+
+  if (session.user.role === "SUPER_ADMIN") {
+    const prisma = getBypassPrisma()
+    contract = await prisma.contract.findUnique({
+      where: { id: contractId }
+    })
+    if (contract) {
+      activeTenantId = contract.companyId;
+    }
+  } else {
+    if (!activeTenantId) return { error: "No autorizado" }
+    const prisma = getTenantPrisma(activeTenantId)
+    contract = await prisma.contract.findUnique({
+      where: { id: contractId, companyId: activeTenantId }
+    })
+  }
+
+  if (!contract) return { error: "Contrato no encontrado" }
+
+  const jwt = (await import("jsonwebtoken")).default
+  const secret = process.env.AUTH_SECRET || "facturdv_fallback_secret"
+  
+  const token = jwt.sign(
+    { contractId, companyId: activeTenantId },
+    secret,
+    { expiresIn: "5d" }
+  )
+
+  const headerList = await import("next/headers").then(m => m.headers())
+  const host = headerList.get("host") || "localhost:3000"
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https"
+  const baseUrl = `${protocol}://${host}`
+  
+  const url = `${baseUrl}/c/${contractId}?token=${token}`
+  
+  return { success: true, url }
 }

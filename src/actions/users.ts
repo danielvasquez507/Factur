@@ -69,7 +69,7 @@ export async function createUser(formData: FormData) {
   }
 
   const result = userSchema.safeParse(rawData)
-  if (!result.success) return { error: result.error.errors[0]?.message }
+  if (!result.success) return { error: result.error.issues[0]?.message }
 
   const prisma = getBypassPrisma()
   
@@ -108,7 +108,7 @@ export async function updateUser(userId: string, formData: FormData) {
   }
 
   const result = updateUserSchema.safeParse(rawData)
-  if (!result.success) return { error: result.error.errors[0]?.message }
+  if (!result.success) return { error: result.error.issues[0]?.message }
 
   const prisma = getBypassPrisma()
 
@@ -286,7 +286,7 @@ export async function updateMyProfile(formData: FormData) {
   }
 
   const result = updateProfileSchema.safeParse(rawData)
-  if (!result.success) return { error: result.error.errors[0]?.message }
+  if (!result.success) return { error: result.error.issues[0]?.message }
 
   const prisma = getBypassPrisma()
   const userId = session.user.id

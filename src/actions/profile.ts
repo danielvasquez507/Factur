@@ -21,7 +21,7 @@ export async function changePassword(formData: FormData) {
 
   const result = changePasswordSchema.safeParse(data)
   if (!result.success) {
-    return { error: result.error.errors[0]?.message || "Datos inválidos" }
+    return { error: result.error.issues[0]?.message || "Datos inválidos" }
   }
 
   const prisma = getBypassPrisma()

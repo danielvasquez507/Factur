@@ -92,6 +92,7 @@ model Company {
   address           String?
   ruc               String?
   dv                String?
+  slogan            String?
   invoiceTemplate   String   @default("modern") @map("invoice_template")
   invoiceColor      String   @default("blue") @map("invoice_color")
   nextInvoiceNumber Int      @default(1) @map("next_invoice_number")

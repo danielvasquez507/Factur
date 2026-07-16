@@ -130,12 +130,16 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dv" className="text-zinc-300">D.V. *</Label>
-                  <Input id="dv" name="dv" defaultValue={company.dv || ""} className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                  <Input id="dv" name="dv" defaultValue={company.dv || ""} maxLength={2} className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address" className="text-zinc-300">Dirección Física</Label>
                 <Input id="address" name="address" defaultValue={company.address || ""} className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="slogan" className="text-zinc-300">Eslogan de la Empresa</Label>
+                <Input id="slogan" name="slogan" defaultValue={company.slogan || ""} placeholder="Escribe un eslogan o frase para tu empresa" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
               </div>
               <div className="space-y-4 pt-4 border-t border-white/10 mt-4">
                 <Label className="text-lg font-semibold text-white">Métodos de Pago Aceptados</Label>

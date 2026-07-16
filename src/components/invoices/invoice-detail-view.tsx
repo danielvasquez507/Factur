@@ -799,16 +799,7 @@ export function InvoiceDetailView({
         companyAddress={company.address}
         template={template}
         color={color}
-        orientation={orientation}
       >
-        <Button
-          variant="outline"
-          onClick={() => setOrientation(o => o === "portrait" ? "landscape" : "portrait")}
-          className="group bg-amber-500/10 backdrop-blur border-amber-500/30 hover:bg-amber-500 hover:text-white text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] rounded-full transition-all duration-300 h-10 px-4 py-2 sm:h-9 flex justify-center"
-        >
-          <RotateCcw className="w-4 h-4 mr-2 shrink-0" />
-          <span>{orientation === "portrait" ? "Horizontal" : "Vertical"}</span>
-        </Button>
         <Dialog open={templateOpen} onOpenChange={setTemplateOpen}>
           <DialogTrigger render={<Button
             variant="outline"

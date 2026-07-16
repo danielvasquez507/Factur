@@ -14,6 +14,7 @@ const updateSettingsSchema = z.object({
   dv: z.string().regex(/^\d{1,2}$/, "DV inválido: solo 1 o 2 dígitos").optional().or(z.literal("")),
   address: z.string().max(500, "Dirección demasiado larga").optional(),
   paymentDetails: z.string().max(2000, "Detalles de pago demasiado largos").optional(),
+  slogan: z.string().max(255, "Eslogan demasiado largo").optional(),
 })
 
 export async function updateCompanySettings(formData: FormData) {
@@ -30,13 +31,14 @@ export async function updateCompanySettings(formData: FormData) {
     dv: formData.get("dv") as string || undefined,
     address: formData.get("address") as string || undefined,
     paymentDetails: formData.get("paymentDetails") as string || undefined,
+    slogan: formData.get("slogan") as string || undefined,
   }
 
   const logoFile = formData.get("logo") as File | null
 
   const result = updateSettingsSchema.safeParse(rawData)
   if (!result.success) {
-    return { error: result.error.errors[0]?.message || "Datos inválidos" }
+    return { error: result.error.issues[0]?.message || "Datos inválidos" }
   }
 
   const prisma = getTenantPrisma(activeTenantId)
@@ -51,6 +53,7 @@ export async function updateCompanySettings(formData: FormData) {
     const updateData: any = {
       address: result.data.address,
       paymentDetails: result.data.paymentDetails,
+      slogan: result.data.slogan,
     }
 
     const requests = []

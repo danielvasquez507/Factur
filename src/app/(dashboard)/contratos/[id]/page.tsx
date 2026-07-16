@@ -4,6 +4,7 @@ import { getContractById } from "@/actions/contracts"
 import { getTenantPrisma, getBypassPrisma } from "@/lib/prisma"
 import { getActiveTenantId } from "@/actions/tenant"
 import { ContractDetailView } from "@/components/contracts/contract-detail-view"
+import { generateContractPublicLink } from "@/actions/contracts"
 import { BackButton } from "@/components/ui/back-button"
 
 export default async function ContractPage(props: { params: Promise<{ id: string }>, searchParams: Promise<{ companyId?: string }> }) {
@@ -49,6 +50,8 @@ export default async function ContractPage(props: { params: Promise<{ id: string
       }
     } : null
   }
+  const linkRes = await generateContractPublicLink(contract.id)
+  const publicLink = linkRes.url || ""
 
   return (
     <div className="space-y-6 pb-12">
@@ -63,7 +66,7 @@ export default async function ContractPage(props: { params: Promise<{ id: string
         </div>
       </div>
 
-      <ContractDetailView contract={serializedContract} company={company} ownerName={ownerName} />
+      <ContractDetailView contract={serializedContract} company={company} ownerName={ownerName} publicLink={publicLink} />
     </div>
   )
 }

@@ -25,7 +25,7 @@ export const authConfig = {
       const isLandingPage = nextUrl.pathname === '/'
       const isApiRoute = nextUrl.pathname.startsWith('/api')
 
-      if (isLoggedIn && isLoginPage) {
+      if (isLoggedIn && (isLoginPage || isLandingPage)) {
         return Response.redirect(new URL('/panel', nextUrl))
       }
 

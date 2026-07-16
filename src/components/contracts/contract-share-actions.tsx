@@ -6,6 +6,7 @@ import { Download, Send, Mail, Link as LinkIcon, Check } from "lucide-react"
 
 type Props = {
   contractId: string
+  publicLink: string
   clientEmail: string | null
   contractTitle: string
   companyName: string
@@ -18,13 +19,8 @@ type Props = {
   children?: React.ReactNode
 }
 
-export function ContractShareActions({ contractId, clientEmail, contractTitle, companyName, companyRuc, companyDv, companyAddress, template, color, orientation, children }: Props) {
+export function ContractShareActions({ contractId, publicLink, clientEmail, contractTitle, companyName, companyRuc, companyDv, companyAddress, template, color, orientation, children }: Props) {
   const [copied, setCopied] = useState(false)
-  const [publicLink, setPublicLink] = useState(`/api/contracts/${contractId}/pdf`)
-
-  useEffect(() => {
-    setPublicLink(`${window.location.origin}/api/contracts/${contractId}/pdf`)
-  }, [contractId])
 
   const copyLink = async () => {
     try {
