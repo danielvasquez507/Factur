@@ -264,7 +264,7 @@ export function AutoHideHeader({
               <DropdownMenuItem
                 onClick={async () => {
                   const toastId = toast.loading("Cerrando sesión...")
-                  await signOut({ callbackUrl: "/" })
+                  await signOut({ callbackUrl: "/login" })
                   toast.dismiss(toastId)
                 }}
                 className="cursor-pointer text-red-500 focus:text-red-300 hover:bg-red-500/10 focus:bg-red-500/10"

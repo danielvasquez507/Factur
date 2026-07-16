@@ -168,7 +168,7 @@ export function ProfileView({ user, activeCompanyId }: { user: any, activeCompan
               className="w-full bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/50 transition-colors"
               onClick={async () => {
                 const toastId = toast.loading("Cerrando sesión...")
-                await signOut({ callbackUrl: '/' })
+                await signOut({ callbackUrl: '/login' })
                 toast.dismiss(toastId)
               }}
             >
