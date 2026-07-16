@@ -12,12 +12,13 @@ export default function GuiaPage() {
   const videoRef4 = useRef<HTMLVideoElement>(null);
   const videoRef5 = useRef<HTMLVideoElement>(null);
   const videoRef6 = useRef<HTMLVideoElement>(null);
+  const videoRef7 = useRef<HTMLVideoElement>(null);
   
   const [openAccordion, setOpenAccordion] = useState<string | null>('step-1');
 
   // Optimización: Reproducir solo el video del acordeón abierto para ahorrar recursos y mejorar rendimiento
   useEffect(() => {
-    [videoRef1, videoRef2, videoRef3, videoRef4, videoRef5, videoRef6].forEach((ref, index) => {
+    [videoRef1, videoRef2, videoRef3, videoRef4, videoRef5, videoRef6, videoRef7].forEach((ref, index) => {
         const stepId = `step-${index + 1}`;
         if (ref.current) {
             if (openAccordion === stepId) {
@@ -86,6 +87,16 @@ export default function GuiaPage() {
             videoRef6.current.requestFullscreen();
         } else if ((videoRef6.current as any).webkitRequestFullscreen) {
             (videoRef6.current as any).webkitRequestFullscreen();
+        }
+    }
+  };
+
+  const handleMaximize7 = () => {
+    if (videoRef7.current) {
+        if (videoRef7.current.requestFullscreen) {
+            videoRef7.current.requestFullscreen();
+        } else if ((videoRef7.current as any).webkitRequestFullscreen) {
+            (videoRef7.current as any).webkitRequestFullscreen();
         }
     }
   };
@@ -316,7 +327,12 @@ export default function GuiaPage() {
                         <div className="px-6 pb-6 pt-0 border-t border-white/5 mt-2 pt-4">
                             <p className="text-sm text-gray-400 mb-4">Administra tus datos personales, contraseña y las configuraciones de todas tus empresas.</p>
                             <div className="bg-gradient-to-br from-rose-900/20 to-red-900/20 border border-rose-500/20 rounded-xl p-8 flex flex-col items-center justify-center min-h-[200px]">
-                                <svg className="w-12 h-12 text-rose-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                <div className="relative z-50 w-[220px] sm:w-[260px] md:w-[280px] mx-auto group cursor-pointer mb-4" onClick={handleMaximize7}>
+                                    <video ref={videoRef7} preload="metadata" src="/Perfil.mp4" className="w-full rounded-2xl shadow-[0_0_30px_rgba(225,29,72,0.3)] object-contain bg-black" loop muted playsInline />
+                                    <div className="absolute top-3 right-3 bg-black/60 p-2 rounded-full flex items-center justify-center pointer-events-none hover:bg-rose-600/80 transition-colors">
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                                    </div>
+                                </div>
                                 <p className="text-sm text-rose-300 font-medium text-center mb-2 px-4 py-2 bg-rose-500/10 rounded-lg border border-rose-500/20">
                                     <span className="font-bold">IMPORTANTE:</span> Si deseas cambiar algún dato sensible de la empresa, se enviará una solicitud al Super Admin para su validación.
                                 </p>
