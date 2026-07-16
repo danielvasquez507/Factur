@@ -71,38 +71,64 @@ function TemplateSelector({ template: initialTemplate, color: initialColor, prim
   const [color, setColor] = useState(initialColor)
 
   const colors = [
-    { id: "blue", hex: "bg-blue-500", shadow: "shadow-[0_0_15px_rgba(59,130,246,0.6)]", ring: "ring-blue-500", name: "Azul Corporativo" },
-    { id: "emerald", hex: "bg-emerald-500", shadow: "shadow-[0_0_15px_rgba(16,185,129,0.6)]", ring: "ring-emerald-500", name: "Verde Esmeralda" },
-    { id: "slate", hex: "bg-slate-700", shadow: "shadow-[0_0_15px_rgba(51,65,85,0.6)]", ring: "ring-slate-500", name: "Gris Pizarra" },
-    { id: "red", hex: "bg-red-500", shadow: "shadow-[0_0_15px_rgba(239,68,68,0.6)]", ring: "ring-red-500", name: "Rojo Carmesí" },
-    { id: "orange", hex: "bg-orange-500", shadow: "shadow-[0_0_15px_rgba(249,115,22,0.6)]", ring: "ring-orange-500", name: "Naranja Atardecer" },
-    { id: "amber", hex: "bg-amber-500", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.6)]", ring: "ring-amber-500", name: "Ámbar Cálido" },
-    { id: "purple", hex: "bg-purple-500", shadow: "shadow-[0_0_15px_rgba(168,85,247,0.6)]", ring: "ring-purple-500", name: "Púrpura Real" },
-    { id: "teal", hex: "bg-teal-500", shadow: "shadow-[0_0_15px_rgba(20,184,166,0.6)]", ring: "ring-teal-500", name: "Verde Azulado" },
-    { id: "indigo", hex: "bg-indigo-500", shadow: "shadow-[0_0_15px_rgba(99,102,241,0.6)]", ring: "ring-indigo-500", name: "Índigo Profundo" },
+    { id: "blue", hex: "bg-blue-500", shadow: "shadow-[0_0_15px_rgba(59,130,246,0.6)]", ring: "ring-blue-500", name: "Azul" },
+    { id: "emerald", hex: "bg-emerald-500", shadow: "shadow-[0_0_15px_rgba(16,185,129,0.6)]", ring: "ring-emerald-500", name: "Esmeralda" },
+    { id: "slate", hex: "bg-slate-700", shadow: "shadow-[0_0_15px_rgba(51,65,85,0.6)]", ring: "ring-slate-500", name: "Gris" },
+    { id: "red", hex: "bg-red-500", shadow: "shadow-[0_0_15px_rgba(239,68,68,0.6)]", ring: "ring-red-500", name: "Rojo" },
+    { id: "orange", hex: "bg-orange-500", shadow: "shadow-[0_0_15px_rgba(249,115,22,0.6)]", ring: "ring-orange-500", name: "Naranja" },
+    { id: "amber", hex: "bg-amber-500", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.6)]", ring: "ring-amber-500", name: "Ámbar" },
+    { id: "teal", hex: "bg-teal-500", shadow: "shadow-[0_0_15px_rgba(20,184,166,0.6)]", ring: "ring-teal-500", name: "Turquesa" },
+    { id: "indigo", hex: "bg-indigo-500", shadow: "shadow-[0_0_15px_rgba(99,102,241,0.6)]", ring: "ring-indigo-500", name: "Índigo" },
   ]
 
   return (
-    <div className="space-y-8 py-2">
+    <div className="space-y-4 py-1">
       <div>
-        <div className="text-sm font-semibold text-zinc-200 mb-4 flex items-center gap-2 uppercase tracking-wider">
-          <LayoutTemplate style={{ color: primaryColor }} className="w-4 h-4" />
-          Diseño de Plantilla
+        <div className="text-xs font-semibold text-zinc-300 mb-2 flex items-center gap-2 uppercase tracking-wider">
+          <Palette style={{ color: primaryColor }} className="w-4 h-4" />
+          Color
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-4 gap-2">
+          {colors.map((c: any) => (
+            <div
+              key={c.id}
+              onClick={() => setColor(c.id)}
+              className={`group relative p-2 rounded-xl border flex flex-col items-center gap-2 cursor-pointer transition-all duration-300 ${
+                color === c.id
+                  ? `border-white/20 bg-white/10 ${c.shadow}`
+                  : "border-transparent bg-transparent hover:bg-white/5"
+              }`}
+            >
+              <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full ${c.hex} transition-all duration-300 ${
+                color === c.id ? `ring-2 ring-offset-2 ring-offset-zinc-950 ${c.ring} ${c.shadow} scale-110` : "shadow-md group-hover:scale-110"
+              }`} />
+              <span className={`text-[9px] sm:text-[10px] font-medium text-center leading-none transition-colors ${
+                color === c.id ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
+              }`}>{c.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="text-xs font-semibold text-zinc-300 mb-2 flex items-center gap-2 uppercase tracking-wider">
+          <LayoutTemplate style={{ color: primaryColor }} className="w-4 h-4" />
+          Diseño
+        </div>
+        <div className="grid grid-cols-2 gap-3">
           {templates.map((t: any) => (
             <div
               key={t.id}
               onClick={() => setTemplate(t.id)}
-              className={`relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 overflow-hidden group ${
+              className={`relative p-3 rounded-xl border cursor-pointer transition-all duration-300 overflow-hidden group ${
                 template === t.id
                   ? "border-transparent"
-                  : "border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 hover:shadow-xl"
+                  : "border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 hover:shadow-lg"
               }`}
               style={template === t.id ? {
                 borderColor: primaryColor,
                 backgroundColor: `${primaryColor}1a`,
-                boxShadow: `0 0 20px ${primaryColor}26`
+                boxShadow: `0 0 15px ${primaryColor}26`
               } : {}}
             >
               {template === t.id && (
@@ -112,10 +138,10 @@ function TemplateSelector({ template: initialTemplate, color: initialColor, prim
                 />
               )}
               <div className="flex items-center justify-between relative z-10">
-                <div className="font-semibold text-white text-base">{t.name}</div>
+                <div className="font-semibold text-white text-sm">{t.name}</div>
                 {template === t.id && (
                   <CheckCircle2 
-                    className="w-5 h-5 drop-shadow-md" 
+                    className="w-4 h-4 drop-shadow-md" 
                     style={{ color: primaryColor }}
                   />
                 )}
@@ -124,36 +150,10 @@ function TemplateSelector({ template: initialTemplate, color: initialColor, prim
           ))}
         </div>
       </div>
-      <div>
-        <div className="text-sm font-semibold text-zinc-200 mb-4 flex items-center gap-2 uppercase tracking-wider">
-          <Palette style={{ color: primaryColor }} className="w-4 h-4" />
-          Color de Énfasis
-        </div>
-        <div className="grid grid-cols-4 gap-4">
-          {colors.map((c: any) => (
-            <div
-              key={c.id}
-              onClick={() => setColor(c.id)}
-              className={`group relative p-3 rounded-2xl border flex flex-col items-center gap-3 cursor-pointer transition-all duration-300 ${
-                color === c.id
-                  ? `border-white/20 bg-white/10 ${c.shadow}`
-                  : "border-transparent bg-transparent hover:bg-white/5"
-              }`}
-            >
-              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${c.hex} transition-all duration-300 ${
-                color === c.id ? `ring-2 ring-offset-2 ring-offset-zinc-950 ${c.ring} ${c.shadow} scale-110` : "shadow-md group-hover:scale-110"
-              }`} />
-              <span className={`text-[10px] sm:text-[11px] font-medium text-center leading-tight transition-colors ${
-                color === c.id ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
-              }`}>{c.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="pt-4 flex justify-end">
+      <div className="pt-2 flex justify-end">
         <Button 
           onClick={() => onApply(template, color)}
-          className="w-full sm:w-auto font-semibold"
+          className="w-full font-semibold"
           style={{ backgroundColor: primaryColor }}
         >
           Aplicar Cambios
@@ -177,24 +177,12 @@ export function InvoiceDetailView({
   const [color, setColor] = useState(company.invoiceColor || "slate")
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait")
   const [isPending, startTransition] = useTransition()
-  const [isMaximized, setIsMaximized] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
-  // Fix body scroll when maximized
-  useEffect(() => {
-    if (isMaximized) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "auto"
-    }
-    return () => {
-      document.body.style.overflow = "auto"
-    }
-  }, [isMaximized])
 
   // Temporarily override company settings for live preview
   const previewCompany = { ...company, invoiceTemplate: template, invoiceColor: color }
@@ -248,13 +236,8 @@ export function InvoiceDetailView({
               borderColor: `${primaryColor}33`, 
               boxShadow: `0 0 50px ${primaryColor}1a` 
             }} 
-            className="w-[95vw] max-w-lg bg-zinc-950/90 backdrop-blur-2xl border text-white p-6 rounded-3xl max-h-[85vh] overflow-y-auto"
+            className="w-[95vw] max-w-md bg-zinc-950/90 backdrop-blur-2xl border text-white p-4 rounded-3xl"
           >
-            <DialogHeader className="mb-2">
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-                Personalizar Factura
-              </DialogTitle>
-            </DialogHeader>
             <TemplateSelector
               template={template}
               color={color}
@@ -270,29 +253,13 @@ export function InvoiceDetailView({
         )}
       </InvoiceShareActions>
 
-      <div className={cn(
-        "transition-all duration-300 w-full relative group",
-        isMaximized ? "fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4" : "aspect-[1/1.414]"
-      )}>
-        {/* Maximize Button */}
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={() => setIsMaximized(!isMaximized)}
-          className={cn(
-            "absolute z-10 rounded-full bg-black/50 hover:bg-black/80 text-white border-white/20 transition-all opacity-0 group-hover:opacity-100",
-            isMaximized ? "top-4 right-4" : "top-2 right-2"
-          )}
-        >
-          {isMaximized ? <X className="w-5 h-5" /> : <Maximize2 className="w-4 h-4" />}
-        </Button>
-
+      <div className="transition-all duration-300 w-full relative group aspect-[1/1.414] lg:aspect-auto lg:h-[80vh] overflow-y-auto">
         {isMounted && (
-          <div className={cn(
-            "w-full h-full relative overflow-hidden flex flex-col items-center justify-center",
-            isMaximized ? "max-w-[1200px]" : "rounded-none"
-          )}>
-            <PDFCanvasViewer document={<InvoicePDF invoice={invoice} company={previewCompany} orientation={orientation} />} />
+          <div className="w-full h-auto min-h-full relative flex flex-col items-center justify-start rounded-none">
+            <PDFCanvasViewer 
+              key={`${template}-${color}-${orientation}`}
+              document={<InvoicePDF invoice={invoice} company={previewCompany} orientation={orientation} />} 
+            />
           </div>
         )}
       </div>
