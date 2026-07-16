@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { validateLoginAttempt, getRemainingAttempts } from "@/actions/auth-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -94,7 +95,7 @@ export function LoginForm() {
             </div>
           </div>
         </div>
-        <div className="pt-8">
+        <div className="pt-8 space-y-4">
           <Button 
             className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 transition-all active:scale-[0.98] text-sm font-semibold rounded-lg shadow-lg shadow-blue-900/20" 
             type="submit" 
@@ -102,6 +103,11 @@ export function LoginForm() {
           >
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Entrar a mi cuenta"}
           </Button>
+          <div className="text-center">
+            <Link href="/" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors inline-flex items-center gap-1">
+              Volver al inicio
+            </Link>
+          </div>
         </div>
       </form>
     </div>

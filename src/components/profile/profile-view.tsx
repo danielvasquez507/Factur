@@ -153,6 +153,8 @@ export function ProfileView({ user, activeCompanyId }: { user: any, activeCompan
           </CardContent>
         </Card>
 
+        <PasswordForm />
+
         <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
           <CardHeader>
             <CardTitle className="text-xl text-red-400">Zona de Peligro</CardTitle>

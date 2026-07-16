@@ -89,7 +89,7 @@ export function OnboardingForm() {
       if (result.error) {
         setError(result.error)
       } else {
-        window.location.href = "/"
+        window.location.href = "/panel"
       }
     })
   }
