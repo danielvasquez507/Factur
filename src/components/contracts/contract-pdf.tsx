@@ -1,6 +1,7 @@
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer'
 import { format } from 'date-fns'
+import { formatInTimeZone } from 'date-fns-tz'
 
 // Create styles
 const styles = StyleSheet.create({
@@ -262,7 +263,7 @@ export function ContractPDF({ contract, company, ownerName, orientation = "portr
         </View>
 
         <Text style={styles.footer} fixed>
-          Generado automáticamente por Factur DV - {format(new Date(), "dd/MM/yyyy HH:mm")}
+          Generado automáticamente por Factur - {formatInTimeZone(new Date(), "America/Panama", "dd/MM/yyyy HH:mm")}
         </Text>
       </Page>
     </Document>

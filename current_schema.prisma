@@ -1,0 +1,342 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// NEXTAUTH STANDARD TABLES + CUSTOM FIELDS
+// -----------------------------------------------------------------------------
+
+model User {
+  id                  String    @id @default(uuid()) @db.Uuid
+  name                String?
+  email               String?   @unique
+  emailVerified       DateTime? @map("email_verified")
+  passwordHash        String?   @map("password_hash")
+  image               String?
+  onboardingCompleted Boolean   @default(false) @map("onboarding_completed")
+  role                Role      @default(COMPANY_ADMIN)
+  isActive            Boolean   @default(true) @map("is_active")
+  maxCompanies        Int       @default(1) @map("max_companies")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  accounts      Account[]
+  sessions      Session[]
+  userCompanies UserCompany[]
+  changeRequests ChangeRequest[] @relation("RequestedBy")
+  reviewedRequests ChangeRequest[] @relation("ReviewedBy")
+
+  @@map("users")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String  @map("user_id") @db.Uuid
+  type               String
+  provider           String
+  providerAccountId  String  @map("provider_account_id")
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// -----------------------------------------------------------------------------
+// MULTI-TENANCY: COMPANIES
+// -----------------------------------------------------------------------------
+
+model Company {
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String
+  slug              String   @unique
+  logoUrl           String?  @map("logo_url")
+  phone             String?
+  address           String?
+  ruc               String?
+  dv                String?
+  slogan            String?
+  invoiceTemplate   String   @default("modern") @map("invoice_template")
+  invoiceColor      String   @default("blue") @map("invoice_color")
+  nextInvoiceNumber Int      @default(1) @map("next_invoice_number")
+  paymentDetails    String?  @map("payment_details") @db.Text
+  isActive          Boolean  @default(true) @map("is_active")
+  contractSections  Json?    @map("contract_sections")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  userCompanies  UserCompany[]
+  changeRequests ChangeRequest[]
+  clients        Client[]
+  services       Service[]
+  clientServices ClientService[]
+  invoices       Invoice[]
+  contracts      Contract[]
+
+  @@map("companies")
+}
+
+model UserCompany {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  companyId     String   @map("company_id") @db.Uuid
+  roleInCompany RoleInCompany @default(OWNER) @map("role_in_company")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
+  @@map("user_companies")
+}
+
+model ChangeRequest {
+  id              String   @id @default(uuid()) @db.Uuid
+  companyId       String   @map("company_id") @db.Uuid
+  requestedById   String   @map("requested_by") @db.Uuid
+  fieldType       FieldType @map("field_type")
+  currentValue    String   @map("current_value")
+  requestedValue  String   @map("requested_value")
+  status          RequestStatus @default(PENDING)
+  rejectionReason String?  @map("rejection_reason")
+  reviewedById    String?  @map("reviewed_by") @db.Uuid
+  reviewedAt      DateTime? @map("reviewed_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  requestedBy User    @relation("RequestedBy", fields: [requestedById], references: [id])
+  reviewedBy  User?   @relation("ReviewedBy", fields: [reviewedById], references: [id])
+
+  @@map("change_requests")
+}
+
+// -----------------------------------------------------------------------------
+// INVOICING DOMAIN
+// -----------------------------------------------------------------------------
+
+model Client {
+  id                String   @id @default(uuid()) @db.Uuid
+  companyId         String   @map("company_id") @db.Uuid
+  name              String
+  celular           String
+  email             String?
+  phone             String?
+  direccion         String?
+  authorizedPersons Json?    @map("authorized_persons") // Array of strings
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientServices ClientService[]
+  invoices       Invoice[]
+  contracts      Contract[]
+
+  @@map("clients")
+}
+
+model Service {
+  id           String   @id @default(uuid()) @db.Uuid
+  companyId    String   @map("company_id") @db.Uuid
+  name         String
+  description  String?
+  defaultPrice Decimal  @db.Decimal(10, 2) @map("default_price")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientServices ClientService[]
+  invoiceItems   InvoiceItem[]
+
+  @@map("services")
+}
+
+model ClientService {
+  id               String   @id @default(uuid()) @db.Uuid
+  clientId         String   @map("client_id") @db.Uuid
+  serviceId        String   @map("service_id") @db.Uuid
+  companyId        String   @map("company_id") @db.Uuid
+  agreedPrice      Decimal  @db.Decimal(10, 2) @map("agreed_price")
+  applyTax         Boolean  @default(false) @map("apply_tax")
+  taxRate          Decimal  @default(0.07) @db.Decimal(4, 4) @map("tax_rate")
+  billingFrequency BillingFrequency @map("billing_frequency")
+  nextBillingDate  DateTime? @db.Date @map("next_billing_date")
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contracts Contract[]
+
+  @@map("client_services")
+}
+
+// -----------------------------------------------------------------------------
+// CONTRACTS DOMAIN
+// -----------------------------------------------------------------------------
+
+model Contract {
+  id              String   @id @default(uuid()) @db.Uuid
+  companyId       String   @map("company_id") @db.Uuid
+  clientId        String   @map("client_id") @db.Uuid
+  clientServiceId String?  @map("client_service_id") @db.Uuid
+
+  title           String
+  description     String?
+  startDate       DateTime @db.Date @map("start_date")
+  endDate         DateTime? @db.Date @map("end_date")
+  status          ContractStatus @default(DRAFT)
+  
+  clauses          Json    
+  responsibilities Json    
+  conditions       Json    
+  exceptions       Json    
+
+  pdfTemplate      String   @default("professional") @map("pdf_template")
+  pdfColor         String   @default("slate") @map("pdf_color")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientService ClientService? @relation(fields: [clientServiceId], references: [id], onDelete: SetNull)
+
+  @@map("contracts")
+}
+
+model Invoice {
+  id             String   @id @default(uuid()) @db.Uuid
+  companyId      String   @map("company_id") @db.Uuid
+  clientId       String   @map("client_id") @db.Uuid
+  invoiceNumber  Int      @map("invoice_number")
+  issueDate      DateTime @db.Date @map("issue_date")
+  dueDate        DateTime? @db.Date @map("due_date")
+  subtotal       Decimal  @db.Decimal(10, 2)
+  taxAmount      Decimal  @db.Decimal(10, 2) @map("tax_amount")
+  total          Decimal  @db.Decimal(10, 2)
+  status         InvoiceStatus @default(ISSUED)
+  generationType GenerationType @map("generation_type")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  company Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client  Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  items   InvoiceItem[]
+
+  @@unique([companyId, invoiceNumber])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  invoiceId   String   @map("invoice_id") @db.Uuid
+  serviceId   String?  @map("service_id") @db.Uuid
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @db.Decimal(10, 2) @map("unit_price")
+  applyTax    Boolean  @map("apply_tax")
+  taxRate     Decimal  @db.Decimal(4, 4) @map("tax_rate")
+  taxAmount   Decimal  @db.Decimal(10, 2) @map("tax_amount")
+  lineTotal   Decimal  @db.Decimal(10, 2) @map("line_total")
+
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@map("invoice_items")
+}
+
+// -----------------------------------------------------------------------------
+// ENUMS
+// -----------------------------------------------------------------------------
+
+enum Role {
+  SUPER_ADMIN
+  COMPANY_ADMIN
+}
+
+enum RoleInCompany {
+  OWNER
+  MANAGER
+}
+
+enum FieldType {
+  NAME
+  LOGO
+  RUC
+  DV
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BillingFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  MANUAL
+}
+
+enum InvoiceStatus {
+  ISSUED
+  PAID
+  CANCELLED
+  OVERDUE
+}
+
+enum GenerationType {
+  AUTOMATIC
+  MANUAL
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}

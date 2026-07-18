@@ -193,11 +193,39 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
                       rows={2}
                       value={section.content}
                       onChange={(e) => {
-                        const newSections = [...sections]
-                        newSections[index].content = e.target.value
-                        setSections(newSections)
-                        e.target.style.height = "inherit"
-                        e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`
+                        const target = e.target as HTMLTextAreaElement;
+                        const rawVal = target.value;
+                        const originalCursor = target.selectionStart;
+                        let newVal = rawVal;
+                        
+                        if (rawVal.trim() === '') {
+                          newVal = '1. ';
+                        } else {
+                          const rawLines = rawVal.split('\n');
+                          const formattedLines = rawLines.map((line, i) => {
+                            const cleanLine = line.replace(/^\d+\.\s*/, '');
+                            return `${i + 1}. ${cleanLine}`;
+                          });
+                          newVal = formattedLines.join('\n');
+                        }
+
+                        const newSections = [...sections];
+                        newSections[index].content = newVal;
+                        setSections(newSections);
+
+                        target.style.height = "inherit";
+                        target.style.height = `${Math.min(target.scrollHeight, 120)}px`;
+
+                        const addedChars = newVal.length - rawVal.length;
+                        setTimeout(() => {
+                          if (rawVal.trim() === '') {
+                            target.selectionStart = target.selectionEnd = 3;
+                          } else if (addedChars > 0) {
+                            target.selectionStart = target.selectionEnd = originalCursor + addedChars;
+                          } else {
+                            target.selectionStart = target.selectionEnd = originalCursor;
+                          }
+                        }, 0);
                       }}
                     />
                   </div>

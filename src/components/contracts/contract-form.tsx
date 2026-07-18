@@ -95,7 +95,36 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
       <CardContent className="space-y-4">
         <Textarea
           value={value}
-          onChange={(e) => setter(e.target.value)}
+          onChange={(e) => {
+            const target = e.target as HTMLTextAreaElement;
+            const rawVal = target.value;
+            const originalCursor = target.selectionStart;
+            let newVal = rawVal;
+            
+            if (rawVal.trim() === '') {
+              newVal = '1. ';
+            } else {
+              const rawLines = rawVal.split('\n');
+              const formattedLines = rawLines.map((line, i) => {
+                const cleanLine = line.replace(/^\d+\.\s*/, '');
+                return `${i + 1}. ${cleanLine}`;
+              });
+              newVal = formattedLines.join('\n');
+            }
+
+            setter(newVal);
+
+            const addedChars = newVal.length - rawVal.length;
+            setTimeout(() => {
+              if (rawVal.trim() === '') {
+                target.selectionStart = target.selectionEnd = 3;
+              } else if (addedChars > 0) {
+                target.selectionStart = target.selectionEnd = originalCursor + addedChars;
+              } else {
+                target.selectionStart = target.selectionEnd = originalCursor;
+              }
+            }, 0);
+          }}
           placeholder={`Escribe aquí el contenido de la sección...`}
           className="bg-black/50 border-white/10 text-white placeholder:text-zinc-500 min-h-[150px]"
         />

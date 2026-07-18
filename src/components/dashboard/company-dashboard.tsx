@@ -111,8 +111,6 @@ export async function CompanyDashboard({ tenantId }: { tenantId?: string }) {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-white">{formatCurrency(invoice.total)}</p>
-                    {invoice.status === 'ISSUED' && <Badge variant="outline" className="mt-1 text-[10px] border-yellow-500/30 text-yellow-500 bg-yellow-500/10">Emitida</Badge>}
-                    {invoice.status === 'PAID' && <Badge variant="outline" className="mt-1 text-[10px] border-emerald-500/30 text-emerald-500 bg-emerald-500/10">Pagada</Badge>}
                   </div>
                 </div>
               ))}

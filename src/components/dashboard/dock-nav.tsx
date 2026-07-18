@@ -77,19 +77,14 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
         })}
 
         {/* Center Logo */}
-        {isSuperAdmin ? (
-          <Link href="/perfil" className="flex items-center justify-center w-14 h-14 mx-1">
-            <div className="w-12 h-12 rounded-xl bg-[#0e122e] flex items-center justify-center shadow-[0_0_20px_rgba(14,18,46,0.6)] border-2 border-white/10 hover:border-blue-500/50 transition-all">
-              <span className="text-white font-black text-2xl tracking-tighter drop-shadow-md">F<span className="text-blue-500">.</span></span>
-            </div>
-          </Link>
-        ) : (
-          <Link href="/perfil" className="flex items-center justify-center w-14 h-14 mx-1">
-            <div className="w-12 h-12 rounded-xl bg-[#0e122e] flex items-center justify-center shadow-[0_0_20px_rgba(14,18,46,0.6)] border-2 border-white/10 hover:border-blue-500/50 transition-all">
-              <span className="text-white font-black text-2xl tracking-tighter drop-shadow-md">F<span className="text-blue-500">.</span></span>
-            </div>
-          </Link>
-        )}
+        <Link href="/perfil" className="relative group flex flex-col items-center justify-center w-16 h-14 mx-1 rounded-full transition-all duration-300 hover:bg-white/5">
+          <span className="text-white font-black text-xl tracking-tighter drop-shadow-md mb-0.5 group-hover:scale-110 transition-transform">
+            F<span className="text-blue-500">.</span>
+          </span>
+          <span className="text-[10px] font-medium text-zinc-500 opacity-70 group-hover:opacity-100 transition-all duration-300">
+            Perfil
+          </span>
+        </Link>
 
         {/* Right Items */}
         {rightItems.map((item) => {
