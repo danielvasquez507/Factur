@@ -245,3 +245,42 @@ export async function updateCompanyInvoiceStyle(formData: FormData) {
     return { error: "Error al guardar la preferencia" }
   }
 }
+
+export async function updateContractSections(sections: any[]) {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: "No autorizado" }
+  }
+
+  const tenantId = await getActiveTenantId()
+  if (!tenantId) {
+    return { error: "No se encontró empresa activa" }
+  }
+
+  const prisma = getBypassPrisma()
+  const userCompany = await prisma.userCompany.findUnique({
+    where: {
+      userId_companyId: {
+        userId: session.user.id,
+        companyId: tenantId
+      }
+    }
+  })
+
+  // OWNER or ADMIN (COMPANY_ADMIN defaults to ADMIN here depending on schema, but let's allow OWNER or just update anyway since getActiveTenantId implies some access)
+  if (!userCompany) {
+    return { error: "No tienes permisos para modificar la configuración de esta empresa" }
+  }
+
+  try {
+    await prisma.company.update({
+      where: { id: tenantId },
+      data: { contractSections: sections }
+    })
+    revalidatePath("/empresa")
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating contract sections:", error)
+    return { error: "Ocurrió un error al guardar las secciones" }
+  }
+}

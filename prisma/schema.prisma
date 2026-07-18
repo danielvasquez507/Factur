@@ -98,6 +98,7 @@ model Company {
   nextInvoiceNumber Int      @default(1) @map("next_invoice_number")
   paymentDetails    String?  @map("payment_details") @db.Text
   isActive          Boolean  @default(true) @map("is_active")
+  contractSections  Json?    @map("contract_sections")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 

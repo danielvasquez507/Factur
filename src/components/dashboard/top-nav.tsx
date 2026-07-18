@@ -2,7 +2,7 @@
 
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { LogOut, User, Monitor, Sparkles, Moon, Settings } from "lucide-react"
+import { LogOut, User, Monitor, Sparkles, Moon, Settings, Briefcase } from "lucide-react"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
 
@@ -47,9 +47,9 @@ export function TopNav({ user, activeCompanyRole }: TopNavProps) {
             <DropdownMenuItem
               className="cursor-pointer hover:bg-white/10 focus:bg-white/10 p-0"
               render={
-                <Link href="/perfil" className="flex items-center w-full px-2 py-1.5">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Mi Perfil</span>
+                <Link href="/empresa" className="flex items-center w-full px-2 py-1.5">
+                  <Briefcase className="mr-2 h-4 w-4" />
+                  <span>Empresa</span>
                 </Link>
               }
             />

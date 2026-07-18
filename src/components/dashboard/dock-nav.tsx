@@ -25,7 +25,7 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
     { href: "/panel", label: "Panel", icon: LayoutDashboard },
     { href: "/clientes", label: "Clientes", icon: Users },
     { href: "/historial", label: "Historial", icon: History },
-    { href: "/perfil", label: "Perfil", icon: UserCircle },
+    { href: "/empresa", label: "Empresa", icon: Building2 },
   ]
 
   const adminItems = [
@@ -84,11 +84,11 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
             </div>
           </Link>
         ) : (
-          <div className="flex items-center justify-center w-14 h-14 mx-1">
-            <div className="w-12 h-12 rounded-xl bg-[#0e122e] flex items-center justify-center shadow-[0_0_20px_rgba(14,18,46,0.6)] border-2 border-white/10 cursor-default">
+          <Link href="/perfil" className="flex items-center justify-center w-14 h-14 mx-1">
+            <div className="w-12 h-12 rounded-xl bg-[#0e122e] flex items-center justify-center shadow-[0_0_20px_rgba(14,18,46,0.6)] border-2 border-white/10 hover:border-blue-500/50 transition-all">
               <span className="text-white font-black text-2xl tracking-tighter drop-shadow-md">F<span className="text-blue-500">.</span></span>
             </div>
-          </div>
+          </Link>
         )}
 
         {/* Right Items */}

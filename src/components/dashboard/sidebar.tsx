@@ -93,9 +93,11 @@ export function Sidebar({ userRole, pendingRequestsCount = 0, activeCompanyRole 
       {/* Mobile drawer */}
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-border bg-background/95 backdrop-blur-xl transform transition-transform duration-300 md:hidden ${open ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-14 flex items-center justify-between border-b border-border px-6">
-          <h2 className="text-2xl font-black tracking-tighter text-foreground drop-shadow-sm">
-            Factur<span className="text-blue-500">.</span>
-          </h2>
+          <Link href="/perfil" onClick={() => setOpen(false)}>
+            <h2 className="text-2xl font-black tracking-tighter text-foreground drop-shadow-sm hover:opacity-80 transition-opacity">
+              Factur<span className="text-blue-500">.</span>
+            </h2>
+          </Link>
           <button onClick={() => setOpen(false)} className="text-zinc-400 hover:text-white p-1">
             <X className="w-5 h-5" />
           </button>
@@ -132,9 +134,11 @@ export function Sidebar({ userRole, pendingRequestsCount = 0, activeCompanyRole 
       {/* Desktop sidebar */}
       <aside className="w-64 border-r border-border bg-background/80 backdrop-blur-xl hidden md:flex flex-col z-20">
         <div className="h-14 flex items-center border-b border-border px-6">
-          <h2 className="text-2xl font-black tracking-tighter text-foreground drop-shadow-sm">
-            Factur<span className="text-blue-500">.</span>
-          </h2>
+          <Link href="/perfil">
+            <h2 className="text-2xl font-black tracking-tighter text-foreground drop-shadow-sm hover:opacity-80 transition-opacity">
+              Factur<span className="text-blue-500">.</span>
+            </h2>
+          </Link>
         </div>
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1 px-3">

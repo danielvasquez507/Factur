@@ -12,101 +12,16 @@ import { ProfileForm } from "./profile-form"
 import { PasswordForm } from "./password-form"
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
-import { setActiveTenant } from "@/actions/tenant"
-import { useRouter } from "next/navigation"
 import packageJson from "../../../package.json"
 
 export function ProfileView({ user, activeCompanyId }: { user: any, activeCompanyId?: string | null }) {
   const { setTheme, theme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const router = useRouter()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const handleSwitchTenant = async (companyId: string) => {
-    if (companyId === activeCompanyId) return;
-    
-    const toastId = toast.loading("Cambiando empresa...")
-    try {
-      await setActiveTenant(companyId)
-      router.refresh()
-      toast.success("Empresa activa cambiada")
-    } catch (err) {
-      toast.error("Error al cambiar de empresa")
-    } finally {
-      toast.dismiss(toastId)
-    }
-  }
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Columna Izquierda: Datos del Usuario */}
       <div className="lg:col-span-2 space-y-8">
         <ProfileForm user={user} />
-
-        <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-blue-500" />
-              Mis Empresas
-            </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Empresas a las que tienes acceso y tu rol en ellas. Haz clic en una para cambiar de empresa activa.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {user.userCompanies?.length === 0 ? (
-              <p className="text-sm text-zinc-500">No perteneces a ninguna empresa.</p>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {user.userCompanies?.map((uc: any) => (
-                  <div 
-                    key={uc.company.id} 
-                    onClick={() => handleSwitchTenant(uc.company.id)}
-                    className="p-4 bg-white/5 border border-white/10 rounded-xl flex flex-col justify-between hover:bg-white/10 transition-colors cursor-pointer group"
-                  >
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        {uc.company.logoUrl ? (
-                          <img src={uc.company.logoUrl} alt={uc.company.name} className="w-10 h-10 object-contain rounded-md" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-md bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
-                            {uc.company.name.charAt(0)}
-                          </div>
-                        )}
-                        <div>
-                          <h4 className="font-semibold text-white flex items-center gap-2 group-hover:text-blue-400 transition-colors">
-                            {uc.company.name}
-                            {activeCompanyId === uc.company.id && (
-                              <Badge variant="outline" className="border-blue-500/50 text-blue-400 bg-blue-500/10 text-[9px] px-1.5 py-0">
-                                Activa
-                              </Badge>
-                            )}
-                          </h4>
-                          {uc.roleInCompany === "OWNER" && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-zinc-300">
-                              Propietario
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {uc.roleInCompany === "OWNER" && (
-                      <Link href={`/configuracion`} className="mt-4" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="w-full h-8 bg-transparent border-white/10 hover:bg-white/10 text-zinc-300">
-                          <Settings className="w-3.5 h-3.5 mr-2" />
-                          Configuración
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
       {/* Columna Derecha: Apariencia y Sistema */}

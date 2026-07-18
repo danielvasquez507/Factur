@@ -11,14 +11,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2, Loader2, Save, FileText, MoveUp, MoveDown } from "lucide-react"
 import { createContract, updateContract } from "@/actions/contracts"
 
-type SectionItem = { id: string; content: string }
 
-export function ContractForm({ clients, clientServices, companyId, defaultClientId, initialData }: {
+
+export function ContractForm({ clients, clientServices, companyId, defaultClientId, initialData, contractSections }: {
   clients: any[],
   clientServices: any[],
   companyId?: string,
   defaultClientId?: string,
-  initialData?: any
+  initialData?: any,
+  contractSections?: Array<{title: string, content: string}> | string[]
 }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -31,10 +32,31 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
   const [startDate, setStartDate] = useState(initialData ? new Date(initialData.startDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])
   const [endDate, setEndDate] = useState(initialData?.endDate ? new Date(initialData.endDate).toISOString().split('T')[0] : "")
   
-  const [clauses, setClauses] = useState<SectionItem[]>(initialData?.clauses || [])
-  const [responsibilities, setResponsibilities] = useState<SectionItem[]>(initialData?.responsibilities || [])
-  const [conditions, setConditions] = useState<SectionItem[]>(initialData?.conditions || [])
-  const [exceptions, setExceptions] = useState<SectionItem[]>(initialData?.exceptions || [])
+  const parseInitial = (val: any) => {
+    if (!val) return ""
+    if (typeof val === 'string') return val
+    if (Array.isArray(val)) {
+      if (val.length > 0 && typeof val[0] === 'object' && val[0].content) {
+        return val.map((v: any) => v.content).join("\n\n")
+      }
+      return val.join("\n\n")
+    }
+    return ""
+  }
+
+  const getSectionDefault = (titleMatch: string) => {
+    if (initialData) return undefined;
+    if (!contractSections || !Array.isArray(contractSections)) return "";
+    for (const s of contractSections) {
+      if (typeof s === 'object' && s.title === titleMatch) return s.content || "";
+    }
+    return "";
+  }
+
+  const [clauses, setClauses] = useState<string>(parseInitial(initialData?.clauses) || getSectionDefault("Cláusulas y Disposiciones Generales"))
+  const [responsibilities, setResponsibilities] = useState<string>(parseInitial(initialData?.responsibilities) || getSectionDefault("Responsabilidades del Cliente"))
+  const [conditions, setConditions] = useState<string>(parseInitial(initialData?.conditions) || getSectionDefault("Condiciones Comerciales"))
+  const [exceptions, setExceptions] = useState<string>(parseInitial(initialData?.exceptions) || getSectionDefault("Excepciones y Limitaciones"))
 
   const filteredServices = useMemo(() => {
     if (!clientId) return []
@@ -63,79 +85,20 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
     }
   }, [clientServiceId, filteredServices, initialData])
 
-  const handleAdd = (setter: React.Dispatch<React.SetStateAction<SectionItem[]>>) => {
-    setter(prev => [...prev, { id: Math.random().toString(36).substr(2, 9), content: "" }])
-  }
 
-  const handleRemove = (setter: React.Dispatch<React.SetStateAction<SectionItem[]>>, index: number) => {
-    setter(prev => prev.filter((_, i) => i !== index))
-  }
 
-  const handleUpdate = (setter: React.Dispatch<React.SetStateAction<SectionItem[]>>, index: number, content: string) => {
-    setter(prev => {
-      const copy = [...prev]
-      copy[index].content = content
-      return copy
-    })
-  }
-
-  const moveUp = (setter: React.Dispatch<React.SetStateAction<SectionItem[]>>, index: number) => {
-    if (index === 0) return
-    setter(prev => {
-      const copy = [...prev]
-      const temp = copy[index - 1]
-      copy[index - 1] = copy[index]
-      copy[index] = temp
-      return copy
-    })
-  }
-
-  const moveDown = (setter: React.Dispatch<React.SetStateAction<SectionItem[]>>, index: number) => {
-    setter(prev => {
-      if (index === prev.length - 1) return prev
-      const copy = [...prev]
-      const temp = copy[index + 1]
-      copy[index + 1] = copy[index]
-      copy[index] = temp
-      return copy
-    })
-  }
-
-  const renderSection = (titleText: string, items: SectionItem[], setter: React.Dispatch<React.SetStateAction<SectionItem[]>>) => (
+  const renderSection = (titleText: string, value: string, setter: (val: string) => void) => (
     <Card className="bg-black/40 border-white/10 mt-6">
       <CardHeader className="flex flex-row items-center justify-between py-4">
         <CardTitle className="text-lg text-white">{titleText}</CardTitle>
-        <Button type="button" variant="outline" size="sm" onClick={() => handleAdd(setter)} className="h-8 border-white/10 hover:bg-white/5">
-          <Plus className="w-4 h-4 mr-2" /> Agregar Item
-        </Button>
       </CardHeader>
       <CardContent className="space-y-4">
-        {items.length === 0 && (
-          <p className="text-sm text-zinc-500 italic">No hay ítems en esta sección. No se imprimirá en el PDF.</p>
-        )}
-        {items.map((item, idx) => (
-          <div key={item.id} className="flex gap-3 items-start bg-white/5 p-3 rounded-lg border border-white/5">
-            <div className="flex flex-col gap-1 pt-1">
-              <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-zinc-400 hover:text-white" onClick={() => moveUp(setter, idx)} disabled={idx === 0}>
-                <MoveUp className="w-3 h-3" />
-              </Button>
-              <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-zinc-400 hover:text-white" onClick={() => moveDown(setter, idx)} disabled={idx === items.length - 1}>
-                <MoveDown className="w-3 h-3" />
-              </Button>
-            </div>
-            <div className="flex-1">
-              <Textarea
-                value={item.content}
-                onChange={(e) => handleUpdate(setter, idx, e.target.value)}
-                placeholder={`Detalle del ítem ${idx + 1}...`}
-                className="bg-black/50 border-white/10 text-white placeholder:text-zinc-500 min-h-[80px]"
-              />
-            </div>
-            <Button type="button" variant="destructive" size="icon" onClick={() => handleRemove(setter, idx)} className="h-10 w-10 shrink-0">
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
+        <Textarea
+          value={value}
+          onChange={(e) => setter(e.target.value)}
+          placeholder={`Escribe aquí el contenido de la sección...`}
+          className="bg-black/50 border-white/10 text-white placeholder:text-zinc-500 min-h-[150px]"
+        />
       </CardContent>
     </Card>
   )
@@ -293,18 +256,29 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
         <p className="text-zinc-400">Configure los términos legales. Las secciones vacías serán ignoradas al generar el PDF.</p>
       </div>
 
-      {renderSection("1. Cláusulas y Disposiciones Generales", clauses, setClauses)}
-      {renderSection("2. Responsabilidades del Cliente", responsibilities, setResponsibilities)}
-      {renderSection("3. Condiciones Comerciales", conditions, setConditions)}
-      {renderSection("4. Excepciones y Limitaciones", exceptions, setExceptions)}
+      {(() => {
+        const activeSections = contractSections && contractSections.length > 0 ? contractSections : [
+          "Cláusulas y Disposiciones Generales",
+          "Responsabilidades del Cliente",
+          "Condiciones Comerciales",
+          "Excepciones y Limitaciones"
+        ];
+        
+        return activeSections.map((sec, idx) => {
+          const titleText = typeof sec === 'object' ? sec.title : sec;
+          const displayTitle = `${idx + 1}. ${titleText}`;
+          if (titleText === "Cláusulas y Disposiciones Generales") return <div key="clauses">{renderSection(displayTitle, clauses, setClauses)}</div>;
+          if (titleText === "Responsabilidades del Cliente") return <div key="resp">{renderSection(displayTitle, responsibilities, setResponsibilities)}</div>;
+          if (titleText === "Condiciones Comerciales") return <div key="cond">{renderSection(displayTitle, conditions, setConditions)}</div>;
+          if (titleText === "Excepciones y Limitaciones") return <div key="exc">{renderSection(displayTitle, exceptions, setExceptions)}</div>;
+          return null;
+        });
+      })()}
 
-      <div className="flex justify-end gap-4 pt-8">
-        <Button type="button" variant="outline" onClick={() => router.back()} className="border-white/10 hover:bg-white/5 text-zinc-300">
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 px-8">
+      <div className="flex justify-center pt-10 pb-4">
+        <Button type="submit" disabled={loading} className="w-full sm:w-auto min-w-[250px] h-12 text-base rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02]">
           {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-          {initialData ? "Guardar Cambios" : "Guardar y Generar PDF"}
+          {initialData ? "Guardar Cambios" : "Generar contrato"}
         </Button>
       </div>
     </form>

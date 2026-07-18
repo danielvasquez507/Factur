@@ -25,6 +25,11 @@ export default async function EditContractPage(
   const clients = await getClients(companyId)
   
   const prisma = getTenantPrisma(activeTenantId)
+  const company = await prisma.company.findUnique({
+    where: { id: activeTenantId },
+    select: { contractSections: true }
+  })
+
   const clientServices = await prisma.clientService.findMany({
     where: { companyId: activeTenantId, isActive: true },
     include: { service: true }
@@ -52,6 +57,7 @@ export default async function EditContractPage(
         clientServices={serializedClientServices} 
         companyId={activeTenantId} 
         initialData={contract}
+        contractSections={(company?.contractSections as string[]) || undefined}
       />
     </div>
   )

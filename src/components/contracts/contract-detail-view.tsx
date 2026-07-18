@@ -53,18 +53,27 @@ const templates = [
   { id: "professional", name: "Profesional" },
 ]
 
-function renderSection(title: string, items: any[], primaryColor: string) {
-  if (!items || items.length === 0) return null
+function renderSection(title: string, contentData: any, primaryColor: string) {
+  if (!contentData) return null
+  
+  let content = ""
+  if (typeof contentData === "string") {
+    content = contentData
+  } else if (Array.isArray(contentData)) {
+    if (contentData.length > 0 && typeof contentData[0] === 'object' && contentData[0].content) {
+      content = contentData.map((i: any) => i.content).join("\n\n")
+    } else {
+      content = contentData.join("\n\n")
+    }
+  }
+
+  if (!content.trim()) return null
+
   return (
     <div className="mb-6">
       <h3 className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: primaryColor }}>{title}</h3>
-      <div className="space-y-1.5 text-[10px] text-zinc-700 text-justify">
-        {items.map((item: any, i: number) => (
-          <div key={i} className="flex gap-2 leading-relaxed">
-            <span className="shrink-0 w-4">{i + 1}.</span>
-            <span>{item.content}</span>
-          </div>
-        ))}
+      <div className="space-y-1.5 text-[10px] text-zinc-700 text-justify whitespace-pre-wrap leading-relaxed">
+        {content}
       </div>
     </div>
   )
@@ -136,18 +145,40 @@ function CommonBody({ contract, company, primaryColor, ownerName }: any) {
 
       <ContractDetailsHTML contract={contract} primaryColor={primaryColor} />
 
-      {renderSection("1. Cláusulas y Disposiciones Generales", contract.clauses, primaryColor)}
-      {renderSection("2. Responsabilidades del Cliente", contract.responsibilities, primaryColor)}
-      {renderSection("3. Condiciones Comerciales", contract.conditions, primaryColor)}
-      {renderSection("4. Excepciones y Limitaciones", contract.exceptions, primaryColor)}
+      {(() => {
+        const activeSections = company?.contractSections && Array.isArray(company.contractSections) && company.contractSections.length > 0
+          ? company.contractSections
+          : [
+              "Cláusulas y Disposiciones Generales",
+              "Responsabilidades del Cliente",
+              "Condiciones Comerciales",
+              "Excepciones y Limitaciones"
+            ];
+            
+        return activeSections.map((sec: any, idx: number) => {
+          const titleText = typeof sec === 'object' ? sec.title : sec;
+          const displayTitle = `${idx + 1}. ${titleText}`;
+          if (titleText === "Cláusulas y Disposiciones Generales") return <div key="clauses">{renderSection(displayTitle, contract.clauses, primaryColor)}</div>;
+          if (titleText === "Responsabilidades del Cliente") return <div key="resp">{renderSection(displayTitle, contract.responsibilities, primaryColor)}</div>;
+          if (titleText === "Condiciones Comerciales") return <div key="cond">{renderSection(displayTitle, contract.conditions, primaryColor)}</div>;
+          if (titleText === "Excepciones y Limitaciones") return <div key="exc">{renderSection(displayTitle, contract.exceptions, primaryColor)}</div>;
+          return null;
+        });
+      })()}
 
       <div className="mt-12 pt-10 flex justify-around border-t border-zinc-200">
-        <div className="w-2/5 text-center">
+        <div className="w-2/5 text-center flex flex-col items-center">
+          <p className="font-[cursive] italic text-lg mb-2" style={{ color: primaryColor }}>
+            {ownerName || company.name}
+          </p>
           <div className="border-t border-zinc-500 w-full mb-1" />
-          <p className="font-bold text-[11px] text-zinc-900">{ownerName || company.name}</p>
-          <p className="text-[9px] text-zinc-500 mt-0.5">{company.name}</p>
+          <p className="text-[11px] font-bold text-zinc-900 mt-0.5">{company.name}</p>
+          <p className="text-[7px] text-zinc-400 mt-1">
+            Firmado electrónicamente por {ownerName || company.name}{company.ruc ? ` - ${company.ruc}${company.dv ? `-${company.dv}` : ""}` : ""}
+          </p>
         </div>
-        <div className="w-2/5 text-center">
+        <div className="w-2/5 text-center flex flex-col items-center">
+          <p className="font-[cursive] italic text-lg mb-2 opacity-0 select-none">Firma</p>
           <div className="border-t border-zinc-500 w-full mb-1" />
           <p className="font-bold text-[11px] text-zinc-900">{contract.client.name}</p>
           <p className="text-[9px] text-zinc-500 mt-0.5">Firma del Cliente</p>

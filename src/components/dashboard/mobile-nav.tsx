@@ -36,7 +36,7 @@ const userItems = [
   { label: "Clientes", icon: Users, href: "/clientes" },
   { label: "logo", icon: null, href: "/" },
   { label: "Historial", icon: Receipt, href: "/facturas" },
-  { label: "Perfil", icon: UserIcon, href: "/perfil" },
+  { label: "Empresa", icon: Briefcase, href: "/empresa" },
 ]
 
 interface MobileBottomNavProps {
@@ -161,7 +161,7 @@ export function AutoHideHeader({
         <div className="flex items-center justify-between">
           <div className="w-10" />
 
-          <Link href="/" className="text-center">
+          <Link href="/perfil" className="text-center">
             <h1 className="text-xl font-black tracking-tighter text-white drop-shadow-sm">
               Factur<span className="text-blue-500">.</span>
             </h1>
@@ -188,9 +188,9 @@ export function AutoHideHeader({
               <DropdownMenuItem
                 className="cursor-pointer hover:bg-white/10 focus:bg-white/10 p-0"
                 render={
-                  <Link href="/perfil" className="flex items-center w-full px-2 py-1.5">
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Mi Perfil</span>
+                  <Link href="/empresa" className="flex items-center w-full px-2 py-1.5">
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>Empresa</span>
                   </Link>
                 }
               />
