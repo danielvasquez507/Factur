@@ -70,7 +70,9 @@ export default function PDFCanvasViewer({ document }: { document: React.ReactEle
         maxScale={4}
         centerOnInit={true}
         limitToBounds={true}
-        wheel={{ step: 0.1 }}
+        wheel={{ step: 0.1, smoothStep: 0.005 }}
+        pinch={{ step: 3 }}
+        panning={{ velocityDisabled: true }}
       >
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>
