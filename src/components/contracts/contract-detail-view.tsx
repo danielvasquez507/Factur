@@ -294,7 +294,7 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
   }, [targetWidth])
 
   return (
-    <div ref={containerRef} className="w-full h-full min-h-[75vh] flex flex-col items-center relative overflow-hidden bg-transparent">
+    <div ref={containerRef} className="w-full h-[70vh] sm:h-[80vh] flex flex-col items-center relative overflow-hidden bg-transparent">
       <TransformWrapper
         initialScale={1}
         minScale={0.5}
@@ -331,15 +331,15 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
               </button>
             </div>
             <TransformComponent 
-              wrapperClass="!w-full !h-full min-h-[75vh]" 
-              contentClass="!w-full !h-full min-h-[75vh] flex items-center justify-center p-4 sm:p-8"
+              wrapperClass="!w-full !h-full" 
+              contentClass="!w-full !h-full flex items-center justify-center"
             >
               <div 
                 style={{ 
                   width: targetWidth * baseScale, 
                   height: defaultHeight * baseScale 
                 }}
-                className="flex items-center justify-center shrink-0"
+                className="flex items-center justify-center shrink-0 my-4"
               >
                 <div 
                   style={{ 
