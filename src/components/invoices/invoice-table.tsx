@@ -42,9 +42,9 @@ export function InvoiceTable({ invoices }: { invoices: any[] }) {
             >
               <TableCell className="py-2.5">
                 <div className="font-semibold text-white text-sm">FAC-{String(inv.invoiceNumber).padStart(6, '0')}</div>
-                <div className="text-[11px] text-zinc-500 sm:hidden mt-0.5">{formatDate(inv.issueDate)}</div>
+                <div suppressHydrationWarning className="text-[11px] text-zinc-500 sm:hidden mt-0.5">{formatDate(inv.issueDate)}</div>
               </TableCell>
-              <TableCell className="text-zinc-400 py-2.5 max-sm:hidden text-sm">{formatDate(inv.issueDate)}</TableCell>
+              <TableCell suppressHydrationWarning className="text-zinc-400 py-2.5 max-sm:hidden text-sm">{formatDate(inv.issueDate)}</TableCell>
               <TableCell className="py-2.5">
                 <div className="text-zinc-300 font-medium truncate max-w-[120px] sm:max-w-[200px] text-sm">{inv.client.name}</div>
               </TableCell>

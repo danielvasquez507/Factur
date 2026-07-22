@@ -25,8 +25,11 @@ const DEFAULT_SECTIONS: SectionItem[] = [
 const parseSections = (data: any): SectionItem[] => {
   if (data && Array.isArray(data) && data.length > 0) {
     return data.map((item: any) => {
-      if (typeof item === 'string') return { title: item, content: "" };
-      return { title: item.title || "", content: item.content || "" };
+      let title = typeof item === 'string' ? item : (item.title || "");
+      if (title === "Excepciones y Limitaciones") {
+        title = "Causas de Terminación Anticipada";
+      }
+      return { title, content: typeof item === 'string' ? "" : (item.content || "") };
     });
   }
   return DEFAULT_SECTIONS;

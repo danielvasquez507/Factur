@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  app:
+    image: node:22-alpine
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://facturdv:${DB_PASSWORD:-secret}@db:5432/facturdv
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-supersecret}
+      - NEXTAUTH_URL=http://localhost:3000
+    volumes:
+      # Mapea tu código local en vivo hacia adentro del contenedor
+      - .:/app
+      # Protege la carpeta local de Next.js y los módulos para que el contenedor gestione los suyos
+      - /app/.next
+      - /app/node_modules
+    # Habilita pnpm, instala si falta algo, genera Prisma y levanta el servidor dev con Hot Reload
+    command: sh -c "corepack enable && corepack prepare pnpm@9 --activate && pnpm install && pnpm exec prisma generate && pnpm run dev"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - facturdv-net
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=facturdv
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+      - POSTGRES_DB=facturdv
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U facturdv"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - facturdv-net
+
+volumes:
+  pgdata:
+
+networks:
+  facturdv-net:
+    driver: bridge
