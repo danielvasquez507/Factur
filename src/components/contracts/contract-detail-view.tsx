@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef, useCallback, useEffect } from "react"
 import { format } from "date-fns"
-import { Maximize2, X, Printer, Palette, LayoutTemplate, CheckCircle2, Loader2, RotateCcw, ZoomIn, CircleDot, ChevronDown, Download, FileText, Save } from "lucide-react"
+import { Maximize2, X, Printer, Palette, LayoutTemplate, CheckCircle2, Loader2, RotateCcw, ZoomIn, ZoomOut, Maximize, CircleDot, ChevronDown, Download, FileText, Save } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -270,14 +270,34 @@ function ContractContent({ contract, company, template, primaryColor, ownerName 
 }
 
 function A4PreviewWrapper({ children, orientation = "portrait" }: { children: React.ReactNode, orientation?: "portrait" | "landscape" }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [baseScale, setBaseScale] = useState(1)
+  
   const targetWidth = orientation === "landscape" ? 1123 : 794
   const defaultHeight = orientation === "landscape" ? 794 : 1123
   
+  useEffect(() => {
+    if (!containerRef.current) return
+    const updateDimensions = () => {
+      const parentWidth = containerRef.current?.clientWidth || 0
+      if (parentWidth < targetWidth && parentWidth > 0) {
+        // Dejamos un margen del 5% para que no esté pegado a los bordes
+        setBaseScale((parentWidth * 0.95) / targetWidth)
+      } else {
+        setBaseScale(1)
+      }
+    }
+    const resizeObserver = new ResizeObserver(updateDimensions)
+    resizeObserver.observe(containerRef.current)
+    updateDimensions()
+    return () => resizeObserver.disconnect()
+  }, [targetWidth])
+
   return (
-    <div className="w-full flex flex-col items-center relative overflow-hidden rounded-xl border border-zinc-200/50 bg-zinc-100 shadow-inner" style={{ maxHeight: '80vh' }}>
+    <div ref={containerRef} className="w-full flex flex-col items-center relative overflow-hidden rounded-xl border border-zinc-200/50 bg-zinc-100 shadow-inner" style={{ maxHeight: '80vh' }}>
       <TransformWrapper
         initialScale={1}
-        minScale={0.3}
+        minScale={0.5}
         maxScale={4}
         centerOnInit={true}
         limitToBounds={true}
@@ -285,21 +305,44 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
         pinch={{ step: 3 }}
         panning={{ velocityDisabled: true }}
       >
-        {({ resetTransform, state }) => (
+        {({ zoomIn, zoomOut, resetTransform }) => (
           <>
-            {state.scale !== 1 && (
-              <div
-                className="absolute top-4 right-4 z-50 bg-zinc-900/90 text-white px-3 py-1.5 rounded-lg text-xs backdrop-blur-sm border border-white/10 shadow-lg cursor-pointer hover:bg-zinc-800 transition-colors"
-                onClick={() => resetTransform()}
+            <div className="absolute bottom-4 right-4 z-50 flex flex-col gap-2 bg-zinc-900/80 backdrop-blur-md p-1.5 rounded-full border border-white/10 shadow-2xl">
+              <button 
+                onClick={() => zoomIn()} 
+                className="p-2.5 rounded-full hover:bg-white/10 text-white transition-colors"
+                title="Acercar"
               >
-                {Math.round(state.scale * 100)}% - Restablecer
-              </div>
-            )}
+                <ZoomIn className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => zoomOut()} 
+                className="p-2.5 rounded-full hover:bg-white/10 text-white transition-colors"
+                title="Alejar"
+              >
+                <ZoomOut className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => resetTransform()} 
+                className="p-2.5 rounded-full hover:bg-white/10 text-white transition-colors"
+                title="Ajustar a pantalla"
+              >
+                <Maximize className="w-5 h-5" />
+              </button>
+            </div>
             <TransformComponent 
-              wrapperClass="!w-full !h-auto min-h-full flex items-start justify-center p-4" 
-              contentClass="origin-center"
+              wrapperClass="!w-full !h-auto min-h-full flex items-start justify-center" 
+              contentClass="origin-top-left flex items-start justify-center p-4"
             >
-              <div style={{ width: targetWidth, minHeight: defaultHeight }}>
+              <div 
+                style={{ 
+                  width: targetWidth, 
+                  minHeight: defaultHeight,
+                  transform: `scale(${baseScale})`,
+                  transformOrigin: 'top center',
+                  marginBottom: `-${defaultHeight * (1 - baseScale)}px` 
+                }}
+              >
                 {children}
               </div>
             </TransformComponent>
