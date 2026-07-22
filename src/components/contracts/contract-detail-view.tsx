@@ -6,6 +6,7 @@ import { Maximize2, X, Printer, Palette, LayoutTemplate, CheckCircle2, Loader2, 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -201,12 +202,12 @@ function ProfessionalTemplate({ contract, company, primaryColor, ownerName }: an
         </div>
         <div className="w-1/2 text-right">
           <div className="text-base font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>{contract.title}</div>
-          <div suppressHydrationWarning className="text-[10px] text-zinc-500">
-            Fecha de Inicio: <span className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
+          <div className="text-[10px] text-zinc-500">
+            Fecha de Inicio: <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
           </div>
           {contract.endDate && (
-            <div suppressHydrationWarning className="text-[10px] text-zinc-500 mt-0.5">
-              Fecha de Vencimiento: <span className="font-bold text-zinc-900">{format(new Date(contract.endDate), "dd/MM/yyyy")}</span>
+            <div className="text-[10px] text-zinc-500 mt-0.5">
+              Fecha de Vencimiento: <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.endDate), "dd/MM/yyyy")}</span>
             </div>
           )}
         </div>
@@ -222,9 +223,9 @@ function ModernTemplate({ contract, company, primaryColor, ownerName }: any) {
       <div className="flex justify-between items-start mb-10 p-5 rounded-lg bg-slate-50 border-l-4" style={{ borderLeftColor: primaryColor }}>
         <div className="w-1/2">
           <div className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ color: primaryColor }}>{contract.title}</div>
-          <div suppressHydrationWarning className="text-[10px] text-zinc-500">
-            Vigencia: <span className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
-            {contract.endDate ? ` al ${format(new Date(contract.endDate), "dd/MM/yyyy")}` : " en adelante"}
+          <div className="text-[10px] text-zinc-500">
+            Vigencia: <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
+            <span suppressHydrationWarning>{contract.endDate ? ` al ${format(new Date(contract.endDate), "dd/MM/yyyy")}` : " en adelante"}</span>
           </div>
         </div>
         <div className="w-1/2 text-right">
@@ -250,8 +251,8 @@ function ClassicTemplate({ contract, company, primaryColor, ownerName }: any) {
           <div className="text-xl font-bold mb-4" style={{ color: primaryColor }}>{company.name}</div>
         )}
         <div className="text-lg font-bold uppercase text-center mb-2" style={{ color: primaryColor }}>{contract.title}</div>
-        <div suppressHydrationWarning className="text-[10px] text-zinc-500 text-center">
-          Suscrito el <span className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
+        <div className="text-[10px] text-zinc-500 text-center">
+          Suscrito el <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
         </div>
       </div>
       <CommonBody contract={contract} company={company} primaryColor={primaryColor} ownerName={ownerName} />
@@ -269,137 +270,42 @@ function ContractContent({ contract, company, template, primaryColor, ownerName 
 }
 
 function A4PreviewWrapper({ children, orientation = "portrait" }: { children: React.ReactNode, orientation?: "portrait" | "landscape" }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [baseScale, setBaseScale] = useState(1)
-  const [zoom, setZoom] = useState(1)
-  const touchRef = useRef<{ dist: number } | null>(null)
-
   const targetWidth = orientation === "landscape" ? 1123 : 794
   const defaultHeight = orientation === "landscape" ? 794 : 1123
-
-  const [contentHeight, setContentHeight] = useState(defaultHeight)
-
-  useEffect(() => {
-    if (!containerRef.current || !contentRef.current) return
-
-    const updateDimensions = () => {
-      const parentWidth = containerRef.current?.clientWidth || 0
-      const currentHeight = contentRef.current?.clientHeight || defaultHeight
-
-      let currentScale = 1
-      if (parentWidth < targetWidth && parentWidth > 0) {
-        currentScale = parentWidth / targetWidth
-      }
-
-      setBaseScale(currentScale)
-      setContentHeight(currentHeight)
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateDimensions()
-    })
-
-    resizeObserver.observe(containerRef.current)
-    if (contentRef.current) {
-      resizeObserver.observe(contentRef.current)
-    }
-
-    updateDimensions()
-    return () => resizeObserver.disconnect()
-  }, [targetWidth, defaultHeight])
-
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault()
-      setZoom(z => Math.max(0.5, Math.min(4, z + (e.deltaY > 0 ? -0.05 : 0.05))))
-    }
-  }, [])
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
-      const dist = Math.hypot(
-         e.touches[0].clientX - e.touches[1].clientX,
-         e.touches[0].clientY - e.touches[1].clientY
-      )
-      touchRef.current = { dist }
-    }
-  }, [])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    try {
-      if (e.touches.length === 2 && touchRef.current && touchRef.current.dist) {
-        const dist = Math.hypot(
-           e.touches[0].clientX - e.touches[1].clientX,
-           e.touches[0].clientY - e.touches[1].clientY
-        )
-        setZoom(z => Math.max(0.5, Math.min(4, z + (dist - touchRef.current!.dist) * 0.005)))
-        touchRef.current = { dist }
-      }
-    } catch (err) {
-      console.warn("Touch zoom error ignored", err)
-    }
-  }, [])
-
-  const handleTouchEnd = useCallback(() => {
-    touchRef.current = null
-  }, [])
-
-  const finalScale = baseScale * zoom
-
+  
   return (
-    <div className="w-full flex flex-col gap-2 relative">
-      {/* Floating zoom indicator and reset */}
-      {zoom !== 1 && (
-        <div
-          className="absolute top-2 right-2 z-10 bg-zinc-900/90 text-white px-3 py-1.5 rounded-lg text-xs backdrop-blur-sm border border-white/10 shadow-lg cursor-pointer hover:bg-zinc-800 transition-colors"
-          onClick={() => setZoom(1)}
-        >
-          {Math.round(zoom * 100)}% - Restablecer
-        </div>
-      )}
-
-      <div
-        ref={containerRef}
-        className="w-full overflow-auto rounded-xl border border-zinc-200/10 shadow-inner hide-scrollbar"
-        style={{ maxHeight: '80vh' }}
-        onWheel={handleWheel}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+    <div className="w-full flex flex-col items-center relative overflow-hidden rounded-xl border border-zinc-200/50 bg-zinc-100 shadow-inner" style={{ maxHeight: '80vh' }}>
+      <TransformWrapper
+        initialScale={1}
+        minScale={0.3}
+        maxScale={4}
+        centerOnInit={true}
+        limitToBounds={true}
+        wheel={{ step: 0.1, smoothStep: 0.005 }}
+        pinch={{ step: 3 }}
+        panning={{ velocityDisabled: true }}
       >
-        <div
-          className="flex justify-center min-w-full"
-          style={{
-            minWidth: `${targetWidth * finalScale}px`,
-            height: `${contentHeight * finalScale}px`,
-          }}
-        >
-          <div
-            style={{
-              width: `${targetWidth * finalScale}px`,
-              height: `${contentHeight * finalScale}px`,
-              position: 'relative'
-            }}
-          >
-            <div
-              style={{
-                transform: `scale(${finalScale})`,
-                transformOrigin: 'top left',
-                width: `${targetWidth}px`,
-                position: 'absolute',
-                top: 0,
-                left: 0
-              }}
-              className="shrink-0 transition-transform duration-75"
+        {({ resetTransform, state }) => (
+          <>
+            {state.scale !== 1 && (
+              <div
+                className="absolute top-4 right-4 z-50 bg-zinc-900/90 text-white px-3 py-1.5 rounded-lg text-xs backdrop-blur-sm border border-white/10 shadow-lg cursor-pointer hover:bg-zinc-800 transition-colors"
+                onClick={() => resetTransform()}
+              >
+                {Math.round(state.scale * 100)}% - Restablecer
+              </div>
+            )}
+            <TransformComponent 
+              wrapperClass="!w-full !h-auto min-h-full flex items-start justify-center p-4" 
+              contentClass="origin-center"
             >
-              <div ref={contentRef} style={{ width: '100%', minHeight: `${defaultHeight}px` }}>
+              <div style={{ width: targetWidth, minHeight: defaultHeight }}>
                 {children}
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </TransformComponent>
+          </>
+        )}
+      </TransformWrapper>
     </div>
   )
 }
