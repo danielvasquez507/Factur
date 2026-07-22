@@ -237,7 +237,12 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
                     setIsSaving(true)
                     const toastId = toast.loading("Guardando secciones...")
                     try {
-                      const res = await updateContractSections(sections)
+                      const cleanedSections = sections.map(s => ({
+                        ...s,
+                        content: s.content.trim() === '1.' || s.content.trim() === '' ? '' : s.content
+                      }))
+                      setSections(cleanedSections)
+                      const res = await updateContractSections(cleanedSections)
                       if (res.error) throw new Error(res.error)
                       toast.success("Secciones guardadas correctamente")
                       router.refresh()
@@ -252,7 +257,7 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
                   className="bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Guardar Orden
+                  Guardar
                 </Button>
               </div>
             </AccordionContent>
