@@ -240,10 +240,18 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
                     setIsSaving(true)
                     const toastId = toast.loading("Guardando secciones...")
                     try {
-                      const cleanedSections = sections.map(s => ({
-                        ...s,
-                        content: s.content.trim() === '1.' || s.content.trim() === '' ? '' : s.content
-                      }))
+                      const cleanedSections = sections.map(s => {
+                        if (!s.content) return { ...s, content: '' };
+                        
+                        const lines = s.content.split('\n');
+                        const actualLines = lines.map(line => line.replace(/^\d+\.\s*/, '').trim());
+                        const filteredLines = actualLines.filter(line => line !== "");
+                        
+                        if (filteredLines.length === 0) return { ...s, content: '' };
+                        
+                        const reorderedContent = filteredLines.map((line, i) => `${i + 1}. ${line}`).join('\n');
+                        return { ...s, content: reorderedContent };
+                      })
                       setSections(cleanedSections)
                       const res = await updateContractSections(cleanedSections)
                       if (res.error) throw new Error(res.error)
