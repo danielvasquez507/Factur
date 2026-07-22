@@ -294,7 +294,7 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
   }, [targetWidth])
 
   return (
-    <div ref={containerRef} className="w-full flex flex-col items-center relative overflow-hidden rounded-xl border border-zinc-200/50 bg-zinc-100 shadow-inner" style={{ maxHeight: '80vh' }}>
+    <div ref={containerRef} className="w-full h-full min-h-[75vh] flex flex-col items-center relative overflow-hidden bg-transparent">
       <TransformWrapper
         initialScale={1}
         minScale={0.5}
@@ -331,19 +331,27 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
               </button>
             </div>
             <TransformComponent 
-              wrapperClass="!w-full !h-auto min-h-full flex items-start justify-center" 
-              contentClass="origin-top-left flex items-start justify-center p-4"
+              wrapperClass="!w-full !h-full min-h-[75vh]" 
+              contentClass="!w-full !h-full min-h-[75vh] flex items-center justify-center p-4 sm:p-8"
             >
               <div 
                 style={{ 
-                  width: targetWidth, 
-                  minHeight: defaultHeight,
-                  transform: `scale(${baseScale})`,
-                  transformOrigin: 'top center',
-                  marginBottom: `-${defaultHeight * (1 - baseScale)}px` 
+                  width: targetWidth * baseScale, 
+                  height: defaultHeight * baseScale 
                 }}
+                className="flex items-center justify-center shrink-0"
               >
-                {children}
+                <div 
+                  style={{ 
+                    width: targetWidth, 
+                    height: defaultHeight,
+                    transform: `scale(${baseScale})`,
+                    transformOrigin: 'center center'
+                  }}
+                  className="shrink-0"
+                >
+                  {children}
+                </div>
               </div>
             </TransformComponent>
           </>
