@@ -201,11 +201,11 @@ function ProfessionalTemplate({ contract, company, primaryColor, ownerName }: an
         </div>
         <div className="w-1/2 text-right">
           <div className="text-base font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>{contract.title}</div>
-          <div className="text-[10px] text-zinc-500">
+          <div suppressHydrationWarning className="text-[10px] text-zinc-500">
             Fecha de Inicio: <span className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
           </div>
           {contract.endDate && (
-            <div className="text-[10px] text-zinc-500 mt-0.5">
+            <div suppressHydrationWarning className="text-[10px] text-zinc-500 mt-0.5">
               Fecha de Vencimiento: <span className="font-bold text-zinc-900">{format(new Date(contract.endDate), "dd/MM/yyyy")}</span>
             </div>
           )}
@@ -222,7 +222,7 @@ function ModernTemplate({ contract, company, primaryColor, ownerName }: any) {
       <div className="flex justify-between items-start mb-10 p-5 rounded-lg bg-slate-50 border-l-4" style={{ borderLeftColor: primaryColor }}>
         <div className="w-1/2">
           <div className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ color: primaryColor }}>{contract.title}</div>
-          <div className="text-[10px] text-zinc-500">
+          <div suppressHydrationWarning className="text-[10px] text-zinc-500">
             Vigencia: <span className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
             {contract.endDate ? ` al ${format(new Date(contract.endDate), "dd/MM/yyyy")}` : " en adelante"}
           </div>
@@ -250,7 +250,7 @@ function ClassicTemplate({ contract, company, primaryColor, ownerName }: any) {
           <div className="text-xl font-bold mb-4" style={{ color: primaryColor }}>{company.name}</div>
         )}
         <div className="text-lg font-bold uppercase text-center mb-2" style={{ color: primaryColor }}>{contract.title}</div>
-        <div className="text-[10px] text-zinc-500 text-center">
+        <div suppressHydrationWarning className="text-[10px] text-zinc-500 text-center">
           Suscrito el <span className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
         </div>
       </div>
@@ -383,7 +383,6 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
             }}
           >
             <div
-              ref={contentRef}
               style={{
                 transform: `scale(${finalScale})`,
                 transformOrigin: 'top left',
@@ -394,7 +393,9 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
               }}
               className="shrink-0 transition-transform duration-75"
             >
-              {children}
+              <div ref={contentRef} style={{ width: '100%', minHeight: `${defaultHeight}px` }}>
+                {children}
+              </div>
             </div>
           </div>
         </div>
