@@ -59,8 +59,9 @@ export async function getActiveTenantId() {
   })
 
   if (firstCompany) {
-    cookieStore.set(TENANT_COOKIE_NAME, firstCompany.companyId, { path: "/", maxAge: 60 * 60 * 24 * 30 })
-    return firstCompany.companyId
+    // Retornar null en lugar de usar cookieStore.set() durante el Server Render
+    // Esto disparará la redirección en el DashboardLayout hacia /api/switch-company
+    return null
   }
 
   return null
