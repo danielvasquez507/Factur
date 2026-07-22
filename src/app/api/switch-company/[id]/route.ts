@@ -19,7 +19,7 @@ export async function GET(
       where: { userId: session.user.id, companyId: id },
       select: { id: true }
     })
-    if (!userCompany) redirect("/")
+    if (!userCompany) redirect("/panel")
   }
 
   const cookieStore = await cookies()
@@ -27,5 +27,5 @@ export async function GET(
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
   })
-  redirect("/")
+  redirect("/panel")
 }
