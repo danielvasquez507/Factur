@@ -153,7 +153,7 @@ function CommonBody({ contract, company, primaryColor, ownerName }: any) {
               "Cláusulas y Disposiciones Generales",
               "Responsabilidades del Cliente",
               "Condiciones Comerciales",
-              "Excepciones y Limitaciones"
+              "Causas de Terminación Anticipada"
             ];
             
         return activeSections.map((sec: any, idx: number) => {
@@ -162,7 +162,7 @@ function CommonBody({ contract, company, primaryColor, ownerName }: any) {
           if (titleText === "Cláusulas y Disposiciones Generales") return <div key="clauses">{renderSection(displayTitle, contract.clauses, primaryColor)}</div>;
           if (titleText === "Responsabilidades del Cliente") return <div key="resp">{renderSection(displayTitle, contract.responsibilities, primaryColor)}</div>;
           if (titleText === "Condiciones Comerciales") return <div key="cond">{renderSection(displayTitle, contract.conditions, primaryColor)}</div>;
-          if (titleText === "Excepciones y Limitaciones") return <div key="exc">{renderSection(displayTitle, contract.exceptions, primaryColor)}</div>;
+          if (titleText === "Causas de Terminación Anticipada") return <div key="exc">{renderSection(displayTitle, contract.exceptions, primaryColor)}</div>;
           return null;
         });
       })()}

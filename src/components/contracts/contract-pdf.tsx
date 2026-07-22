@@ -227,7 +227,7 @@ export function ContractPDF({ contract, company, ownerName, orientation = "portr
                 "Cláusulas y Disposiciones Generales",
                 "Responsabilidades del Cliente",
                 "Condiciones Comerciales",
-                "Excepciones y Limitaciones"
+                "Causas de Terminación Anticipada"
               ];
               
           return activeSections.map((sec: any, idx: number) => {
@@ -236,7 +236,7 @@ export function ContractPDF({ contract, company, ownerName, orientation = "portr
             if (titleText === "Cláusulas y Disposiciones Generales") return <Section key="clauses" title={displayTitle} items={contract.clauses} primaryColor={primaryColor} />;
             if (titleText === "Responsabilidades del Cliente") return <Section key="resp" title={displayTitle} items={contract.responsibilities} primaryColor={primaryColor} />;
             if (titleText === "Condiciones Comerciales") return <Section key="cond" title={displayTitle} items={contract.conditions} primaryColor={primaryColor} />;
-            if (titleText === "Excepciones y Limitaciones") return <Section key="exc" title={displayTitle} items={contract.exceptions} primaryColor={primaryColor} />;
+            if (titleText === "Causas de Terminación Anticipada") return <Section key="exc" title={displayTitle} items={contract.exceptions} primaryColor={primaryColor} />;
             return null;
           });
         })()}

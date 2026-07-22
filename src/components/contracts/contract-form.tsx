@@ -56,7 +56,7 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
   const [clauses, setClauses] = useState<string>(parseInitial(initialData?.clauses) || getSectionDefault("Cláusulas y Disposiciones Generales"))
   const [responsibilities, setResponsibilities] = useState<string>(parseInitial(initialData?.responsibilities) || getSectionDefault("Responsabilidades del Cliente"))
   const [conditions, setConditions] = useState<string>(parseInitial(initialData?.conditions) || getSectionDefault("Condiciones Comerciales"))
-  const [exceptions, setExceptions] = useState<string>(parseInitial(initialData?.exceptions) || getSectionDefault("Excepciones y Limitaciones"))
+  const [exceptions, setExceptions] = useState<string>(parseInitial(initialData?.exceptions) || getSectionDefault("Causas de Terminación Anticipada"))
 
   const filteredServices = useMemo(() => {
     if (!clientId) return []
@@ -290,7 +290,7 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
           "Cláusulas y Disposiciones Generales",
           "Responsabilidades del Cliente",
           "Condiciones Comerciales",
-          "Excepciones y Limitaciones"
+          "Causas de Terminación Anticipada"
         ];
         
         return activeSections.map((sec, idx) => {
@@ -299,7 +299,7 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
           if (titleText === "Cláusulas y Disposiciones Generales") return <div key="clauses">{renderSection(displayTitle, clauses, setClauses)}</div>;
           if (titleText === "Responsabilidades del Cliente") return <div key="resp">{renderSection(displayTitle, responsibilities, setResponsibilities)}</div>;
           if (titleText === "Condiciones Comerciales") return <div key="cond">{renderSection(displayTitle, conditions, setConditions)}</div>;
-          if (titleText === "Excepciones y Limitaciones") return <div key="exc">{renderSection(displayTitle, exceptions, setExceptions)}</div>;
+          if (titleText === "Causas de Terminación Anticipada") return <div key="exc">{renderSection(displayTitle, exceptions, setExceptions)}</div>;
           return null;
         });
       })()}

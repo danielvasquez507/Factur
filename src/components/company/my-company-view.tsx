@@ -19,7 +19,7 @@ const DEFAULT_SECTIONS: SectionItem[] = [
   { title: "Cláusulas y Disposiciones Generales", content: "" },
   { title: "Responsabilidades del Cliente", content: "" },
   { title: "Condiciones Comerciales", content: "" },
-  { title: "Excepciones y Limitaciones", content: "" }
+  { title: "Causas de Terminación Anticipada", content: "" }
 ]
 
 const parseSections = (data: any): SectionItem[] => {
