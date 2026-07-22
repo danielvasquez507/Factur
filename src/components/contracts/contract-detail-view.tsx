@@ -294,7 +294,7 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
   }, [targetWidth])
 
   return (
-    <div ref={containerRef} className="w-full h-[70vh] sm:h-[80vh] flex flex-col items-center relative overflow-hidden bg-transparent">
+    <div ref={containerRef} className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-transparent">
       <TransformWrapper
         initialScale={1}
         minScale={0.5}
@@ -566,24 +566,26 @@ export function ContractDetailView({
         </span>
       </ContractShareActions>
 
-      <div className="pb-4 w-full">
-        <A4PreviewWrapper orientation={orientation}>
-          <Card
-            className="bg-white border-zinc-200 shadow-2xl overflow-hidden shrink-0 h-auto self-start"
-            style={{
-              width: orientation === "landscape" ? "1123px" : "794px",
-              minHeight: orientation === "landscape" ? "794px" : "1123px"
-            }}
-          >
-            <ContractContent
-              contract={contract}
-              company={company}
-              template={template}
-              primaryColor={primaryColor}
-              ownerName={ownerName}
-            />
-          </Card>
-        </A4PreviewWrapper>
+      <div className="transition-all duration-300 w-full relative group aspect-[1/1.414] lg:aspect-auto lg:h-[80vh] overflow-hidden rounded-none">
+        <div className="w-full h-full min-h-full relative flex flex-col items-center justify-start rounded-none">
+          <A4PreviewWrapper orientation={orientation}>
+            <Card
+              className="bg-white border-zinc-200 shadow-2xl overflow-hidden shrink-0 h-auto self-start"
+              style={{
+                width: orientation === "landscape" ? "1123px" : "794px",
+                minHeight: orientation === "landscape" ? "794px" : "1123px"
+              }}
+            >
+              <ContractContent
+                contract={contract}
+                company={company}
+                template={template}
+                primaryColor={primaryColor}
+                ownerName={ownerName}
+              />
+            </Card>
+          </A4PreviewWrapper>
+        </div>
       </div>
 
       <div className="flex items-center justify-center gap-1.5 mt-2 mb-8 text-xs text-zinc-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2 w-fit mx-auto">
