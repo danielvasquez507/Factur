@@ -101,10 +101,10 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col sm:flex-row gap-6 items-start">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex flex-col items-center gap-4 mt-2">
               <div className="w-32 h-32 rounded-xl bg-white/5 border border-white/10 overflow-hidden relative group flex items-center justify-center">
                 {logoPreview ? (
-                   <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                   <img src={logoPreview} alt="Logo" className={`w-full h-full object-cover ${company.logoWhiteBackground ? "bg-white" : ""}`} />
                 ) : (
                    <span className="text-zinc-500 text-sm">Sin Logo</span>
                 )}
@@ -115,6 +115,10 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                   </Label>
                   <Input type="file" id="logo" name="logo" accept="image/*" className="hidden" onChange={handleLogoChange} />
                 </div>
+              </div>
+              <div className="flex items-start space-x-2 bg-white/5 p-2 rounded-md border border-white/10 max-w-[130px]">
+                <Checkbox id="logoWhiteBackground" name="logoWhiteBackground" defaultChecked={company.logoWhiteBackground} />
+                <Label htmlFor="logoWhiteBackground" className="text-zinc-300 text-xs cursor-pointer leading-tight">Forzar fondo blanco al logo</Label>
               </div>
             </div>
             

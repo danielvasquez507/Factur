@@ -88,6 +88,7 @@ model Company {
   name              String
   slug              String   @unique
   logoUrl           String?  @map("logo_url")
+  logoWhiteBackground Boolean @default(false) @map("logo_white_background")
   phone             String?
   address           String?
   ruc               String?

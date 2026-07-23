@@ -35,7 +35,7 @@ export default async function CompanyDetailsPage({ params }: { params: Promise<{
           <img 
             src={company.logoUrl} 
             alt={`Logo de ${company.name}`}
-            className="h-16 w-auto object-contain"
+            className={`h-16 w-auto object-contain rounded-md ${company.logoWhiteBackground ? "bg-white p-1" : ""}`}
           />
         )}
         <div>

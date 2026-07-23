@@ -89,7 +89,7 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
                   <div>
                     <div className="flex items-center gap-3 mb-2">
                       {uc.company.logoUrl ? (
-                        <img src={uc.company.logoUrl} alt={uc.company.name} className="w-10 h-10 object-contain rounded-md" />
+                        <img src={uc.company.logoUrl} alt={uc.company.name} className={`w-10 h-10 object-contain rounded-md ${uc.company.logoWhiteBackground ? "bg-white p-0.5" : ""}`} />
                       ) : (
                         <div className="w-10 h-10 rounded-md bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
                           {uc.company.name.charAt(0)}

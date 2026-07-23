@@ -285,7 +285,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
           <View style={styles.c_header}>
             <View style={{ width: '50%' }}>
               {logoUrl ? (
-                <Image src={logoUrl} style={styles.c_logo} />
+                <Image src={logoUrl} style={[styles.c_logo, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
               ) : (
                 <Text style={{ fontSize: 28, fontFamily: 'Helvetica-Bold', color: primaryColor, letterSpacing: -0.5 }}>{company.name}</Text>
               )}
@@ -383,7 +383,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
           <View style={[styles.m_headerBanner, { backgroundColor: primaryColor }]}>
             <View style={{ width: '60%' }}>
               {logoUrl ? (
-                <Image src={logoUrl} style={styles.m_logo} />
+                <Image src={logoUrl} style={[styles.m_logo, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
               ) : (
                 <Text style={{ fontSize: 32, fontFamily: 'Helvetica-Bold', color: '#ffffff', letterSpacing: -1 }}>{company.name}</Text>
               )}
@@ -479,7 +479,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 50 }}>
             <View>
               {logoUrl ? (
-                <Image src={logoUrl} style={{ width: 180, height: 90, objectFit: 'contain' }} />
+                <Image src={logoUrl} style={[{ width: 180, height: 90, objectFit: 'contain' }, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
               ) : (
                 <Text style={{ fontSize: 22, fontFamily: 'Helvetica-Bold', color: '#18181b', letterSpacing: -0.3 }}>{company.name}</Text>
               )}
@@ -582,7 +582,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flexDirection: 'row', gap: 15, alignItems: 'center' }}>
                 {logoUrl ? (
-                  <Image src={logoUrl} style={{ width: 144, height: 90, objectFit: 'contain' }} />
+                  <Image src={logoUrl} style={[{ width: 144, height: 90, objectFit: 'contain' }, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
                 ) : null}
                 <View>
                   <Text style={{ fontSize: 20, fontFamily: 'Helvetica-Bold', color: '#18181b', letterSpacing: -0.5 }}>{company.name}</Text>
@@ -711,7 +711,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
           <View style={styles.e_header}>
             <View style={{ width: '50%' }}>
               {logoUrl ? (
-                <Image src={logoUrl} style={styles.e_logo} />
+                <Image src={logoUrl} style={[styles.e_logo, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
               ) : (
                 <Text style={{ fontSize: 26, fontFamily: 'Helvetica-Bold', color: primaryColor, letterSpacing: -0.5 }}>{company.name}</Text>
               )}
@@ -822,7 +822,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
           <View style={[styles.b_header, { backgroundColor: primaryColor }]}>
             <View style={styles.b_logoContainer}>
               {logoUrl ? (
-                <Image src={logoUrl} style={styles.b_logo} />
+                <Image src={logoUrl} style={[styles.b_logo, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
               ) : (
                 <Text style={{ fontSize: 28, fontFamily: 'Helvetica-Bold', color: '#ffffff', letterSpacing: -1 }}>{company.name}</Text>
               )}
@@ -941,7 +941,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
           <View style={[styles.p_sidebar, { backgroundColor: primaryColor }]}>
             <View style={{ padding: 30, paddingTop: 40 }}>
               {logoUrl ? (
-                <Image src={logoUrl} style={styles.p_logo} />
+                <Image src={logoUrl} style={[styles.p_logo, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
               ) : (
                 <Text style={{ fontSize: 20, fontFamily: 'Helvetica-Bold', color: '#ffffff', marginBottom: 20, letterSpacing: -0.5 }}>{company.name}</Text>
               )}
@@ -1055,7 +1055,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
           <View style={[styles.cr_headerBanner, { backgroundColor: primaryColor }]}>
             <View style={{ width: '50%' }}>
               {logoUrl ? (
-                <Image src={logoUrl} style={styles.cr_logo} />
+                <Image src={logoUrl} style={[styles.cr_logo, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
               ) : (
                 <Text style={{ fontSize: 26, fontFamily: 'Helvetica-Bold', color: '#ffffff', letterSpacing: -0.5 }}>{company.name}</Text>
               )}
@@ -1172,7 +1172,7 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
           <View style={styles.ex_header}>
             <View style={styles.ex_logoSection}>
               {logoUrl ? (
-                <Image src={logoUrl} style={styles.ex_logo} />
+                <Image src={logoUrl} style={[styles.ex_logo, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
               ) : (
                 <Text style={{ fontSize: 24, fontFamily: 'Helvetica-Bold', color: primaryColor, letterSpacing: -0.5, marginBottom: 10 }}>{company.name}</Text>
               )}

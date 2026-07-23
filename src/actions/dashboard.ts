@@ -156,6 +156,8 @@ export async function getGlobalMetrics() {
     id: c.id,
     name: c.name,
     logoUrl: c.logoUrl,
+    logoWhiteBackground: c.logoWhiteBackground,
+    isActive: c.isActive,
     clientCount: c._count.clients,
     serviceCount: c._count.services,
     invoiceCount: c._count.invoices,

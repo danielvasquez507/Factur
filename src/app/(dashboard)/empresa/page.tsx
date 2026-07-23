@@ -27,8 +27,10 @@ export default async function EmpresaPage() {
               id: true, 
               name: true, 
               logoUrl: true, 
+              logoWhiteBackground: true,
               isActive: true,
-              contractSections: true
+              contractSections: true,
+              defaultContractTitle: true
             }
           }
         }

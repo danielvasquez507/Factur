@@ -141,7 +141,7 @@ export async function SuperAdminDashboard() {
                   <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:shadow-blue-500/20 group-hover:border-blue-500/30 transition-all duration-300 relative">
                     <div className="absolute inset-0 bg-blue-500/10 transition-opacity"></div>
                     {company.logoUrl ? (
-                      <img src={company.logoUrl} alt={company.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 relative z-10" />
+                      <img src={company.logoUrl} alt={company.name} className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 relative z-10 ${company.logoWhiteBackground ? "bg-white p-1" : ""}`} />
                     ) : (
                       <Building2 className="w-5 h-5 text-zinc-500 group-hover:text-blue-400 transition-colors duration-300 relative z-10" />
                     )}

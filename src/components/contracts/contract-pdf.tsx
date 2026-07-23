@@ -139,7 +139,7 @@ function ProfessionalHeader({ contract, company, primaryColor }: any) {
     <View style={[styles.headerProf, { borderBottomColor: primaryColor }]}>
       <View style={styles.logoBox}>
         {company.logoUrl ? (
-          <Image src={company.logoUrl} style={styles.logoProf} />
+          <Image src={company.logoUrl} style={[styles.logoProf, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
         ) : (
           <Text style={[styles.companyName, { color: primaryColor }]}>{company.name}</Text>
         )}
@@ -171,7 +171,7 @@ function ModernHeader({ contract, company, primaryColor }: any) {
       </View>
       <View style={styles.headerRight}>
         {company.logoUrl ? (
-          <Image src={company.logoUrl} style={styles.logoModern} />
+          <Image src={company.logoUrl} style={[styles.logoModern, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
         ) : (
           <Text style={[styles.companyName, { color: primaryColor, textAlign: 'right' }]}>{company.name}</Text>
         )}
@@ -184,7 +184,7 @@ function ClassicHeader({ contract, company, primaryColor }: any) {
   return (
     <View style={[styles.headerClassic, { borderBottomColor: primaryColor }]}>
       {company.logoUrl ? (
-        <Image src={company.logoUrl} style={styles.logoClassic} />
+        <Image src={company.logoUrl} style={[styles.logoClassic, company.logoWhiteBackground ? { backgroundColor: 'white', padding: 4, borderRadius: 4 } : {}]} />
       ) : (
         <Text style={[styles.companyName, { color: primaryColor, marginBottom: 15 }]}>{company.name}</Text>
       )}

@@ -15,6 +15,7 @@ const updateSettingsSchema = z.object({
   address: z.string().max(500, "Dirección demasiado larga").optional(),
   paymentDetails: z.string().max(2000, "Detalles de pago demasiado largos").optional(),
   slogan: z.string().max(255, "Eslogan demasiado largo").optional(),
+  logoWhiteBackground: z.boolean().optional(),
 })
 
 export async function updateCompanySettings(formData: FormData) {
@@ -32,6 +33,7 @@ export async function updateCompanySettings(formData: FormData) {
     address: formData.get("address") as string || undefined,
     paymentDetails: formData.get("paymentDetails") as string || undefined,
     slogan: formData.get("slogan") as string || undefined,
+    logoWhiteBackground: formData.get("logoWhiteBackground") === "on",
   }
 
   const logoFile = formData.get("logo") as File | null
@@ -54,6 +56,7 @@ export async function updateCompanySettings(formData: FormData) {
       address: result.data.address,
       paymentDetails: result.data.paymentDetails,
       slogan: result.data.slogan,
+      logoWhiteBackground: result.data.logoWhiteBackground,
     }
 
     const requests = []
