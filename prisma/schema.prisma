@@ -99,6 +99,7 @@ model Company {
   paymentDetails    String?  @map("payment_details") @db.Text
   isActive          Boolean  @default(true) @map("is_active")
   contractSections  Json?    @map("contract_sections")
+  defaultContractTitle String? @map("default_contract_title")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 

@@ -19,7 +19,8 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
   companyId?: string,
   defaultClientId?: string,
   initialData?: any,
-  contractSections?: Array<{title: string, content: string}> | string[]
+  contractSections?: Array<{title: string, content: string}> | string[],
+  defaultTitle?: string
 }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -27,7 +28,7 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
 
   const [clientId, setClientId] = useState(initialData?.clientId || defaultClientId || "")
   const [clientServiceId, setClientServiceId] = useState(initialData?.clientServiceId || "")
-  const [title, setTitle] = useState(initialData?.title || "")
+  const [title, setTitle] = useState(initialData?.title || defaultTitle || "Contrato ")
   const [description, setDescription] = useState(initialData?.description || "")
   const [startDate, setStartDate] = useState(initialData ? new Date(initialData.startDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])
   const [endDate, setEndDate] = useState(initialData?.endDate ? new Date(initialData.endDate).toISOString().split('T')[0] : "")
@@ -76,14 +77,17 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
       const selected = filteredServices.find(s => s.id === clientServiceId)
       if (selected) {
         setTitle(prev => {
-          if (!prev || prev.startsWith("Contrato de ")) {
+          if (!prev || prev === defaultTitle || prev.startsWith("Contrato de ")) {
+            if (defaultTitle && defaultTitle !== "Contrato ") {
+              return defaultTitle;
+            }
             return `Contrato de ${selected.service.name}`
           }
           return prev
         })
       }
     }
-  }, [clientServiceId, filteredServices, initialData])
+  }, [clientServiceId, filteredServices, initialData, defaultTitle])
 
 
 
@@ -228,8 +232,19 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
             <div className="space-y-2">
               <Label className="text-zinc-300">Título del Contrato *</Label>
               <Input 
+                id="title"
                 value={title} 
-                onChange={(e) => setTitle(e.target.value)} 
+                onChange={(e) => {
+                  let val = e.target.value;
+                  if (!val.startsWith("Contrato")) {
+                    if (val.toLowerCase().startsWith("contrato")) {
+                      val = "Contrato" + val.slice(8);
+                    } else {
+                      val = "Contrato " + val;
+                    }
+                  }
+                  setTitle(val);
+                }}
                 placeholder="Ej. Contrato de Prestación de Servicios Profesionales" 
                 className="bg-black/50 border-white/10 text-white"
                 required

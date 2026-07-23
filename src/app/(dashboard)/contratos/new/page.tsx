@@ -22,7 +22,7 @@ export default async function NewContractPage(props: { searchParams: Promise<{ c
   
   const company = await prisma.company.findUnique({
     where: { id: activeTenantId },
-    select: { contractSections: true }
+    select: { contractSections: true, defaultContractTitle: true }
   })
   
   // Fetch all assigned services for all clients in this company to pass to the form
@@ -55,6 +55,7 @@ export default async function NewContractPage(props: { searchParams: Promise<{ c
         companyId={companyId} 
         defaultClientId={clientId}
         contractSections={(company?.contractSections as string[]) || undefined}
+        defaultTitle={company?.defaultContractTitle || "Contrato "}
       />
     </div>
   )

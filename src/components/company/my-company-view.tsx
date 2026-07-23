@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { FileText, ArrowUp, ArrowDown, Save, BriefcaseBusiness, GripVertical } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { setActiveTenant } from "@/actions/tenant"
-import { updateContractSections } from "@/actions/companies"
+import { updateContractSections, updateDefaultContractTitle } from "@/actions/companies"
 import { useRouter } from "next/navigation"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CompanyProfileForm } from "@/components/settings/company-profile-form"
@@ -40,9 +40,11 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
   
   // Initialize sections from DB or use defaults
   const [sections, setSections] = useState<SectionItem[]>(parseSections(activeCompany?.contractSections))
+  const [defaultTitle, setDefaultTitle] = useState(activeCompany?.defaultContractTitle || "Contrato ")
 
   useEffect(() => {
     setSections(parseSections(activeCompany?.contractSections))
+    setDefaultTitle(activeCompany?.defaultContractTitle || "Contrato ")
   }, [activeCompany?.id])
   const [isSaving, setIsSaving] = useState(false)
 
@@ -134,21 +136,46 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
             </AccordionContent>
           </AccordionItem>
 
-          {/* Secciones de Contrato */}
-          <AccordionItem value="secciones" className="border-none" key={`secciones-${activeCompany.id}`}>
+          {/* Configuración de Contrato */}
+          <AccordionItem value="contrato-config" className="border-none" key={`contrato-${activeCompany.id}`}>
             <AccordionTrigger className="hover:no-underline px-4 py-3 bg-white/5 border border-white/10 rounded-xl data-[state=open]:rounded-b-none transition-all items-center">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-purple-500" />
-                <span className="font-semibold text-lg text-white">Secciones de Contrato</span>
+                <span className="font-semibold text-lg text-white">Configuración de Contrato</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="bg-black/40 border border-t-0 border-white/10 rounded-b-xl backdrop-blur-md p-6">
-              <p className="text-zinc-400 mb-4 text-sm">
-                Define y ordena las secciones predeterminadas que se incluirán en los contratos de la empresa activa ({activeCompany.name}). 
-                Podrás modificarlas individualmente al generar cada contrato.
-              </p>
               
+              <div className="mb-8">
+                <h3 className="text-white font-medium mb-2">Título del contrato</h3>
+                <p className="text-zinc-400 mb-3 text-sm">Título predeterminado de los contratos.</p>
+                <input 
+                  id="base-ui-_r_4a_" 
+                  data-slot="input" 
+                  placeholder="Ej. Contrato de Prestación de Servicios Profesionales" 
+                  required 
+                  className="h-8 w-full min-w-0 rounded-lg border px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 bg-black/50 border-white/10 text-white" 
+                  value={defaultTitle}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (!val.startsWith("Contrato")) {
+                      if (val.toLowerCase().startsWith("contrato")) {
+                        val = "Contrato" + val.slice(8);
+                      } else {
+                        val = "Contrato " + val;
+                      }
+                    }
+                    setDefaultTitle(val);
+                  }}
+                />
+              </div>
+
               <div className="space-y-4">
+                <h3 className="text-white font-medium mb-2">Puntos importantes de contrato</h3>
+                <p className="text-zinc-400 mb-4 text-sm">
+                  Define y ordena las secciones predeterminadas que se incluirán en los contratos de la empresa activa ({activeCompany.name}). 
+                  Podrás modificarlas individualmente al generar cada contrato.
+                </p>
                 {sections.map((section, index) => (
                   <div 
                     key={section.title} 
@@ -253,9 +280,17 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
                         return { ...s, content: reorderedContent };
                       })
                       setSections(cleanedSections)
-                      const res = await updateContractSections(cleanedSections)
-                      if (res.error) throw new Error(res.error)
-                      toast.success("Secciones guardadas correctamente")
+                      
+                      // Promise.all to save both sections and title concurrently
+                      const [sectionsRes, titleRes] = await Promise.all([
+                        updateContractSections(cleanedSections),
+                        updateDefaultContractTitle(defaultTitle)
+                      ])
+                      
+                      if (sectionsRes.error) throw new Error(sectionsRes.error)
+                      if (titleRes.error) throw new Error(titleRes.error)
+                      
+                      toast.success("Configuración guardada correctamente")
                       router.refresh()
                     } catch (err: any) {
                       toast.error(err.message || "Error al guardar las secciones")

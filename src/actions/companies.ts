@@ -284,3 +284,41 @@ export async function updateContractSections(sections: any[]) {
     return { error: "Ocurrió un error al guardar las secciones" }
   }
 }
+
+export async function updateDefaultContractTitle(title: string | null) {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: "No autorizado" }
+  }
+
+  const tenantId = await getActiveTenantId()
+  if (!tenantId) {
+    return { error: "No se encontró empresa activa" }
+  }
+
+  const prisma = getBypassPrisma()
+  const userCompany = await prisma.userCompany.findUnique({
+    where: {
+      userId_companyId: {
+        userId: session.user.id,
+        companyId: tenantId
+      }
+    }
+  })
+
+  if (!userCompany) {
+    return { error: "No tienes permisos para modificar esta empresa" }
+  }
+
+  try {
+    await prisma.company.update({
+      where: { id: tenantId },
+      data: { defaultContractTitle: title }
+    })
+    revalidatePath("/empresa")
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating default contract title:", error)
+    return { error: "Ocurrió un error al guardar el título predeterminado" }
+  }
+}
