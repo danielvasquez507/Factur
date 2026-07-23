@@ -13,7 +13,7 @@ import { createContract, updateContract } from "@/actions/contracts"
 
 
 
-export function ContractForm({ clients, clientServices, companyId, defaultClientId, initialData, contractSections }: {
+export function ContractForm({ clients, clientServices, companyId, defaultClientId, initialData, contractSections, defaultTitle }: {
   clients: any[],
   clientServices: any[],
   companyId?: string,
