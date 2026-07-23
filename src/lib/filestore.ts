@@ -4,10 +4,10 @@ import crypto from 'crypto'
 export async function saveCompanyLogo(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer())
 
-  // Optimizar, redimensionar y convertir a PNG (react-pdf no soporta WebP)
+  // Optimizar, redimensionar y convertir a PNG 24/32 bits puros (react-pdf no soporta WebP ni procesa bien PNGs con paletas/quality)
   const optimizedBuffer = await sharp(buffer)
     .resize({ width: 400, height: 400, fit: 'inside' })
-    .png({ quality: 90 })
+    .png()
     .toBuffer()
 
   // Retornar como Data URL (base64)

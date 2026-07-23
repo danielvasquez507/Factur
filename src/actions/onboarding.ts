@@ -4,8 +4,9 @@ import { auth } from "@/lib/auth"
 import { getBypassPrisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
+import { PrismaClient } from "@prisma/client"
 import { getActiveTenantId } from "@/actions/tenant"
+import { saveCompanyLogo } from "@/lib/filestore"
 
 export async function completeOnboarding(formData: FormData) {
   const session = await auth()
@@ -44,14 +45,7 @@ export async function completeOnboarding(formData: FormData) {
     
     let logoUrl = null
     if (logo && logo.size > 0) {
-      // Usamos el mismo patrón que en configuraciones para procesar la subida del archivo
-      // Por brevedad, simularemos guardar el logo (asumiendo que hay una función de upload centralizada o lo guardamos en base64 si no hay otra)
-      // Como es un mock en este punto sin saber exactamente cómo se suben las imágenes en el proyecto,
-      // podríamos usar un servicio externo o convertir a base64.
-      // Buscaremos cómo lo hace el sistema actual de logo, pero temporalmente lo dejamos listo para guardar.
-      const arrayBuffer = await logo.arrayBuffer()
-      const base64String = Buffer.from(arrayBuffer).toString('base64')
-      logoUrl = `data:${logo.type};base64,${base64String}`
+      logoUrl = await saveCompanyLogo(logo)
     }
 
     // Actualizar usuario
