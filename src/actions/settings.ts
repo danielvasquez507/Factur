@@ -12,10 +12,13 @@ const updateSettingsSchema = z.object({
   name: z.string().min(2, "Nombre debe tener al menos 2 caracteres").max(100),
   ruc: z.string().regex(/^[0-9A-Za-z-]{1,20}$/, "RUC inválido: máximo 20 caracteres (letras, números y guiones)").optional().or(z.literal("")),
   dv: z.string().regex(/^\d{1,2}$/, "DV inválido: solo 1 o 2 dígitos").optional().or(z.literal("")),
+  celular: z.string().regex(/^6\d{7}$/, "El celular debe iniciar con 6 y tener 8 dígitos").optional().or(z.literal("")),
+  phone: z.string().regex(/^(6\d{7}|[0-57-9]\d{6})$/, "Teléfono inválido (8 dígitos si empieza en 6, 7 dígitos de lo contrario)").optional().or(z.literal("")),
   address: z.string().max(500, "Dirección demasiado larga").optional(),
   paymentDetails: z.string().max(2000, "Detalles de pago demasiado largos").optional(),
   slogan: z.string().max(255, "Eslogan demasiado largo").optional(),
   logoWhiteBackground: z.boolean().optional(),
+  companyType: z.enum(["PYME", "TRANSPORTE_ESCOLAR"]).optional(),
 })
 
 export async function updateCompanySettings(formData: FormData) {
@@ -30,10 +33,13 @@ export async function updateCompanySettings(formData: FormData) {
     name: formData.get("name") as string,
     ruc: formData.get("ruc") as string || undefined,
     dv: formData.get("dv") as string || undefined,
+    celular: formData.get("celular") as string || undefined,
+    phone: formData.get("phone") as string || undefined,
     address: formData.get("address") as string || undefined,
     paymentDetails: formData.get("paymentDetails") as string || undefined,
     slogan: formData.get("slogan") as string || undefined,
     logoWhiteBackground: formData.get("logoWhiteBackground") === "on",
+    companyType: (formData.get("companyType") as "PYME" | "TRANSPORTE_ESCOLAR") || undefined,
   }
 
   const logoFile = formData.get("logo") as File | null
@@ -53,6 +59,8 @@ export async function updateCompanySettings(formData: FormData) {
     if (!currentCompany) return { error: "Empresa no encontrada" }
 
     const updateData: any = {
+      celular: result.data.celular,
+      phone: result.data.phone,
       address: result.data.address,
       paymentDetails: result.data.paymentDetails,
       slogan: result.data.slogan,

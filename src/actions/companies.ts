@@ -10,6 +10,7 @@ const createCompanySchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   ruc: z.string().optional(),
   dv: z.string().optional(),
+  companyType: z.enum(["PYME", "TRANSPORTE_ESCOLAR"]).optional().default("PYME"),
 })
 
 export async function getCompanies() {
@@ -45,6 +46,7 @@ export async function createCompany(formData: FormData) {
     name: formData.get("name") as string,
     ruc: formData.get("ruc") as string || undefined,
     dv: formData.get("dv") as string || undefined,
+    companyType: formData.get("companyType") as "PYME" | "TRANSPORTE_ESCOLAR" || "PYME",
   }
 
   const result = createCompanySchema.safeParse(rawData)
@@ -96,11 +98,25 @@ export async function createCompany(formData: FormData) {
 export async function getCompanyById(id: string) {
   const session = await auth()
   
-  if (session?.user?.role !== "SUPER_ADMIN") {
+  if (!session?.user) {
     throw new Error("No autorizado")
   }
 
+  // Allow SUPER_ADMIN or any user who belongs to the requested company
   const prisma = getBypassPrisma()
+  const userRole = session.user.role;
+  
+  if (userRole !== "SUPER_ADMIN") {
+    const userCompany = await prisma.userCompany.findFirst({
+      where: {
+        userId: session.user.id,
+        companyId: id
+      }
+    })
+    if (!userCompany) {
+      throw new Error("No autorizado")
+    }
+  }
   const company = await prisma.company.findUnique({
     where: { id },
     include: {

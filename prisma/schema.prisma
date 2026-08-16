@@ -89,6 +89,7 @@ model Company {
   slug              String   @unique
   logoUrl           String?  @map("logo_url")
   logoWhiteBackground Boolean @default(false) @map("logo_white_background")
+  celular           String?
   phone             String?
   address           String?
   ruc               String?
@@ -99,6 +100,7 @@ model Company {
   nextInvoiceNumber Int      @default(1) @map("next_invoice_number")
   paymentDetails    String?  @map("payment_details") @db.Text
   isActive          Boolean  @default(true) @map("is_active")
+  companyType       CompanyType @default(PYME) @map("company_type")
   contractSections  Json?    @map("contract_sections")
   defaultContractTitle String? @map("default_contract_title")
   createdAt         DateTime @default(now()) @map("created_at")
@@ -162,6 +164,7 @@ model Client {
   phone             String?
   direccion         String?
   authorizedPersons Json?    @map("authorized_persons") // Array of strings
+  metadata          Json?
   isActive          Boolean  @default(true) @map("is_active")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
@@ -334,6 +337,11 @@ enum InvoiceStatus {
 enum GenerationType {
   AUTOMATIC
   MANUAL
+}
+
+enum CompanyType {
+  PYME
+  TRANSPORTE_ESCOLAR
 }
 
 enum ContractStatus {

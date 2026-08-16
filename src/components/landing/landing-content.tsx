@@ -247,7 +247,7 @@ export function LandingContent({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </div>
                 </div>
 
-                <input type="email" id="f-correo" value={formData.correo} onChange={handleFormChange} placeholder="Correo Electrónico" required className="trial-input w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 outline-none" />
+                <input type="email" id="f-correo" value={formData.correo} onChange={handleFormChange} placeholder="Correo Electrónico" required suppressHydrationWarning className="trial-input w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 outline-none" />
                 <textarea id="f-direccion" value={formData.direccion} onChange={handleFormChange} placeholder="Dirección Exacta" rows={2} required className="trial-input w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 outline-none"></textarea>
                 
                 <button type="submit" id="btn-trial-submit" disabled={!isFormValid} className={`w-full mt-2 bg-green-600 text-white font-bold py-3 sm:py-3.5 rounded-xl transition-all flex justify-center items-center gap-2 ${isFormValid ? 'hover:bg-green-500 opacity-100 cursor-pointer shadow-lg shadow-green-600/30' : 'opacity-50 cursor-not-allowed'}`}>

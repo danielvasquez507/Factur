@@ -10,7 +10,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
 
 export default function PDFCanvasViewer({ document }: { document: React.ReactElement }) {
-  const [instance] = usePDF({ document })
+  const [instance] = usePDF({ document } as any)
   const blob = instance.blob
 
   const [numPages, setNumPages] = useState<number>(1)
@@ -46,10 +46,12 @@ export default function PDFCanvasViewer({ document }: { document: React.ReactEle
           align-items: center;
           justify-content: flex-start;
           width: 100%;
+          padding: 2rem 0;
+          gap: 2rem;
         }
         .react-pdf__Page {
           width: 100% !important;
-          max-width: 1000px !important;
+          max-width: 794px !important;
           height: auto !important;
           display: flex !important;
           justify-content: center !important;
@@ -66,17 +68,17 @@ export default function PDFCanvasViewer({ document }: { document: React.ReactEle
       
       <TransformWrapper
         initialScale={1}
-        minScale={0.5}
+        minScale={0.3}
         maxScale={4}
         centerOnInit={true}
         limitToBounds={true}
-        wheel={{ step: 0.1, smoothStep: 0.005 }}
+        wheel={{ step: 0.1 }}
         pinch={{ step: 3 }}
         panning={{ velocityDisabled: true }}
       >
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>
-            <div className="absolute bottom-4 right-4 z-50 flex flex-col gap-2 bg-zinc-900/80 backdrop-blur-md p-1.5 rounded-full border border-white/10 shadow-2xl">
+            <div className="absolute bottom-4 right-4 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 z-50 flex flex-col gap-2 bg-zinc-900/80 backdrop-blur-md p-1.5 rounded-full border border-white/10 shadow-2xl">
               <button 
                 onClick={() => zoomIn()} 
                 className="p-2.5 rounded-full hover:bg-white/10 text-white transition-colors"

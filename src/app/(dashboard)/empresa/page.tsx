@@ -30,7 +30,14 @@ export default async function EmpresaPage() {
               logoWhiteBackground: true,
               isActive: true,
               contractSections: true,
-              defaultContractTitle: true
+              ruc: true,
+              dv: true,
+              celular: true,
+              phone: true,
+              companyType: true,
+              address: true,
+              slogan: true,
+              paymentDetails: true
             }
           }
         }

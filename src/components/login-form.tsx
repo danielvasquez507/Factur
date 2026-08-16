@@ -70,6 +70,7 @@ export function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required 
+              suppressHydrationWarning
               className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-11 transition-all rounded-lg"
             />
           </div>
@@ -82,6 +83,7 @@ export function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required 
+                suppressHydrationWarning
                 className="bg-white/5 border-white/10 text-white pr-10 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-11 transition-all rounded-lg"
               />
               <button

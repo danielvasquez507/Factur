@@ -14,7 +14,7 @@ export default async function ContractsPage() {
   if (!session?.user) redirect("/login")
   
   if (session.user.role === "SUPER_ADMIN") {
-    redirect("/dashboard")
+    redirect("/panel")
   }
 
   const contracts = await getContracts()

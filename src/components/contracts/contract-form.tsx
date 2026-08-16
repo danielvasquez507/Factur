@@ -13,14 +13,15 @@ import { createContract, updateContract } from "@/actions/contracts"
 
 
 
-export function ContractForm({ clients, clientServices, companyId, defaultClientId, initialData, contractSections, defaultTitle }: {
+export function ContractForm({ clients, clientServices, companyId, defaultClientId, initialData, contractSections, defaultTitle, companyType }: {
   clients: any[],
   clientServices: any[],
   companyId?: string,
   defaultClientId?: string,
   initialData?: any,
   contractSections?: Array<{title: string, content: string}> | string[],
-  defaultTitle?: string
+  defaultTitle?: string,
+  companyType?: string
 }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -54,10 +55,10 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
     return "";
   }
 
-  const [clauses, setClauses] = useState<string>(parseInitial(initialData?.clauses) || getSectionDefault("Cláusulas y Disposiciones Generales"))
-  const [responsibilities, setResponsibilities] = useState<string>(parseInitial(initialData?.responsibilities) || getSectionDefault("Responsabilidades del Cliente"))
-  const [conditions, setConditions] = useState<string>(parseInitial(initialData?.conditions) || getSectionDefault("Condiciones Comerciales"))
-  const [exceptions, setExceptions] = useState<string>(parseInitial(initialData?.exceptions) || getSectionDefault("Causas de Terminación Anticipada"))
+  const [clauses, setClauses] = useState<string>(parseInitial(initialData?.clauses) || getSectionDefault("Cláusulas y Disposiciones Generales") || "")
+  const [responsibilities, setResponsibilities] = useState<string>(parseInitial(initialData?.responsibilities) || getSectionDefault("Responsabilidades del Cliente") || "")
+  const [conditions, setConditions] = useState<string>(parseInitial(initialData?.conditions) || getSectionDefault("Condiciones Comerciales") || "")
+  const [exceptions, setExceptions] = useState<string>(parseInitial(initialData?.exceptions) || getSectionDefault("Causas de Terminación Anticipada") || "")
 
   const filteredServices = useMemo(() => {
     if (!clientId) return []
@@ -76,7 +77,7 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
     if (clientServiceId && !initialData) {
       const selected = filteredServices.find(s => s.id === clientServiceId)
       if (selected) {
-        setTitle(prev => {
+        setTitle((prev: string) => {
           if (!prev || prev === defaultTitle || prev.startsWith("Contrato de ")) {
             if (defaultTitle && defaultTitle !== "Contrato ") {
               return defaultTitle;
@@ -172,7 +173,7 @@ export function ContractForm({ clients, clientServices, companyId, defaultClient
       setError(res.error)
       setLoading(false)
     } else {
-      router.push(`/contratos/${initialData?.id || res.contractId}`)
+      router.push(`/contratos/${initialData?.id || (res as any).contractId}`)
     }
   }
 

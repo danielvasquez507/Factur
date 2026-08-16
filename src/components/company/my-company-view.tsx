@@ -104,11 +104,16 @@ export function MyCompanyView({ user, userRole, activeCompanyId, activeCompany }
                             </Badge>
                           )}
                         </h4>
-                        {uc.roleInCompany === "OWNER" && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-zinc-300">
-                            Propietario
+                        <div className="flex items-center gap-2 mt-1">
+                          {uc.roleInCompany === "OWNER" && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/10 text-zinc-300 uppercase tracking-wider font-semibold border border-white/5">
+                              Propietario
+                            </span>
+                          )}
+                          <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md ${uc.company.companyType === 'TRANSPORTE_ESCOLAR' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}>
+                            {uc.company.companyType === 'TRANSPORTE_ESCOLAR' ? 'Transporte Escolar' : 'Estándar / Pyme'}
                           </span>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>

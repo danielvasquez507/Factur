@@ -12,7 +12,8 @@ const clientSchema = z.object({
   email: z.string().email("Correo inválido").optional().or(z.literal("")),
   phone: z.string().regex(/^\d{8}$/, "El teléfono debe tener exactamente 8 dígitos").optional().or(z.literal("")),
   direccion: z.string().optional(),
-  authorizedPersons: z.string().optional(),
+  authorizedPersons: z.string().optional().nullable(),
+  metadata: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 })
 
@@ -38,8 +39,9 @@ export async function createClient(formData: FormData) {
     celular: formData.get("celular") as string,
     email: formData.get("email") as string,
     phone: formData.get("phone") as string,
-    direccion: formData.get("direccion") as string,
-    authorizedPersons: formData.get("authorizedPersons") as string,
+    direccion: formData.get("direccion") as string || undefined,
+    authorizedPersons: formData.get("authorizedPersons") as string || undefined,
+    metadata: formData.get("metadata") as string || undefined,
   }
 
   const result = clientSchema.safeParse(rawData)
@@ -58,6 +60,15 @@ export async function createClient(formData: FormData) {
     authorizedArray = result.data.authorizedPersons.split(',').map(p => p.trim()).filter(Boolean)
   }
 
+  let metadataObj = null
+  if (result.data.metadata) {
+    try {
+      metadataObj = JSON.parse(result.data.metadata)
+    } catch (e) {
+      // ignore
+    }
+  }
+
   const prisma = session.user.role === "SUPER_ADMIN" ? getBypassPrisma() : getTenantPrisma(companyId)
 
   try {
@@ -70,6 +81,7 @@ export async function createClient(formData: FormData) {
         phone: result.data.phone || null,
         direccion: result.data.direccion || null,
         authorizedPersons: authorizedArray,
+        metadata: metadataObj !== null ? metadataObj : undefined,
       }
     })
 
@@ -92,8 +104,9 @@ export async function updateClient(clientId: string, formData: FormData) {
     celular: formData.get("celular") as string,
     email: formData.get("email") as string,
     phone: formData.get("phone") as string,
-    direccion: formData.get("direccion") as string,
-    authorizedPersons: formData.get("authorizedPersons") as string,
+    direccion: formData.get("direccion") as string || undefined,
+    authorizedPersons: formData.get("authorizedPersons") as string || undefined,
+    metadata: formData.get("metadata") as string || undefined,
     isActive: formData.get("isActive") === "true",
   }
 
@@ -103,6 +116,15 @@ export async function updateClient(clientId: string, formData: FormData) {
   let authorizedArray: string[] = []
   if (result.data.authorizedPersons) {
     authorizedArray = result.data.authorizedPersons.split(',').map(p => p.trim()).filter(Boolean)
+  }
+
+  let metadataObj = null
+  if (result.data.metadata) {
+    try {
+      metadataObj = JSON.parse(result.data.metadata)
+    } catch (e) {
+      // ignore
+    }
   }
 
   const prisma = getTenantPrisma(activeTenantId)
@@ -117,6 +139,7 @@ export async function updateClient(clientId: string, formData: FormData) {
         phone: result.data.phone || null,
         direccion: result.data.direccion || null,
         authorizedPersons: authorizedArray,
+        metadata: metadataObj !== null ? metadataObj : undefined,
         isActive: result.data.isActive,
       }
     })

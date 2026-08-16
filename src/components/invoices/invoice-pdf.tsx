@@ -235,11 +235,10 @@ export function InvoicePDF({ invoice, company, orientation = "portrait" }: { inv
     emerald: '#059669',
     slate: '#475569',
     red: '#dc2626',
-    orange: '#ea580c',
+    dark: '#18181b',
     purple: '#9333ea',
     amber: '#d97706',
-    teal: '#0d9488',
-    indigo: '#4f46e5'
+    indigo: '#1e3a8a'
   }
   const primaryColor = colorMap[company.invoiceColor] || colorMap['slate']
   

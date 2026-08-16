@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { getClients } from "@/actions/clients"
+import { getCompanyById } from "@/actions/companies"
 import { getServices } from "@/actions/services"
 import { Card, CardContent } from "@/components/ui/card"
 import { ClientTable } from "@/components/clients/client-table"
@@ -20,10 +21,13 @@ export default async function ClientsPage() {
     return <div className="p-6 text-zinc-400">Por favor, selecciona una empresa en la barra superior para ver los clientes.</div>
   }
 
-  const [clients, rawServices] = await Promise.all([
+  const [clients, rawServices, activeCompany] = await Promise.all([
     getClients(),
-    getServices()
+    getServices(),
+    getCompanyById(activeTenantId)
   ])
+
+  const companyType = activeCompany?.companyType || "PYME"
 
   const services = rawServices.map(s => ({
     ...s,
@@ -56,10 +60,10 @@ export default async function ClientsPage() {
         </TabsList>
         
         <TabsContent value="clientes" className="mt-0 space-y-4">
-          <ClientDialog />
+          <ClientDialog companyType={companyType} />
           <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl [--card-spacing:0px]">
             <CardContent className="p-0">
-              <ClientTable clients={clients} />
+              <ClientTable clients={clients} companyType={companyType} />
             </CardContent>
           </Card>
         </TabsContent>

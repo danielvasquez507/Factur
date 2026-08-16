@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Upload } from "lucide-react"
 import { updateCompanySettings } from "@/actions/settings"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
@@ -89,10 +90,21 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
     <form key={company.id} onSubmit={handleSubmit} className="space-y-8">
       <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-xl">Perfil de Facturación</CardTitle>
-          <CardDescription className="text-zinc-400">
-            Los cambios en el Nombre Comercial y el Logo pueden requerir aprobación del Super Admin.
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl flex items-center gap-3">
+                Perfil de Facturación
+                {company.companyType === "TRANSPORTE_ESCOLAR" ? (
+                  <span className="px-2 py-1.5 text-[10px] uppercase font-bold tracking-wider rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Transporte Escolar</span>
+                ) : (
+                  <span className="px-2 py-1.5 text-[10px] uppercase font-bold tracking-wider rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30">Estándar / Pyme</span>
+                )}
+              </CardTitle>
+              <CardDescription className="text-zinc-400 mt-1.5">
+                Los cambios en el Nombre Comercial y el Logo pueden requerir aprobación del Super Admin.
+              </CardDescription>
+            </div>
+          </div>
           {message && (
             <div className={`p-3 mt-4 text-sm rounded-md border ${message.startsWith('Error') ? 'text-red-500 bg-red-950/50 border-red-900/50' : 'text-green-400 bg-green-950/50 border-green-900/50'}`}>
               {message}
@@ -117,7 +129,7 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                 </div>
               </div>
               <div className="flex items-start space-x-2 bg-white/5 p-2 rounded-md border border-white/10 max-w-[130px]">
-                <Checkbox id="logoWhiteBackground" name="logoWhiteBackground" defaultChecked={company.logoWhiteBackground} />
+                <Checkbox id="logoWhiteBackground" name="logoWhiteBackground" defaultChecked={!!company.logoWhiteBackground} />
                 <Label htmlFor="logoWhiteBackground" className="text-zinc-300 text-xs cursor-pointer leading-tight">Forzar fondo blanco al logo</Label>
               </div>
             </div>
@@ -125,7 +137,19 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
             <div className="flex-1 space-y-4 w-full">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-zinc-300">Nombre Comercial *</Label>
-                <Input id="name" name="name" defaultValue={company.name} className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                <Input id="name" name="name" defaultValue={company.name || ""} className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyType" className="text-zinc-300">Tipo de Empresa</Label>
+                <Select name="companyType" defaultValue={company.companyType || "PYME"}>
+                  <SelectTrigger className="bg-black/50 border-white/10 text-white focus:ring-blue-500 w-full">
+                    <SelectValue placeholder="Seleccione el giro de negocio" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-zinc-300">
+                    <SelectItem value="PYME">Estándar / Pyme</SelectItem>
+                    <SelectItem value="TRANSPORTE_ESCOLAR">Transporte Escolar</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -135,6 +159,16 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                 <div className="space-y-2">
                   <Label htmlFor="dv" className="text-zinc-300">D.V. *</Label>
                   <Input id="dv" name="dv" defaultValue={company.dv || ""} maxLength={2} className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="celular" className="text-zinc-300">Celular de Contacto</Label>
+                  <Input id="celular" name="celular" type="tel" maxLength={8} pattern="^6\d{7}$" title="Debe empezar con 6 y tener 8 dígitos" defaultValue={company.celular || ""} placeholder="Ej: 61234567" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-zinc-300">Teléfono Fijo / Oficina</Label>
+                  <Input id="phone" name="phone" type="tel" maxLength={8} pattern="^(6\d{7}|[0-57-9]\d{6})$" title="8 dígitos si empieza en 6, de lo contrario 7 dígitos" defaultValue={company.phone || ""} placeholder="Ej: 3991234" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
                 </div>
               </div>
               <div className="space-y-2">

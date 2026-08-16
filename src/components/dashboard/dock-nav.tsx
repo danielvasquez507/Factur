@@ -21,14 +21,16 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
   const pathname = usePathname()
   const isSuperAdmin = userRole === "SUPER_ADMIN"
 
-  const regularItems = [
+  type NavItem = { href: string; label: string; icon: any; badge?: number | null }
+
+  const regularItems: NavItem[] = [
     { href: "/panel", label: "Panel", icon: LayoutDashboard },
     { href: "/clientes", label: "Clientes", icon: Users },
     { href: "/historial", label: "Historial", icon: History },
     { href: "/empresa", label: "Empresa", icon: Building2 },
   ]
 
-  const adminItems = [
+  const adminItems: NavItem[] = [
     { href: "/panel", label: "Panel", icon: LayoutDashboard },
     { href: "/usuarios", label: "Usuarios", icon: Users },
     { href: "/empresas", label: "Empresas", icon: Building2 },
@@ -53,6 +55,7 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
         {/* Left Items */}
         {leftItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
+          const Icon = item.icon
           return (
             <Link 
               key={item.href} 
@@ -62,10 +65,17 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
                 isActive ? "bg-white/10" : "hover:bg-white/5"
               )}
             >
-              <item.icon className={cn(
-                "w-5 h-5 mb-1 transition-all duration-300",
-                isActive ? "text-blue-400 scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" : "text-zinc-400 group-hover:text-zinc-200"
-              )} />
+              <div className="relative">
+                <Icon className={cn(
+                  "w-5 h-5 mb-1 transition-all duration-300",
+                  isActive ? "text-blue-400 scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" : "text-zinc-400 group-hover:text-zinc-200"
+                )} />
+                {item.badge && (
+                  <span className="absolute -top-1 -right-2 w-4 h-4 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center shadow-lg">
+                    {item.badge > 9 ? "9+" : item.badge}
+                  </span>
+                )}
+              </div>
               <span className={cn(
                 "text-[10px] font-medium transition-all duration-300",
                 isActive ? "text-blue-400 opacity-100" : "text-zinc-500 opacity-70 group-hover:opacity-100"
@@ -89,6 +99,7 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
         {/* Right Items */}
         {rightItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
+          const Icon = item.icon as any
           return (
             <Link 
               key={item.href} 
@@ -99,7 +110,7 @@ export function DockNav({ userRole, pendingRequestsCount = 0 }: DockNavProps) {
               )}
             >
               <div className="relative">
-                <item.icon className={cn(
+                <Icon className={cn(
                   "w-5 h-5 mb-1 transition-all duration-300",
                   isActive ? "text-blue-400 scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" : "text-zinc-400 group-hover:text-zinc-200"
                 )} />

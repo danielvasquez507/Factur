@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Building2, Globe, FileText, Hash, Plus, Loader2 } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createCompany } from "@/actions/companies"
 
 export function CompanyDialog() {
@@ -67,6 +68,19 @@ export function CompanyDialog() {
                 <Building2 className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <Input id="name" name="name" required placeholder="Ej. Empresa S.A." className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
               </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="companyType" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Tipo de Empresa</Label>
+              <Select name="companyType" defaultValue="PYME">
+                <SelectTrigger className="bg-black/40 border-white/[0.07] text-zinc-200 h-9 w-full">
+                  <SelectValue placeholder="Seleccione el giro" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-900 border-white/10 text-zinc-300 w-full">
+                  <SelectItem value="PYME">Estándar / Pyme</SelectItem>
+                  <SelectItem value="TRANSPORTE_ESCOLAR">Transporte Escolar</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

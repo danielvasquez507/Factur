@@ -9,13 +9,25 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { User, Smartphone, Mail, Phone, MapPin, Users, Loader2 } from "lucide-react"
 import { updateClient } from "@/actions/clients"
 
-export function EditClientDialog({ client, open, onOpenChange }: { client: any, open: boolean, onOpenChange: (open: boolean) => void }) {
+export function EditClientDialog({ client, open, onOpenChange, companyType }: { client: any, open: boolean, onOpenChange: (open: boolean) => void, companyType?: string }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [isActive, setIsActive] = useState(client?.isActive ?? true)
+  const [metadata, setMetadata] = useState<any>({})
+
+  const handleMetadataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMetadata({ ...metadata, [e.target.name]: e.target.value })
+  }
 
   useEffect(() => {
-    if (client) setIsActive(client.isActive)
+    if (client) {
+      setIsActive(client.isActive)
+      if (client.metadata && typeof client.metadata === "object") {
+        setMetadata(client.metadata)
+      } else {
+        setMetadata({})
+      }
+    }
   }, [client])
 
   useEffect(() => {
@@ -28,6 +40,9 @@ export function EditClientDialog({ client, open, onOpenChange }: { client: any, 
     setError("")
     
     const formData = new FormData(e.currentTarget)
+    if (companyType === "TRANSPORTE_ESCOLAR") {
+      formData.set("metadata", JSON.stringify(metadata))
+    }
     const result = await updateClient(client.id, formData)
 
     if (result.error) {
@@ -129,6 +144,38 @@ export function EditClientDialog({ client, open, onOpenChange }: { client: any, 
                 <p className="text-[11px] text-zinc-400 leading-snug">Si desmarcas esta opción, el cliente se mostrará como inactivo.</p>
               </div>
             </div>
+
+            {companyType === "TRANSPORTE_ESCOLAR" && (
+              <div className="pt-2 pb-1 border-t border-white/5 space-y-3.5">
+                <Label className="text-[11px] font-semibold text-blue-400 uppercase tracking-wider">Datos del Alumno (Transporte Escolar)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-zinc-400">Acudiente</Label>
+                    <Input name="acudiente" value={metadata.acudiente || ""} onChange={handleMetadataChange} placeholder="Nombre del acudiente" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-zinc-400">Alumno</Label>
+                    <Input name="alumno" value={metadata.alumno || ""} onChange={handleMetadataChange} placeholder="Nombre del alumno" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-zinc-400">Maestro y Grado</Label>
+                    <Input name="maestroGrado" value={metadata.maestroGrado || ""} onChange={handleMetadataChange} placeholder="Ej: Maestro Juan - 5to Grado" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-zinc-400">Escuela</Label>
+                    <Input name="escuela" value={metadata.escuela || ""} onChange={handleMetadataChange} placeholder="Nombre de la escuela" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-zinc-400">Transportista</Label>
+                    <Input name="transportista" value={metadata.transportista || ""} onChange={handleMetadataChange} placeholder="Chofer asignado" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-zinc-400">Seguro</Label>
+                    <Input name="seguro" value={metadata.seguro || ""} onChange={handleMetadataChange} placeholder="Póliza de seguro" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             <Button type="submit" disabled={loading} className="w-full h-9 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-medium text-sm shadow-lg shadow-blue-900/20 border-0">
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar Cambios"}

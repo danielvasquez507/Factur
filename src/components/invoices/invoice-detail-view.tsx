@@ -32,7 +32,7 @@ const colorMap: Record<string, string> = {
   purple: "#9333ea",
   amber: "#d97706",
   teal: "#0d9488",
-  indigo: "#4f46e5",
+  indigo: "#1e3a8a",
 }
 
 const buttonThemeMap: Record<string, { bg: string, border: string, hoverBg: string, text: string, shadow: string }> = {
@@ -44,7 +44,7 @@ const buttonThemeMap: Record<string, { bg: string, border: string, hoverBg: stri
   amber: { bg: "bg-amber-500/10", border: "border-amber-500/30", hoverBg: "hover:bg-amber-500", text: "text-amber-400", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]" },
   purple: { bg: "bg-purple-500/10", border: "border-purple-500/30", hoverBg: "hover:bg-purple-500", text: "text-purple-400", shadow: "shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]" },
   teal: { bg: "bg-teal-500/10", border: "border-teal-500/30", hoverBg: "hover:bg-teal-500", text: "text-teal-400", shadow: "shadow-[0_0_15px_rgba(20,184,166,0.1)] hover:shadow-[0_0_20px_rgba(20,184,166,0.4)]" },
-  indigo: { bg: "bg-indigo-500/10", border: "border-indigo-500/30", hoverBg: "hover:bg-indigo-500", text: "text-indigo-400", shadow: "shadow-[0_0_15px_rgba(99,102,241,0.1)] hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]" },
+  indigo: { bg: "bg-blue-900/10", border: "border-blue-900/30", hoverBg: "hover:bg-blue-900", text: "text-blue-400", shadow: "shadow-[0_0_15px_rgba(30,58,138,0.1)] hover:shadow-[0_0_20px_rgba(30,58,138,0.4)]" },
 }
 
 const colorNames: Record<string, string> = {
@@ -56,7 +56,7 @@ const colorNames: Record<string, string> = {
   amber: "Ámbar Cálido",
   purple: "Púrpura Real",
   teal: "Verde Azulado",
-  indigo: "Índigo Profundo",
+  indigo: "Azul Marino",
 }
 
 const templates = [
@@ -75,10 +75,9 @@ function TemplateSelector({ template: initialTemplate, color: initialColor, prim
     { id: "emerald", hex: "bg-emerald-500", shadow: "shadow-[0_0_15px_rgba(16,185,129,0.6)]", ring: "ring-emerald-500", name: "Esmeralda" },
     { id: "slate", hex: "bg-slate-700", shadow: "shadow-[0_0_15px_rgba(51,65,85,0.6)]", ring: "ring-slate-500", name: "Gris" },
     { id: "red", hex: "bg-red-500", shadow: "shadow-[0_0_15px_rgba(239,68,68,0.6)]", ring: "ring-red-500", name: "Rojo" },
-    { id: "orange", hex: "bg-orange-500", shadow: "shadow-[0_0_15px_rgba(249,115,22,0.6)]", ring: "ring-orange-500", name: "Naranja" },
+    { id: "dark", hex: "bg-zinc-900", shadow: "shadow-[0_0_15px_rgba(24,24,27,0.6)]", ring: "ring-zinc-900", name: "Negro" },
     { id: "amber", hex: "bg-amber-500", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.6)]", ring: "ring-amber-500", name: "Ámbar" },
-    { id: "teal", hex: "bg-teal-500", shadow: "shadow-[0_0_15px_rgba(20,184,166,0.6)]", ring: "ring-teal-500", name: "Turquesa" },
-    { id: "indigo", hex: "bg-indigo-500", shadow: "shadow-[0_0_15px_rgba(99,102,241,0.6)]", ring: "ring-indigo-500", name: "Índigo" },
+    { id: "indigo", hex: "bg-blue-900", shadow: "shadow-[0_0_15px_rgba(30,58,138,0.6)]", ring: "ring-blue-900", name: "Azul Marino" },
   ]
 
   return (

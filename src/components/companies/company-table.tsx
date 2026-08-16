@@ -152,7 +152,7 @@ export function CompanyTable({ companies, users = [] }: { companies: any[], user
                           if (!userId) return;
                           setActionLoading(`assign-${company.id}`);
                           const formData = new FormData();
-                          formData.append("userId", userId);
+                          formData.append("userId", String(userId));
                           formData.append("companyId", company.id);
                           const res = await assignUserToCompany(formData);
                           setActionLoading(null);

@@ -16,6 +16,13 @@ import {
 import { updateContract } from "@/actions/contracts"
 import { ContractShareActions } from "@/components/contracts/contract-share-actions"
 import { Card } from "@/components/ui/card"
+import dynamic from "next/dynamic"
+import { ContractPDF } from "./contract-pdf"
+
+const PDFCanvasViewer = dynamic(
+  () => import("@/components/invoices/pdf-canvas-viewer"),
+  { ssr: false, loading: () => <div className="w-full h-full min-h-[500px] flex items-center justify-center text-zinc-400 bg-white border border-zinc-200"><Loader2 className="w-8 h-8 animate-spin" /></div> }
+)
 import {
   Dialog,
   DialogContent,
@@ -33,7 +40,7 @@ const colorMap: Record<string, string> = {
   purple: "#9333ea",
   amber: "#d97706",
   teal: "#0d9488",
-  indigo: "#4f46e5",
+  indigo: "#1e3a8a",
 }
 
 const buttonThemeMap: Record<string, { bg: string, border: string, hoverBg: string, text: string, shadow: string }> = {
@@ -45,7 +52,7 @@ const buttonThemeMap: Record<string, { bg: string, border: string, hoverBg: stri
   amber: { bg: "bg-amber-500/10", border: "border-amber-500/30", hoverBg: "hover:bg-amber-500", text: "text-amber-400", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]" },
   purple: { bg: "bg-purple-500/10", border: "border-purple-500/30", hoverBg: "hover:bg-purple-500", text: "text-purple-400", shadow: "shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_20px_rgba(168,85,247,0.4)]" },
   teal: { bg: "bg-teal-500/10", border: "border-teal-500/30", hoverBg: "hover:bg-teal-500", text: "text-teal-400", shadow: "shadow-[0_0_15px_rgba(20,184,166,0.1)] hover:shadow-[0_0_20px_rgba(20,184,166,0.4)]" },
-  indigo: { bg: "bg-indigo-500/10", border: "border-indigo-500/30", hoverBg: "hover:bg-indigo-500", text: "text-indigo-400", shadow: "shadow-[0_0_15px_rgba(99,102,241,0.1)] hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]" },
+  indigo: { bg: "bg-blue-900/10", border: "border-blue-900/30", hoverBg: "hover:bg-blue-900", text: "text-blue-400", shadow: "shadow-[0_0_15px_rgba(30,58,138,0.1)] hover:shadow-[0_0_20px_rgba(30,58,138,0.4)]" },
 }
 
 const templates = [
@@ -71,9 +78,9 @@ function renderSection(title: string, contentData: any, primaryColor: string) {
   if (!content.trim()) return null
 
   return (
-    <div className="mb-6">
-      <h3 className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: primaryColor }}>{title}</h3>
-      <div className="space-y-1.5 text-[10px] text-zinc-700 text-justify whitespace-pre-wrap leading-relaxed">
+    <div className="mb-4">
+      <h3 className="text-[11pt] font-bold uppercase mb-2" style={{ color: primaryColor }}>{title}</h3>
+      <div className="space-y-1.5 text-[10pt] text-zinc-700 text-justify whitespace-pre-wrap leading-relaxed">
         {content}
       </div>
     </div>
@@ -97,28 +104,35 @@ function ContractDetailsHTML({ contract, primaryColor }: any) {
   const total = subtotal + totalTax
 
   return (
-    <div className="bg-zinc-100 p-4 rounded-md mb-6" style={{ borderLeftWidth: 3, borderLeftColor: primaryColor }}>
-      <div className="text-[8px] text-zinc-500 uppercase font-bold mb-2">Servicios Contratados</div>
-      <div className="space-y-1.5 mb-3">
-        {services.map((s: any, i: number) => (
-          <div key={s.id || i} className="flex justify-between text-[10px]">
-            <span className="text-zinc-900">{s.service?.name || "Servicio"}</span>
-            <span className="text-zinc-900 font-medium">${Number(s.agreedPrice).toFixed(2)}</span>
+    <div className="bg-zinc-100 p-4 rounded-md mb-4" style={{ borderLeftWidth: 3, borderLeftColor: primaryColor }}>
+      <div className="text-[8pt] text-zinc-500 uppercase font-bold mb-2">Servicios de Contrato Mensual</div>
+      <div className="flex gap-4">
+        {/* Columna Izquierda: Servicios */}
+        <div className="w-1/2 flex flex-col gap-1 border-r border-zinc-200 pr-4">
+          {services.map((s: any, i: number) => (
+            <div key={s.id || i} className="flex justify-between text-[10pt]">
+              <span className="text-zinc-900">{s.service?.name || "Servicio"}</span>
+              <span className="text-zinc-900 font-medium">${Number(s.agreedPrice).toFixed(2)}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Columna Derecha: Totales */}
+        <div className="w-1/2 flex flex-col justify-end gap-1 pl-2">
+          <div className="flex justify-between text-[9pt]">
+            <span className="text-zinc-500">Subtotal</span>
+            <span className="text-zinc-900">${subtotal.toFixed(2)}</span>
           </div>
-        ))}
-      </div>
-      <div className="border-t border-zinc-300 pt-2 space-y-1">
-        <div className="flex justify-between text-[10px]">
-          <span className="text-zinc-500">Subtotal</span>
-          <span className="text-zinc-900">${subtotal.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-[10px]">
-          <span className="text-zinc-500">ITBMS</span>
-          <span className="text-zinc-900">${totalTax.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-[11px] font-bold">
-          <span className="text-zinc-900">Total</span>
-          <span className="text-zinc-900">${total.toFixed(2)}</span>
+          {totalTax > 0 && (
+            <div className="flex justify-between text-[9pt]">
+              <span className="text-zinc-500">ITBMS</span>
+              <span className="text-zinc-900">${totalTax.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-[10pt] font-bold border-t border-zinc-300 pt-1 mt-1">
+            <span className="text-zinc-900">Total</span>
+            <span className="text-zinc-900">${total.toFixed(2)}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -135,13 +149,31 @@ function CommonBody({ contract, company, primaryColor, ownerName }: any) {
 
   return (
     <>
-      <div className="mb-6">
-        <p className="text-[10px] text-zinc-700 leading-relaxed text-justify">
-          Este documento constituye un acuerdo legal vinculante y formal entre <strong className="text-zinc-900">{company.name}</strong> (en adelante "El Proveedor")
-          {company.ruc ? ` con RUC ${company.ruc}${company.dv ? `-${company.dv}` : ""}` : ""} y
-          <strong className="text-zinc-900"> {contract.client.name}</strong>{contract.client.email ? ` (${contract.client.email})` : ""} (en adelante "El Cliente"), para la prestación de
-          {` ${servicesDesc}`}. Ambas partes reconocen tener la capacidad legal necesaria para celebrar este contrato bajo los términos y condiciones estipulados a continuación.
-        </p>
+      <div className="text-[10pt] text-zinc-700 leading-relaxed text-justify mb-5">
+        Este documento constituye un acuerdo legal vinculante y formal entre <strong className="text-zinc-900">{company.name}</strong> (en adelante "El Proveedor")
+        {company.ruc ? ` con RUC ${company.ruc}${company.dv ? `-${company.dv}` : ""}` : ""} y
+        <strong className="text-zinc-900"> {contract.client.name}</strong>{contract.client.email ? ` (${contract.client.email})` : ""} (en adelante "El Cliente"), para la prestación de
+        {` ${servicesDesc}`}. Ambas partes reconocen tener la capacidad legal necesaria para celebrar este contrato bajo los términos y condiciones estipulados a continuación.
+      </div>
+
+      <div className="mb-4 p-3 bg-zinc-50/50 rounded border-l-2" style={{ borderLeftColor: primaryColor }}>
+        <h4 className="text-[9pt] font-bold uppercase mb-2" style={{ color: primaryColor }}>Información del Cliente</h4>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <div className="text-[9pt] text-zinc-500 w-[45%]">Nombre: <span className="text-zinc-900">{contract.client.name}</span></div>
+          {contract.client?.celular && <div className="text-[9pt] text-zinc-500 w-[45%]">Celular: <span className="text-zinc-900">{contract.client.celular}</span></div>}
+          {contract.client?.phone && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Teléfono: <span className="text-zinc-900">{contract.client.phone}</span></div>}
+          {contract.client?.direccion && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Dirección: <span className="text-zinc-900">{contract.client.direccion}</span></div>}
+          
+          {company.companyType === "TRANSPORTE_ESCOLAR" && contract.client?.metadata && (
+            <>
+              {contract.client.metadata.acudiente && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Acudiente: <span className="text-zinc-900">{contract.client.metadata.acudiente}</span></div>}
+              {contract.client.metadata.alumno && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Alumno: <span className="text-zinc-900">{contract.client.metadata.alumno}</span></div>}
+              {contract.client.metadata.escuela && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Escuela: <span className="text-zinc-900">{contract.client.metadata.escuela}</span></div>}
+              {contract.client.metadata.maestroGrado && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Grado/Maestro: <span className="text-zinc-900">{contract.client.metadata.maestroGrado}</span></div>}
+              {contract.client.metadata.seguro && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Seguro: <span className="text-zinc-900">${contract.client.metadata.seguro}</span></div>}
+            </>
+          )}
+        </div>
       </div>
 
       <ContractDetailsHTML contract={contract} primaryColor={primaryColor} />
@@ -167,22 +199,22 @@ function CommonBody({ contract, company, primaryColor, ownerName }: any) {
         });
       })()}
 
-      <div className="mt-12 pt-10 flex justify-around border-t border-zinc-200">
+      <div className="mt-12 pt-8 border-t border-zinc-200 flex justify-around">
         <div className="w-2/5 text-center flex flex-col items-center">
           <p className="font-[cursive] italic text-lg mb-2" style={{ color: primaryColor }}>
             {ownerName || company.name}
           </p>
           <div className="border-t border-zinc-500 w-full mb-1" />
-          <p className="text-[11px] font-bold text-zinc-900 mt-0.5">{company.name}</p>
-          <p className="text-[7px] text-zinc-400 mt-1">
+          <p className="text-[11pt] font-bold text-zinc-900 mt-0.5">{company.name}</p>
+          <p className="text-[7pt] text-zinc-400 mt-1">
             Firmado electrónicamente por {ownerName || company.name}{company.ruc ? ` - ${company.ruc}${company.dv ? `-${company.dv}` : ""}` : ""}
           </p>
         </div>
         <div className="w-2/5 text-center flex flex-col items-center">
           <p className="font-[cursive] italic text-lg mb-2 opacity-0 select-none">Firma</p>
           <div className="border-t border-zinc-500 w-full mb-1" />
-          <p className="font-bold text-[11px] text-zinc-900">{contract.client.name}</p>
-          <p className="text-[9px] text-zinc-500 mt-0.5">Firma del Cliente</p>
+          <p className="font-bold text-[11pt] text-zinc-900">{contract.client.name}</p>
+          <p className="text-[9pt] text-zinc-500 mt-0.5">Firma del Cliente</p>
         </div>
       </div>
     </>
@@ -192,7 +224,7 @@ function CommonBody({ contract, company, primaryColor, ownerName }: any) {
 function ProfessionalTemplate({ contract, company, primaryColor, ownerName }: any) {
   return (
     <div className="bg-white p-10 min-h-full font-sans">
-      <div className="flex justify-between items-start mb-8 pb-5 border-b-2" style={{ borderBottomColor: primaryColor }}>
+      <div className="flex justify-between items-start mb-6">
         <div className="w-1/2">
           {company.logoUrl ? (
             <img src={company.logoUrl} alt={company.name} className="h-20 object-contain" />
@@ -200,16 +232,42 @@ function ProfessionalTemplate({ contract, company, primaryColor, ownerName }: an
             <div className="text-2xl font-bold" style={{ color: primaryColor }}>{company.name}</div>
           )}
         </div>
-        <div className="w-1/2 text-right">
-          <div className="text-base font-bold uppercase tracking-wider mb-1" style={{ color: primaryColor }}>{contract.title}</div>
-          <div className="text-[10px] text-zinc-500">
-            Fecha de Inicio: <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
-          </div>
-          {contract.endDate && (
-            <div className="text-[10px] text-zinc-500 mt-0.5">
-              Fecha de Vencimiento: <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.endDate), "dd/MM/yyyy")}</span>
+        <div className="w-1/2 flex flex-col items-end text-right">
+          <div className="text-[18pt] font-bold uppercase mb-1" style={{ color: primaryColor }}>{company.name}</div>
+          <div className="text-[14pt] font-bold uppercase tracking-wider mb-0.5" style={{ color: primaryColor }}>{contract.title}</div>
+          <div className="text-[9pt] font-bold text-zinc-700 uppercase">Período {new Date().getFullYear()}</div>
+          
+          <div className="flex justify-end gap-6 w-full">
+            <div className="flex flex-col items-end">
+              <div className="text-[10pt] text-zinc-500">
+                Inicio: <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
+              </div>
+              {contract.endDate && (
+                <div className="text-[10pt] text-zinc-500 mt-0.5">
+                  Vencimiento: <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.endDate), "dd/MM/yyyy")}</span>
+                </div>
+              )}
+              {company.companyType === "TRANSPORTE_ESCOLAR" && contract.client?.metadata?.transportista && (
+                <div className="text-[10pt] text-zinc-500 mt-0.5">
+                  Transportista: <span className="font-bold text-zinc-900">{contract.client.metadata.transportista}</span>
+                </div>
+              )}
             </div>
-          )}
+
+            <div className="flex flex-col items-end border-l border-zinc-200 pl-4">
+              {(company.celular || company.phone) && (
+                <div className="text-[10pt] text-zinc-500">
+                  Celular/Tel: <span className="font-bold text-zinc-900">{[company.celular, company.phone].filter(Boolean).join(" / ")}</span>
+                </div>
+              )}
+              
+              {company.ruc && (
+                <div className="text-[10pt] text-zinc-500 mt-0.5">
+                  RUC: <span className="font-bold text-zinc-900">{company.ruc}{company.dv ? ` DV ${company.dv}` : ""}</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
       <CommonBody contract={contract} company={company} primaryColor={primaryColor} ownerName={ownerName} />
@@ -223,16 +281,20 @@ function ModernTemplate({ contract, company, primaryColor, ownerName }: any) {
       <div className="flex justify-between items-start mb-10 p-5 rounded-lg bg-slate-50 border-l-4" style={{ borderLeftColor: primaryColor }}>
         <div className="w-1/2">
           <div className="text-2xl font-bold uppercase tracking-wider mb-2" style={{ color: primaryColor }}>{contract.title}</div>
-          <div className="text-[10px] text-zinc-500">
+          <div className="text-[10pt] text-zinc-500">
             Vigencia: <span suppressHydrationWarning className="font-bold text-zinc-900">{format(new Date(contract.startDate), "dd/MM/yyyy")}</span>
             <span suppressHydrationWarning>{contract.endDate ? ` al ${format(new Date(contract.endDate), "dd/MM/yyyy")}` : " en adelante"}</span>
           </div>
         </div>
         <div className="w-1/2 text-right">
           {company.logoUrl ? (
-            <img src={company.logoUrl} alt={company.name} className="h-16 object-contain ml-auto" />
+            <img 
+              src={company.logoUrl} 
+              alt={company.name} 
+              className={`max-w-[200px] max-h-[80px] object-contain object-left ${company.logoWhiteBackground ? 'bg-white p-2 rounded-md' : ''}`}
+            />
           ) : (
-            <div className="text-xl font-bold" style={{ color: primaryColor }}>{company.name}</div>
+            <div className="text-[18pt] font-bold" style={{ color: primaryColor }}>{company.name}</div>
           )}
         </div>
       </div>
@@ -301,7 +363,7 @@ function A4PreviewWrapper({ children, orientation = "portrait" }: { children: Re
         maxScale={4}
         centerOnInit={true}
         limitToBounds={true}
-        wheel={{ step: 0.1, smoothStep: 0.005 }}
+        wheel={{ step: 0.1 }}
         pinch={{ step: 3 }}
         panning={{ velocityDisabled: true }}
       >
@@ -370,89 +432,102 @@ const colorNames: Record<string, string> = {
   amber: "Ámbar Cálido",
   purple: "Púrpura Real",
   teal: "Verde Azulado",
-  indigo: "Índigo Profundo",
+  indigo: "Azul Marino",
 }
 
-function TemplateSelector({ template, color, primaryColor, onTemplateChange, onColorChange }: any) {
+function TemplateSelector({ template: initialTemplate, color: initialColor, primaryColor, isSchoolTransport, onApply }: any) {
+  const [template, setTemplate] = useState(initialTemplate)
+  const [color, setColor] = useState(initialColor)
+
   const colors = [
     { id: "blue", hex: "bg-blue-500", shadow: "shadow-[0_0_15px_rgba(59,130,246,0.6)]", ring: "ring-blue-500", name: "Azul Corporativo" },
     { id: "emerald", hex: "bg-emerald-500", shadow: "shadow-[0_0_15px_rgba(16,185,129,0.6)]", ring: "ring-emerald-500", name: "Verde Esmeralda" },
     { id: "slate", hex: "bg-slate-700", shadow: "shadow-[0_0_15px_rgba(51,65,85,0.6)]", ring: "ring-slate-500", name: "Gris Pizarra" },
     { id: "red", hex: "bg-red-500", shadow: "shadow-[0_0_15px_rgba(239,68,68,0.6)]", ring: "ring-red-500", name: "Rojo Carmesí" },
-    { id: "orange", hex: "bg-orange-500", shadow: "shadow-[0_0_15px_rgba(249,115,22,0.6)]", ring: "ring-orange-500", name: "Naranja Atardecer" },
+    { id: "dark", hex: "bg-zinc-900", shadow: "shadow-[0_0_15px_rgba(24,24,27,0.6)]", ring: "ring-zinc-900", name: "Gris Oscuro" },
     { id: "amber", hex: "bg-amber-500", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.6)]", ring: "ring-amber-500", name: "Ámbar Cálido" },
     { id: "purple", hex: "bg-purple-500", shadow: "shadow-[0_0_15px_rgba(168,85,247,0.6)]", ring: "ring-purple-500", name: "Púrpura Real" },
-    { id: "teal", hex: "bg-teal-500", shadow: "shadow-[0_0_15px_rgba(20,184,166,0.6)]", ring: "ring-teal-500", name: "Verde Azulado" },
-    { id: "indigo", hex: "bg-indigo-500", shadow: "shadow-[0_0_15px_rgba(99,102,241,0.6)]", ring: "ring-indigo-500", name: "Índigo Profundo" },
+    { id: "indigo", hex: "bg-blue-900", shadow: "shadow-[0_0_15px_rgba(30,58,138,0.6)]", ring: "ring-blue-900", name: "Azul Marino" },
   ]
 
   return (
-    <div className="space-y-8 py-2">
+    <div className="space-y-4 py-1">
       <div>
-        <div className="text-sm font-semibold text-zinc-200 mb-4 flex items-center gap-2 uppercase tracking-wider">
-          <LayoutTemplate style={{ color: primaryColor }} className="w-4 h-4" />
-          Diseño de Plantilla
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
-          {templates.map((t: any) => (
-            <div
-              key={t.id}
-              onClick={() => onTemplateChange(t.id)}
-              className={`relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 overflow-hidden group ${
-                template === t.id
-                  ? "border-transparent"
-                  : "border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 hover:shadow-xl"
-              }`}
-              style={template === t.id ? {
-                borderColor: primaryColor,
-                backgroundColor: `${primaryColor}1a`,
-                boxShadow: `0 0 20px ${primaryColor}26`
-              } : {}}
-            >
-              {template === t.id && (
-                <div 
-                  className="absolute inset-0 opacity-50" 
-                  style={{ backgroundImage: `linear-gradient(to bottom right, ${primaryColor}33, transparent)` }}
-                />
-              )}
-              <div className="flex items-center justify-between relative z-10">
-                <div className="font-semibold text-white text-base">{t.name}</div>
-                {template === t.id && (
-                  <CheckCircle2 
-                    className="w-5 h-5 drop-shadow-md" 
-                    style={{ color: primaryColor }}
-                  />
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div>
-        <div className="text-sm font-semibold text-zinc-200 mb-4 flex items-center gap-2 uppercase tracking-wider">
+        <div className="text-xs font-semibold text-zinc-300 mb-2 flex items-center gap-2 uppercase tracking-wider">
           <Palette style={{ color: primaryColor }} className="w-4 h-4" />
           Color de Énfasis
         </div>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-2">
           {colors.map((c: any) => (
             <div
               key={c.id}
-              onClick={() => onColorChange(c.id)}
-              className={`group relative p-3 rounded-2xl border flex flex-col items-center gap-3 cursor-pointer transition-all duration-300 ${
+              onClick={() => setColor(c.id)}
+              className={`group relative p-2 rounded-xl border flex flex-col items-center gap-2 cursor-pointer transition-all duration-300 ${
                 color === c.id
                   ? `border-white/20 bg-white/10 ${c.shadow}`
                   : "border-transparent bg-transparent hover:bg-white/5"
               }`}
             >
-              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${c.hex} transition-all duration-300 ${
+              <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full ${c.hex} transition-all duration-300 ${
                 color === c.id ? `ring-2 ring-offset-2 ring-offset-zinc-950 ${c.ring} ${c.shadow} scale-110` : "shadow-md group-hover:scale-110"
               }`} />
-              <span className={`text-[10px] sm:text-[11px] font-medium text-center leading-tight transition-colors ${
+              <span className={`text-[9px] sm:text-[10px] font-medium text-center leading-none transition-colors ${
                 color === c.id ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
               }`}>{c.name}</span>
             </div>
           ))}
         </div>
+      </div>
+      {!isSchoolTransport && (
+        <div>
+          <div className="text-xs font-semibold text-zinc-300 mb-2 flex items-center gap-2 uppercase tracking-wider">
+            <LayoutTemplate style={{ color: primaryColor }} className="w-4 h-4" />
+            Diseño de Plantilla
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {templates.map((t: any) => (
+              <div
+                key={t.id}
+                onClick={() => setTemplate(t.id)}
+                className={`relative p-3 rounded-xl border cursor-pointer transition-all duration-300 overflow-hidden group ${
+                  template === t.id
+                    ? "border-transparent"
+                    : "border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 hover:shadow-xl"
+                }`}
+                style={template === t.id ? {
+                  borderColor: primaryColor,
+                  backgroundColor: `${primaryColor}1a`,
+                  boxShadow: `0 0 20px ${primaryColor}26`
+                } : {}}
+              >
+                {template === t.id && (
+                  <div 
+                    className="absolute inset-0 opacity-50" 
+                    style={{ backgroundImage: `linear-gradient(to bottom right, ${primaryColor}33, transparent)` }}
+                  />
+                )}
+                <div className="flex items-center justify-between relative z-10">
+                  <div className="font-semibold text-white text-sm">{t.name}</div>
+                  {template === t.id && (
+                    <CheckCircle2 
+                      className="w-4 h-4 drop-shadow-md" 
+                      style={{ color: primaryColor }}
+                    />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="pt-4 flex justify-end">
+        <Button 
+          onClick={() => onApply(template, color)}
+          className="w-full font-semibold"
+          style={{ backgroundColor: primaryColor }}
+        >
+          Aplicar Cambios
+        </Button>
       </div>
     </div>
   )
@@ -496,14 +571,11 @@ export function ContractDetailView({
     }
   }
 
-  const handleTemplateChange = (newTemplate: string) => {
+  const handleApplyChanges = (newTemplate: string, newColor: string) => {
     setTemplate(newTemplate)
-    savePreferences(newTemplate, color)
-  }
-
-  const handleColorChange = (newColor: string) => {
     setColor(newColor)
-    savePreferences(template, newColor)
+    setTemplateOpen(false)
+    savePreferences(newTemplate, newColor)
   }
 
   const primaryColor = colorMap[color] || colorMap.slate
@@ -545,19 +617,19 @@ export function ContractDetailView({
               borderColor: `${primaryColor}33`,
               boxShadow: `0 0 50px ${primaryColor}1a`
             }}
-            className="w-[95vw] max-w-lg bg-zinc-950/90 backdrop-blur-2xl border text-white p-6 rounded-3xl max-h-[85vh] overflow-y-auto"
+            className="w-[95vw] max-w-md bg-zinc-950/90 backdrop-blur-2xl border text-white p-4 rounded-3xl"
           >
-            <DialogHeader className="mb-2">
+            <DialogHeader className="mb-2 hidden">
               <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
                 Personalizar Contrato
               </DialogTitle>
             </DialogHeader>
             <TemplateSelector
-              template={template}
+              template={company.companyType === "TRANSPORTE_ESCOLAR" ? "professional" : template}
               color={color}
               primaryColor={primaryColor}
-              onTemplateChange={handleTemplateChange}
-              onColorChange={handleColorChange}
+              isSchoolTransport={company.companyType === "TRANSPORTE_ESCOLAR"}
+              onApply={handleApplyChanges}
             />
           </DialogContent>
         </Dialog>
@@ -566,25 +638,12 @@ export function ContractDetailView({
         </span>
       </ContractShareActions>
 
-      <div className="transition-all duration-300 w-full relative group aspect-[1/1.414] lg:aspect-auto lg:h-[80vh] overflow-hidden rounded-none">
-        <div className="w-full h-full min-h-full relative flex flex-col items-center justify-start rounded-none">
-          <A4PreviewWrapper orientation={orientation}>
-            <Card
-              className="bg-white border-zinc-200 shadow-2xl overflow-hidden shrink-0 h-auto self-start"
-              style={{
-                width: orientation === "landscape" ? "1123px" : "794px",
-                minHeight: orientation === "landscape" ? "794px" : "1123px"
-              }}
-            >
-              <ContractContent
-                contract={contract}
-                company={company}
-                template={template}
-                primaryColor={primaryColor}
-                ownerName={ownerName}
-              />
-            </Card>
-          </A4PreviewWrapper>
+      <div className="transition-all duration-300 w-full relative group aspect-[1/1.414] lg:aspect-auto lg:h-[80vh] overflow-y-auto">
+        <div className="w-full h-auto min-h-full relative flex flex-col items-center justify-start rounded-none">
+          <PDFCanvasViewer 
+            key={`${template}-${color}-${orientation}`}
+            document={<ContractPDF contract={{ ...contract, pdfTemplate: company.companyType === "TRANSPORTE_ESCOLAR" ? "professional" : template, pdfColor: color }} company={company} orientation={orientation} />} 
+          />
         </div>
       </div>
 

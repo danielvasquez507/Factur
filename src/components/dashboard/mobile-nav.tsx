@@ -61,6 +61,7 @@ export function MobileBottomNav({ userRole, pendingRequestsCount = 0 }: MobileBo
             const active = isActive(item.href)
             const showBadge = item.label === "Solicitudes" && pendingRequestsCount > 0
             const isLogo = item.label === "logo"
+            const Icon = item.icon as any
             
             if (isLogo) {
               return (
@@ -91,7 +92,7 @@ export function MobileBottomNav({ userRole, pendingRequestsCount = 0 }: MobileBo
                   "relative transition-all duration-200",
                   active && "-translate-y-0.5"
                 )}>
-                  <item.icon className={cn(
+                  <Icon className={cn(
                     "w-5 h-5 transition-colors duration-200",
                     active ? "text-blue-400 drop-shadow-[0_0_6px_rgba(59,130,246,0.4)]" : "text-zinc-500"
                   )} />
