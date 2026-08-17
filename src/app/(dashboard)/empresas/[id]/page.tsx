@@ -153,7 +153,7 @@ export default async function CompanyDetailsPage({ params }: { params: Promise<{
             <Users className="w-5 h-5 text-blue-400" />
             Clientes
             <span className="ml-2 text-sm font-semibold text-white bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">{company._count.clients}</span>
-            <ClientDialog companyId={id} trigger={
+            <ClientDialog companyId={id} companyType={company.companyType} transportistas={(company.metadata as any)?.transportistas} trigger={
               <button type="button" title="Nuevo cliente" className="ml-auto text-zinc-500 hover:text-blue-400 transition-colors">
                 <CirclePlus className="w-5 h-5" />
               </button>

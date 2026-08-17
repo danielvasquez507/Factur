@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { User, Smartphone, Mail, Phone, MapPin, Users, Loader2 } from "lucide-react"
 import { updateClient } from "@/actions/clients"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { BusFront } from "lucide-react"
 
-export function EditClientDialog({ client, open, onOpenChange, companyType }: { client: any, open: boolean, onOpenChange: (open: boolean) => void, companyType?: string }) {
+export function EditClientDialog({ client, open, onOpenChange, companyType, transportistas }: { client: any, open: boolean, onOpenChange: (open: boolean) => void, companyType?: string, transportistas?: string[] }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [isActive, setIsActive] = useState(client?.isActive ?? true)
@@ -156,9 +158,33 @@ export function EditClientDialog({ client, open, onOpenChange, companyType }: { 
                     <Input name="escuela" value={metadata.escuela || ""} onChange={handleMetadataChange} placeholder="Nombre de la escuela" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
                   </div>
 
+                  <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                    <Label className="text-[11px] font-medium text-zinc-400">Transportista</Label>
+                    <Select name="transportista" value={metadata.transportista || ""} onValueChange={(val) => setMetadata((prev: any) => ({ ...prev, transportista: val }))}>
+                      <SelectTrigger className="w-full bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs focus-visible:border-blue-500/50">
+                        <div className="flex items-center gap-2">
+                          <BusFront className="w-3.5 h-3.5 text-zinc-500" />
+                          <SelectValue placeholder="Seleccionar..." />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-950 border-white/10 text-white">
+                        {transportistas && transportistas.length > 0 ? (
+                          transportistas.map((t) => (
+                            <SelectItem key={t} value={t} className="hover:bg-white/10 focus:bg-white/10">{t}</SelectItem>
+                          ))
+                        ) : (
+                          <div className="p-2 text-xs text-zinc-500 text-center">No hay transportistas</div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div className="space-y-1.5">
                     <Label className="text-[11px] font-medium text-zinc-400">Seguro</Label>
-                    <Input name="seguro" value={metadata.seguro || ""} onChange={handleMetadataChange} placeholder="Póliza de seguro" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">$</span>
+                      <Input name="seguro" type="number" step="0.01" min="0" value={metadata.seguro || ""} onChange={handleMetadataChange} placeholder="15.00" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs pl-6" />
+                    </div>
                   </div>
                 </div>
               </div>
