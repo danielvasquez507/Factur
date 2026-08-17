@@ -103,7 +103,7 @@ export async function getCompanyMetrics(forcedTenantId?: string) {
       invoiceNumber: inv.invoiceNumber,
       issueDate: inv.issueDate ? inv.issueDate.toISOString() : null,
       total: Number(inv.total),
-      client: { name: inv.client.name }
+      client: { name: inv.client?.name || "Desconocido" }
     }))
   }
 }
