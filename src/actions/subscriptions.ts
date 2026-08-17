@@ -29,13 +29,13 @@ export async function getClientSubscriptions(clientId: string) {
     ...s,
     agreedPrice: Number(s.agreedPrice),
     taxRate: Number(s.taxRate),
-    createdAt: s.createdAt.toISOString(),
-    updatedAt: s.updatedAt.toISOString(),
+    createdAt: s.createdAt ? s.createdAt.toISOString() : null,
+    updatedAt: s.updatedAt ? s.updatedAt.toISOString() : null,
     service: s.service ? {
       ...s.service,
       defaultPrice: Number(s.service.defaultPrice),
-      createdAt: s.service.createdAt.toISOString(),
-      updatedAt: s.service.updatedAt.toISOString()
+      createdAt: s.service.createdAt ? s.service.createdAt.toISOString() : null,
+      updatedAt: s.service.updatedAt ? s.service.updatedAt.toISOString() : null
     } : s.service,
   }))
 }

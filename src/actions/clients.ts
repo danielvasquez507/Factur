@@ -31,8 +31,8 @@ export async function getClients(companyId?: string) {
 
   return clients.map(c => ({
     ...c,
-    createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
+    createdAt: c.createdAt ? c.createdAt.toISOString() : null,
+    updatedAt: c.updatedAt ? c.updatedAt.toISOString() : null,
   }))
 }
 
@@ -214,10 +214,10 @@ export async function getClientInvoices(clientId: string) {
 
   return invoices.map(inv => ({
     ...inv,
-    issueDate: inv.issueDate.toISOString(),
+    issueDate: inv.issueDate ? inv.issueDate.toISOString() : null,
     dueDate: inv.dueDate ? inv.dueDate.toISOString() : null,
-    createdAt: inv.createdAt.toISOString(),
-    updatedAt: inv.updatedAt.toISOString(),
+    createdAt: inv.createdAt ? inv.createdAt.toISOString() : null,
+    updatedAt: inv.updatedAt ? inv.updatedAt.toISOString() : null,
     subtotal: Number(inv.subtotal),
     taxAmount: Number(inv.taxAmount),
     total: Number(inv.total),

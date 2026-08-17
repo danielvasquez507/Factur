@@ -101,7 +101,7 @@ export async function getCompanyMetrics(forcedTenantId?: string) {
     recentInvoices: recentInvoices.map(inv => ({
       id: inv.id,
       invoiceNumber: inv.invoiceNumber,
-      issueDate: inv.issueDate.toISOString(),
+      issueDate: inv.issueDate ? inv.issueDate.toISOString() : null,
       total: Number(inv.total),
       client: { name: inv.client.name }
     }))

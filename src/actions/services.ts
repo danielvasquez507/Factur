@@ -26,8 +26,8 @@ export async function getServices(companyId?: string) {
   return services.map(s => ({
     ...s,
     defaultPrice: Number(s.defaultPrice),
-    createdAt: s.createdAt.toISOString(),
-    updatedAt: s.updatedAt.toISOString()
+    createdAt: s.createdAt ? s.createdAt.toISOString() : null,
+    updatedAt: s.updatedAt ? s.updatedAt.toISOString() : null
   }))
 }
 
@@ -141,8 +141,8 @@ export async function getServiceById(id: string) {
     return {
       ...service,
       defaultPrice: Number(service.defaultPrice),
-      createdAt: service.createdAt.toISOString(),
-      updatedAt: service.updatedAt.toISOString()
+      createdAt: service.createdAt ? service.createdAt.toISOString() : null,
+      updatedAt: service.updatedAt ? service.updatedAt.toISOString() : null
     }
   }
 
@@ -158,7 +158,7 @@ export async function getServiceById(id: string) {
   return {
     ...service,
     defaultPrice: Number(service.defaultPrice),
-    createdAt: service.createdAt.toISOString(),
-    updatedAt: service.updatedAt.toISOString()
+    createdAt: service.createdAt ? service.createdAt.toISOString() : null,
+    updatedAt: service.updatedAt ? service.updatedAt.toISOString() : null
   }
 }
