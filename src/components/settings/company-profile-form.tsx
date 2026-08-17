@@ -198,7 +198,7 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                     <Label htmlFor="transportistas" className="text-zinc-400 text-sm">Nombres de Choferes o Transportistas</Label>
                     <Input 
                       id="transportistas" 
-                      defaultValue={metadata.transportistas?.join(", ") || ""} 
+                      defaultValue={company.metadata?.transportistas?.join(", ") || ""} 
                       onChange={(e) => setMetadata({ ...metadata, transportistas: e.target.value.split(",").map(t => t.trim()).filter(Boolean) })}
                       placeholder="Ej: Carlos Gómez, Luis Rodríguez" 
                       className="bg-black/50 border-white/10 focus-visible:ring-blue-500" 
