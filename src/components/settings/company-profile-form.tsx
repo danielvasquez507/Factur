@@ -173,7 +173,7 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="celular" className="text-zinc-300">Celular de Contacto</Label>
-                  <Input id="celular" name="celular" type="tel" maxLength={8} pattern="^6\d{7}$" title="Debe empezar con 6 y tener 8 dígitos" defaultValue={company.celular || ""} placeholder="Ej: 61234567" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                  <Input id="celular" name="celular" type="tel" maxLength={8} pattern="^(\\+507\\s?)?6\\d{3}[ -]?\\d{4}$" title="Debe empezar con 6 y tener 8 dígitos" defaultValue={company.celular || ""} placeholder="Ej: 61234567" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-zinc-300">Teléfono Fijo / Oficina</Label>

@@ -8,9 +8,9 @@ import { z } from "zod"
 
 const clientSchema = z.object({
   name: z.string().min(2, "El nombre es obligatorio"),
-  celular: z.string().regex(/^6\d{7}$/, "El celular debe iniciar con 6 y tener 8 dígitos"),
+  celular: z.string().regex(/^(\+507\s?)?6\d{3}[ -]?\d{4}$|^\d{8}$|^6\d{7}$/, "Celular inválido (ej: 6123-4567 o +507 61234567)"),
   email: z.string().email("Correo inválido").optional().or(z.literal("")),
-  phone: z.string().regex(/^(6\d{7}|[1-57-9]\d{6})$/, "El teléfono debe tener 8 dígitos si empieza en 6, de lo contrario 7 dígitos, no puede iniciar con 0").optional().or(z.literal("")),
+  phone: z.string().max(20, "Teléfono inválido").optional().or(z.literal("")),
   direccion: z.string().optional(),
   authorizedPersons: z.string().optional().nullable(),
   metadata: z.string().optional().nullable(),
