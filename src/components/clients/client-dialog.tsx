@@ -96,8 +96,9 @@ export function ClientDialog({ trigger, companyId, companyType }: { trigger?: Re
               <Label htmlFor="celular" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Celular <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Smartphone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <Input id="celular" name="celular" type="tel" maxLength={8} pattern="^(\\+507\\s?)?6\\d{3}[ -]?\\d{4}$" title="Debe empezar con 6 y tener 8 dígitos" required placeholder="61234567" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                <Input id="celular" name="celular" type="tel" title="Ej: 61234567, 6123-4567, +507 6123 4567" required placeholder="Ej: 61234567, 6123-4567, +507 6123 4567" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
               </div>
+              <p className="text-[10px] text-zinc-500 mt-1">Formatos: 61234567, 6123-4567, 6123 4567, +507 61234567</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
