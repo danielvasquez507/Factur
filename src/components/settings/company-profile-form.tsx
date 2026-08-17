@@ -203,7 +203,7 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                       placeholder="Ej: Carlos Gómez, Luis Rodríguez" 
                       className="bg-black/50 border-white/10 focus-visible:ring-blue-500" 
                     />
-                    <p className="text-xs text-zinc-500">Separa los nombres con comas (,). Estos nombres aparecerán como opciones al registrar un nuevo cliente.</p>
+                    <p className="text-xs text-zinc-500">Separa los nombres con comas (,). Este es el directorio principal de transportistas de la empresa.</p>
                   </div>
                 </div>
               )}
