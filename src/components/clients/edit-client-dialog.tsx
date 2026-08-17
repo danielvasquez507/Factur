@@ -60,9 +60,9 @@ export function EditClientDialog({ client, open, onOpenChange, companyType }: { 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] bg-zinc-950/95 border-white/[0.08] text-white backdrop-blur-xl shadow-2xl p-0 gap-0">
+      <DialogContent className="sm:max-w-[400px] bg-zinc-950/95 border-white/[0.08] text-white backdrop-blur-xl shadow-2xl p-0 gap-0 overflow-y-auto max-h-[90vh]">
         <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-violet-500 to-blue-600 rounded-t-xl" />
-        <div className="p-5">
+        <div className="p-5 overflow-y-auto max-h-[70vh] md:max-h-none">
           <DialogHeader className="mb-4">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
