@@ -34,21 +34,29 @@ export default async function ContractPage(props: { params: Promise<{ id: string
   })
   const ownerName = ownerRelation?.user?.name || company.name
 
-  const serializedContract = {
+  const serializableContract = {
     ...contract,
-    startDate: contract.startDate.toISOString(),
-    endDate: contract.endDate ? contract.endDate.toISOString() : null,
-    createdAt: contract.createdAt.toISOString(),
-    updatedAt: contract.updatedAt.toISOString(),
     clientService: contract.clientService ? {
       ...contract.clientService,
-      agreedPrice: Number(contract.clientService.agreedPrice),
-      taxRate: Number(contract.clientService.taxRate),
-      service: {
+      agreedPrice: contract.clientService.agreedPrice.toString(),
+      taxRate: contract.clientService.taxRate.toString(),
+      service: contract.clientService.service ? {
         ...contract.clientService.service,
-        defaultPrice: Number(contract.clientService.service.defaultPrice)
-      }
-    } : null
+        defaultPrice: contract.clientService.service.defaultPrice.toString(),
+      } : null
+    } : null,
+    client: contract.client ? {
+      ...contract.client,
+      clientServices: contract.client.clientServices ? contract.client.clientServices.map(cs => ({
+        ...cs,
+        agreedPrice: cs.agreedPrice.toString(),
+        taxRate: cs.taxRate.toString(),
+        service: cs.service ? {
+          ...cs.service,
+          defaultPrice: cs.service.defaultPrice.toString(),
+        } : null
+      })) : []
+    } : contract.client
   }
   const linkRes = await generateContractPublicLink(contract.id)
   const publicLink = linkRes.url || ""

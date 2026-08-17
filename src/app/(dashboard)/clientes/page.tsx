@@ -32,8 +32,6 @@ export default async function ClientsPage() {
   const services = rawServices.map(s => ({
     ...s,
     defaultPrice: s.defaultPrice.toString(),
-    createdAt: s.createdAt.toISOString(),
-    updatedAt: s.updatedAt.toISOString(),
   }))
 
   return (
