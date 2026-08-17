@@ -1,4 +1,4 @@
 -- AlterTable
-ALTER TABLE "companies" ADD COLUMN "celular" TEXT;
-ALTER TABLE "companies" ADD COLUMN "phone" TEXT;
-ALTER TABLE "companies" ADD COLUMN "slogan" TEXT;
+ALTER TABLE "companies" ADD COLUMN IF NOT EXISTS "celular" TEXT;
+ALTER TABLE "companies" ADD COLUMN IF NOT EXISTS "phone" TEXT;
+ALTER TABLE "companies" ADD COLUMN IF NOT EXISTS "slogan" TEXT;
