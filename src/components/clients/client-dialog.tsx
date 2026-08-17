@@ -59,9 +59,9 @@ export function ClientDialog({ trigger, companyId, companyType }: { trigger?: Re
           Nuevo Cliente
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[400px] bg-zinc-950/95 border-white/[0.08] text-white backdrop-blur-xl shadow-2xl p-0 gap-0">
+      <DialogContent className="sm:max-w-[400px] max-h-[90vh] overflow-y-auto bg-zinc-950/95 border-white/[0.08] text-white backdrop-blur-xl shadow-2xl p-0 gap-0">
         <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-violet-500 to-blue-600 rounded-t-xl" />
-        <div className="p-5">
+        <div className="p-5 overflow-y-auto max-h-[70vh] md:max-h-none">
           <DialogHeader className="mb-4">
             <div className="flex items-center gap-3 mb-1">
               <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
