@@ -14,6 +14,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Factur | Dashboard",
   description: "Plataforma de Facturación B2B",
+  icons: {
+    icon: [
+      { url: '/favicon-f.svg', type: 'image/svg+xml' }
+    ],
+    apple: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' }
+    ]
+  }
 };
 
 export const viewport: Viewport = {
