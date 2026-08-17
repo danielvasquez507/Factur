@@ -181,11 +181,11 @@ function ProfessionalHeader({ contract, company, primaryColor }: any) {
               Período: <Text style={styles.headerTextBold}>{new Date().getFullYear()}</Text>
             </Text>
             <Text style={styles.headerText}>
-              Inicio: <Text style={styles.headerTextBold}>{format(new Date(contract.startDate), "dd/MM/yyyy")}</Text>
+              Inicio: <Text style={styles.headerTextBold}>{formatInTimeZone(new Date(contract.startDate), 'UTC', "dd/MM/yyyy")}</Text>
             </Text>
             {contract.endDate && (
               <Text style={styles.headerText}>
-                Vencimiento: <Text style={styles.headerTextBold}>{format(new Date(contract.endDate), "dd/MM/yyyy")}</Text>
+                Vencimiento: <Text style={styles.headerTextBold}>{formatInTimeZone(new Date(contract.endDate), 'UTC', "dd/MM/yyyy")}</Text>
               </Text>
             )}
             {company.address && (
