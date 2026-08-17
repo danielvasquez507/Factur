@@ -23,7 +23,12 @@ export async function getServices(companyId?: string) {
     where: { companyId: activeTenantId },
     orderBy: { createdAt: "desc" }
   })
-  return services.map(s => ({ ...s, defaultPrice: Number(s.defaultPrice) }))
+  return services.map(s => ({
+    ...s,
+    defaultPrice: Number(s.defaultPrice),
+    createdAt: s.createdAt.toISOString(),
+    updatedAt: s.updatedAt.toISOString()
+  }))
 }
 
 export async function createService(formData: FormData) {
@@ -133,7 +138,12 @@ export async function getServiceById(id: string) {
       include: { company: { select: { id: true, name: true } } }
     })
     if (!service) return null
-    return { ...service, defaultPrice: Number(service.defaultPrice) }
+    return {
+      ...service,
+      defaultPrice: Number(service.defaultPrice),
+      createdAt: service.createdAt.toISOString(),
+      updatedAt: service.updatedAt.toISOString()
+    }
   }
 
   const activeTenantId = await getActiveTenantId()
@@ -145,5 +155,10 @@ export async function getServiceById(id: string) {
     include: { company: { select: { id: true, name: true } } }
   })
   if (!service) return null
-  return { ...service, defaultPrice: Number(service.defaultPrice) }
+  return {
+    ...service,
+    defaultPrice: Number(service.defaultPrice),
+    createdAt: service.createdAt.toISOString(),
+    updatedAt: service.updatedAt.toISOString()
+  }
 }

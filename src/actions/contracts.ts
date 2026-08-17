@@ -11,23 +11,37 @@ function toPlainContract(c: any) {
   if (!c) return c;
   return {
     ...c,
+    startDate: c.startDate ? c.startDate.toISOString() : null,
+    endDate: c.endDate ? c.endDate.toISOString() : null,
+    createdAt: c.createdAt ? c.createdAt.toISOString() : null,
+    updatedAt: c.updatedAt ? c.updatedAt.toISOString() : null,
     clientService: c.clientService ? {
       ...c.clientService,
+      createdAt: c.clientService.createdAt ? c.clientService.createdAt.toISOString() : null,
+      updatedAt: c.clientService.updatedAt ? c.clientService.updatedAt.toISOString() : null,
       agreedPrice: c.clientService.agreedPrice ? Number(c.clientService.agreedPrice) : 0,
       taxRate: c.clientService.taxRate ? Number(c.clientService.taxRate) : 0,
       service: c.clientService.service ? {
         ...c.clientService.service,
+        createdAt: c.clientService.service.createdAt ? c.clientService.service.createdAt.toISOString() : null,
+        updatedAt: c.clientService.service.updatedAt ? c.clientService.service.updatedAt.toISOString() : null,
         defaultPrice: c.clientService.service.defaultPrice ? Number(c.clientService.service.defaultPrice) : 0
       } : null
     } : null,
     client: c.client ? {
       ...c.client,
+      createdAt: c.client.createdAt ? c.client.createdAt.toISOString() : null,
+      updatedAt: c.client.updatedAt ? c.client.updatedAt.toISOString() : null,
       clientServices: c.client.clientServices ? c.client.clientServices.map((cs: any) => ({
         ...cs,
+        createdAt: cs.createdAt ? cs.createdAt.toISOString() : null,
+        updatedAt: cs.updatedAt ? cs.updatedAt.toISOString() : null,
         agreedPrice: Number(cs.agreedPrice),
         taxRate: Number(cs.taxRate),
         service: cs.service ? {
           ...cs.service,
+          createdAt: cs.service.createdAt ? cs.service.createdAt.toISOString() : null,
+          updatedAt: cs.service.updatedAt ? cs.service.updatedAt.toISOString() : null,
           defaultPrice: Number(cs.service.defaultPrice)
         } : null
       })) : []

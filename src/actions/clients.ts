@@ -24,10 +24,16 @@ export async function getClients(companyId?: string) {
   if (!session?.user || !activeTenantId) throw new Error("No autorizado")
 
   const prisma = getTenantPrisma(activeTenantId)
-  return await prisma.client.findMany({
+  const clients = await prisma.client.findMany({
     where: { companyId: activeTenantId },
     orderBy: { createdAt: "desc" }
   })
+
+  return clients.map(c => ({
+    ...c,
+    createdAt: c.createdAt.toISOString(),
+    updatedAt: c.updatedAt.toISOString(),
+  }))
 }
 
 export async function createClient(formData: FormData) {
@@ -208,11 +214,17 @@ export async function getClientInvoices(clientId: string) {
 
   return invoices.map(inv => ({
     ...inv,
+    issueDate: inv.issueDate.toISOString(),
+    dueDate: inv.dueDate ? inv.dueDate.toISOString() : null,
+    createdAt: inv.createdAt.toISOString(),
+    updatedAt: inv.updatedAt.toISOString(),
     subtotal: Number(inv.subtotal),
     taxAmount: Number(inv.taxAmount),
     total: Number(inv.total),
     items: inv.items.map(item => ({
       ...item,
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt.toISOString(),
       unitPrice: Number(item.unitPrice),
       taxAmount: Number(item.taxAmount),
       lineTotal: Number(item.lineTotal),

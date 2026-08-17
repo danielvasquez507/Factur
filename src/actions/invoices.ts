@@ -12,6 +12,10 @@ function toPlainInvoice(inv: any) {
   if (!inv) return inv
   return {
     ...inv,
+    issueDate: inv.issueDate ? inv.issueDate.toISOString() : null,
+    dueDate: inv.dueDate ? inv.dueDate.toISOString() : null,
+    createdAt: inv.createdAt ? inv.createdAt.toISOString() : null,
+    updatedAt: inv.updatedAt ? inv.updatedAt.toISOString() : null,
     subtotal: Number(inv.subtotal),
     taxAmount: Number(inv.taxAmount),
     total: Number(inv.total),
@@ -231,6 +235,10 @@ export async function getInvoiceDetails(invoiceId: string) {
 
   return {
     ...invoice,
+    issueDate: invoice.issueDate ? invoice.issueDate.toISOString() : null,
+    dueDate: invoice.dueDate ? invoice.dueDate.toISOString() : null,
+    createdAt: invoice.createdAt ? invoice.createdAt.toISOString() : null,
+    updatedAt: invoice.updatedAt ? invoice.updatedAt.toISOString() : null,
     subtotal: Number(invoice.subtotal),
     taxAmount: Number(invoice.taxAmount),
     total: Number(invoice.total),

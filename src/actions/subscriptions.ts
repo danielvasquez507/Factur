@@ -29,7 +29,14 @@ export async function getClientSubscriptions(clientId: string) {
     ...s,
     agreedPrice: Number(s.agreedPrice),
     taxRate: Number(s.taxRate),
-    service: s.service ? { ...s.service, defaultPrice: Number(s.service.defaultPrice) } : s.service,
+    createdAt: s.createdAt.toISOString(),
+    updatedAt: s.updatedAt.toISOString(),
+    service: s.service ? {
+      ...s.service,
+      defaultPrice: Number(s.service.defaultPrice),
+      createdAt: s.service.createdAt.toISOString(),
+      updatedAt: s.service.updatedAt.toISOString()
+    } : s.service,
   }))
 }
 
