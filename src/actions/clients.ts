@@ -223,8 +223,6 @@ export async function getClientInvoices(clientId: string) {
     total: Number(inv.total),
     items: inv.items.map(item => ({
       ...item,
-      createdAt: item.createdAt.toISOString(),
-      updatedAt: item.updatedAt.toISOString(),
       unitPrice: Number(item.unitPrice),
       taxAmount: Number(item.taxAmount),
       lineTotal: Number(item.lineTotal),

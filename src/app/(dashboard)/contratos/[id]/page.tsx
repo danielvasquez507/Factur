@@ -74,7 +74,7 @@ export default async function ContractPage(props: { params: Promise<{ id: string
         </div>
       </div>
 
-      <ContractDetailView contract={serializedContract} company={company} ownerName={ownerName} publicLink={publicLink} />
+      <ContractDetailView contract={serializableContract} company={company} ownerName={ownerName} publicLink={publicLink} />
     </div>
   )
 }
