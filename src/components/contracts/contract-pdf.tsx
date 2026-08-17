@@ -290,7 +290,9 @@ export function ContractPDF({ contract, company, ownerName, orientation = "portr
                 {contract.client.metadata.acudiente && <Text style={{ fontSize: 9, color: '#52525b', width: '48%' }}>Acudiente: <Text style={{ color: '#18181b' }}>{contract.client.metadata.acudiente}</Text></Text>}
                 {contract.client.metadata.alumno && <Text style={{ fontSize: 9, color: '#52525b', width: '48%' }}>Alumno: <Text style={{ color: '#18181b' }}>{contract.client.metadata.alumno}</Text></Text>}
                 {contract.client.metadata.escuela && <Text style={{ fontSize: 9, color: '#52525b', width: '48%' }}>Escuela: <Text style={{ color: '#18181b' }}>{contract.client.metadata.escuela}</Text></Text>}
-                {contract.client.metadata.maestroGrado && <Text style={{ fontSize: 9, color: '#52525b', width: '48%' }}>Grado/Maestro: <Text style={{ color: '#18181b' }}>{contract.client.metadata.maestroGrado}</Text></Text>}
+                {contract.client.metadata.maestro && <Text style={{ fontSize: 9, color: '#52525b', width: '48%' }}>Maestro(a): <Text style={{ color: '#18181b' }}>{contract.client.metadata.maestro}</Text></Text>}
+                {contract.client.metadata.grado && <Text style={{ fontSize: 9, color: '#52525b', width: '48%' }}>Grado: <Text style={{ color: '#18181b' }}>{contract.client.metadata.grado}</Text></Text>}
+                {contract.client.metadata.maestroGrado && !contract.client.metadata.maestro && <Text style={{ fontSize: 9, color: '#52525b', width: '48%' }}>Grado/Maestro: <Text style={{ color: '#18181b' }}>{contract.client.metadata.maestroGrado}</Text></Text>}
                 {contract.client.metadata.seguro && <Text style={{ fontSize: 9, color: '#52525b', width: '48%' }}>Seguro: <Text style={{ color: '#18181b' }}>${contract.client.metadata.seguro}</Text></Text>}
               </>
             )}

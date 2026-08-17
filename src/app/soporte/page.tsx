@@ -127,7 +127,7 @@ export default function SoportePage() {
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
                                 </div>
-                                <input type="tel" id="s-celular" value={formData.celular} onChange={handleFormChange} required placeholder="Número" inputMode="numeric" className="w-[55%] sm:w-3/5 bg-black/50 border border-gray-700 rounded-lg px-3 py-2 sm:py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors support-input" />
+                                <input type="tel" id="s-celular" value={formData.celular} onChange={handleFormChange} required placeholder="Número" maxLength={8} pattern="^6\d{7}$" title="Debe empezar con 6 y tener 8 dígitos" inputMode="numeric" className="w-[55%] sm:w-3/5 bg-black/50 border border-gray-700 rounded-lg px-3 py-2 sm:py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors support-input" />
                             </div>
                         </div>
 

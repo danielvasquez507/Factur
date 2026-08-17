@@ -29,6 +29,15 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
     }
   } catch(e) {}
   const [paymentOpts, setPaymentOpts] = useState(initialPayment)
+
+  let initialMetadata: any = {}
+  try {
+    if (company.metadata) {
+      initialMetadata = typeof company.metadata === 'string' ? JSON.parse(company.metadata) : company.metadata
+    }
+  } catch(e) {}
+  const [metadata, setMetadata] = useState(initialMetadata)
+  
   
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingData, setPendingData] = useState<FormData | null>(null)
@@ -168,7 +177,7 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-zinc-300">Teléfono Fijo / Oficina</Label>
-                  <Input id="phone" name="phone" type="tel" maxLength={8} pattern="^(6\d{7}|[0-57-9]\d{6})$" title="8 dígitos si empieza en 6, de lo contrario 7 dígitos" defaultValue={company.phone || ""} placeholder="Ej: 3991234" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
+                  <Input id="phone" name="phone" type="tel" maxLength={8} pattern="^(6\d{7}|[1-57-9]\d{6})$" title="8 dígitos si empieza en 6, de lo contrario 7 dígitos (no puede iniciar con 0)" defaultValue={company.phone || ""} placeholder="Ej: 3991234" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
                 </div>
               </div>
               <div className="space-y-2">
@@ -179,6 +188,25 @@ export function CompanyProfileForm({ company, userRole }: { company: any, userRo
                 <Label htmlFor="slogan" className="text-zinc-300">Eslogan de la Empresa</Label>
                 <Input id="slogan" name="slogan" defaultValue={company.slogan || ""} placeholder="Escribe un eslogan o frase para tu empresa" className="bg-black/50 border-white/10 focus-visible:ring-blue-500" />
               </div>
+
+              {company.companyType === "TRANSPORTE_ESCOLAR" && (
+                <div className="space-y-4 pt-4 border-t border-white/10 mt-4">
+                  <Label className="text-lg font-semibold text-white">Directorio de Transportistas</Label>
+                  <input type="hidden" name="metadata" value={JSON.stringify(metadata)} />
+                  <div className="space-y-2">
+                    <Label htmlFor="transportistas" className="text-zinc-400 text-sm">Nombres de Choferes o Transportistas</Label>
+                    <Input 
+                      id="transportistas" 
+                      value={metadata.transportistas?.join(", ") || ""} 
+                      onChange={(e) => setMetadata({ ...metadata, transportistas: e.target.value.split(",").map(t => t.trim()).filter(Boolean) })}
+                      placeholder="Ej: Carlos Gómez, Luis Rodríguez" 
+                      className="bg-black/50 border-white/10 focus-visible:ring-blue-500" 
+                    />
+                    <p className="text-xs text-zinc-500">Separa los nombres con comas (,). Estos nombres aparecerán como opciones al registrar un nuevo cliente.</p>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-4 pt-4 border-t border-white/10 mt-4">
                 <Label className="text-lg font-semibold text-white">Métodos de Pago Aceptados</Label>
                 <input type="hidden" name="paymentDetails" value={JSON.stringify(paymentOpts)} />

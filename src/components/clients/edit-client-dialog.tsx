@@ -22,8 +22,12 @@ export function EditClientDialog({ client, open, onOpenChange, companyType }: { 
   useEffect(() => {
     if (client) {
       setIsActive(client.isActive)
-      if (client.metadata && typeof client.metadata === "object") {
-        setMetadata(client.metadata)
+      if (client.metadata) {
+        try {
+          setMetadata(typeof client.metadata === "string" ? JSON.parse(client.metadata) : client.metadata)
+        } catch (e) {
+          setMetadata({})
+        }
       } else {
         setMetadata({})
       }
@@ -93,7 +97,7 @@ export function EditClientDialog({ client, open, onOpenChange, companyType }: { 
               <Label htmlFor={`celular-${client?.id}`} className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Celular <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Smartphone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <Input id={`celular-${client?.id}`} name="celular" type="tel" maxLength={8} pattern="\d{8}" required defaultValue={client?.celular || ""} className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                <Input id={`celular-${client?.id}`} name="celular" type="tel" maxLength={8} pattern="^6\d{7}$" title="Debe empezar con 6 y tener 8 dígitos" required defaultValue={client?.celular || ""} className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
               </div>
             </div>
 
@@ -109,7 +113,7 @@ export function EditClientDialog({ client, open, onOpenChange, companyType }: { 
                 <Label htmlFor={`phone-${client?.id}`} className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Teléfono</Label>
                 <div className="relative">
                   <Phone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <Input id={`phone-${client?.id}`} name="phone" type="tel" maxLength={8} pattern="\d{8}" defaultValue={client?.phone || ""} className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                  <Input id={`phone-${client?.id}`} name="phone" type="tel" maxLength={8} pattern="^(6\d{7}|[1-57-9]\d{6})$" title="8 dígitos si empieza en 6, de lo contrario 7 dígitos (no puede iniciar con 0)" defaultValue={client?.phone || ""} className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
                 </div>
               </div>
             </div>
@@ -122,28 +126,9 @@ export function EditClientDialog({ client, open, onOpenChange, companyType }: { 
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor={`auth-${client?.id}`} className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Personas Autorizadas</Label>
-              <div className="relative">
-                <Users className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <Input id={`auth-${client?.id}`} name="authorizedPersons" defaultValue={client?.authorizedPersons?.join(", ") || ""} placeholder="Juan Pérez, Ana Gómez" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
-              </div>
-              <p className="text-[10px] text-zinc-600 mt-1">Separar por comas (,)</p>
-            </div>
 
-            <div className="flex items-start gap-3 p-3 bg-white/5 rounded-lg border border-white/[0.07] mt-2">
-              <Checkbox 
-                id={`isActive-${client?.id}`} 
-                checked={isActive} 
-                onCheckedChange={(c) => setIsActive(!!c)} 
-                className="mt-0.5 border-white/20 data-[state=checked]:bg-emerald-500 data-[state=checked]:text-white data-[state=checked]:border-emerald-500"
-              />
-              <input type="hidden" name="isActive" value={isActive.toString()} />
-              <div className="space-y-1">
-                <Label htmlFor={`isActive-${client?.id}`} className="text-sm font-medium text-white cursor-pointer">Cliente Activo</Label>
-                <p className="text-[11px] text-zinc-400 leading-snug">Si desmarcas esta opción, el cliente se mostrará como inactivo.</p>
-              </div>
-            </div>
+
+            <input type="hidden" name="isActive" value={client?.isActive !== false ? "true" : "false"} />
 
             {companyType === "TRANSPORTE_ESCOLAR" && (
               <div className="pt-2 pb-1 border-t border-white/5 space-y-3.5">
@@ -158,17 +143,18 @@ export function EditClientDialog({ client, open, onOpenChange, companyType }: { 
                     <Input name="alumno" value={metadata.alumno || ""} onChange={handleMetadataChange} placeholder="Nombre del alumno" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-[11px] font-medium text-zinc-400">Maestro y Grado</Label>
-                    <Input name="maestroGrado" value={metadata.maestroGrado || ""} onChange={handleMetadataChange} placeholder="Ej: Maestro Juan - 5to Grado" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                    <Label className="text-[11px] font-medium text-zinc-400">Maestro(a)</Label>
+                    <Input name="maestro" value={metadata.maestro || ""} onChange={handleMetadataChange} placeholder="Ej: Maestro Juan" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-zinc-400">Grado</Label>
+                    <Input name="grado" value={metadata.grado || ""} onChange={handleMetadataChange} placeholder="Ej: 5to Grado" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-[11px] font-medium text-zinc-400">Escuela</Label>
                     <Input name="escuela" value={metadata.escuela || ""} onChange={handleMetadataChange} placeholder="Nombre de la escuela" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[11px] font-medium text-zinc-400">Transportista</Label>
-                    <Input name="transportista" value={metadata.transportista || ""} onChange={handleMetadataChange} placeholder="Chofer asignado" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
-                  </div>
+
                   <div className="space-y-1.5">
                     <Label className="text-[11px] font-medium text-zinc-400">Seguro</Label>
                     <Input name="seguro" value={metadata.seguro || ""} onChange={handleMetadataChange} placeholder="Póliza de seguro" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
@@ -176,6 +162,15 @@ export function EditClientDialog({ client, open, onOpenChange, companyType }: { 
                 </div>
               </div>
             )}
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`auth-${client?.id}`} className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Personas Autorizadas</Label>
+              <div className="relative">
+                <Users className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input id={`auth-${client?.id}`} name="authorizedPersons" defaultValue={Array.isArray(client?.authorizedPersons) ? client.authorizedPersons.join(", ") : (typeof client?.authorizedPersons === "string" ? (() => { try { const p = JSON.parse(client.authorizedPersons); return Array.isArray(p) ? p.join(", ") : client.authorizedPersons } catch(e) { return client.authorizedPersons } })() : "")} placeholder="Juan Pérez, Ana Gómez" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+              </div>
+              <p className="text-[10px] text-zinc-600 mt-1">Separar por comas (,)</p>
+            </div>
 
             <Button type="submit" disabled={loading} className="w-full h-9 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-medium text-sm shadow-lg shadow-blue-900/20 border-0">
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar Cambios"}

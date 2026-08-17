@@ -169,7 +169,9 @@ function CommonBody({ contract, company, primaryColor, ownerName }: any) {
               {contract.client.metadata.acudiente && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Acudiente: <span className="text-zinc-900">{contract.client.metadata.acudiente}</span></div>}
               {contract.client.metadata.alumno && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Alumno: <span className="text-zinc-900">{contract.client.metadata.alumno}</span></div>}
               {contract.client.metadata.escuela && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Escuela: <span className="text-zinc-900">{contract.client.metadata.escuela}</span></div>}
-              {contract.client.metadata.maestroGrado && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Grado/Maestro: <span className="text-zinc-900">{contract.client.metadata.maestroGrado}</span></div>}
+              {contract.client.metadata.maestro && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Maestro(a): <span className="text-zinc-900">{contract.client.metadata.maestro}</span></div>}
+              {contract.client.metadata.grado && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Grado: <span className="text-zinc-900">{contract.client.metadata.grado}</span></div>}
+              {contract.client.metadata.maestroGrado && !contract.client.metadata.maestro && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Grado/Maestro: <span className="text-zinc-900">{contract.client.metadata.maestroGrado}</span></div>}
               {contract.client.metadata.seguro && <div className="text-[9pt] text-zinc-500 w-[45%] mt-1">Seguro: <span className="text-zinc-900">${contract.client.metadata.seguro}</span></div>}
             </>
           )}

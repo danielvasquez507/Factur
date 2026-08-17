@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Edit } from "lucide-react"
 import { EditClientDialog } from "./edit-client-dialog"
 
-export function EditClientButton({ client }: { client: any }) {
+export function EditClientButton({ client, companyType }: { client: any, companyType?: string }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -24,6 +24,7 @@ export function EditClientButton({ client }: { client: any }) {
         client={client}
         open={open}
         onOpenChange={setOpen}
+        companyType={companyType}
       />
     </>
   )

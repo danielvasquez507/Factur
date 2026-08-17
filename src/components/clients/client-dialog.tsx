@@ -96,7 +96,7 @@ export function ClientDialog({ trigger, companyId, companyType }: { trigger?: Re
               <Label htmlFor="celular" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Celular <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Smartphone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <Input id="celular" name="celular" type="tel" maxLength={8} pattern="\d{8}" required placeholder="61234567" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                <Input id="celular" name="celular" type="tel" maxLength={8} pattern="^6\d{7}$" title="Debe empezar con 6 y tener 8 dígitos" required placeholder="61234567" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
               </div>
             </div>
 
@@ -112,7 +112,7 @@ export function ClientDialog({ trigger, companyId, companyType }: { trigger?: Re
                 <Label htmlFor="phone" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Teléfono</Label>
                 <div className="relative">
                   <Phone className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <Input id="phone" name="phone" type="tel" maxLength={8} pattern="\d{8}" placeholder="Opcional" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+                  <Input id="phone" name="phone" type="tel" maxLength={8} pattern="^(6\d{7}|[1-57-9]\d{6})$" title="8 dígitos si empieza en 6, de lo contrario 7 dígitos (no puede iniciar con 0)" placeholder="Opcional" className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
                 </div>
               </div>
             </div>
@@ -125,14 +125,7 @@ export function ClientDialog({ trigger, companyId, companyType }: { trigger?: Re
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="authorizedPersons" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Personas Autorizadas</Label>
-              <div className="relative">
-                <Users className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <Input id="authorizedPersons" name="authorizedPersons" placeholder="María, José..." className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
-              </div>
-              <p className="text-[10px] text-zinc-600 mt-1">Nombres separados por comas. Estas personas podrán aprobar facturas o trabajos.</p>
-            </div>
+
 
             {companyType === "TRANSPORTE_ESCOLAR" && (
               <div className="pt-2 pb-1 border-t border-white/5 space-y-3.5">
@@ -147,17 +140,18 @@ export function ClientDialog({ trigger, companyId, companyType }: { trigger?: Re
                     <Input name="alumno" value={metadata.alumno || ""} onChange={handleMetadataChange} placeholder="Nombre del alumno" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-[11px] font-medium text-zinc-400">Maestro y Grado</Label>
-                    <Input name="maestroGrado" value={metadata.maestroGrado || ""} onChange={handleMetadataChange} placeholder="Ej: Maestro Juan - 5to Grado" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                    <Label className="text-[11px] font-medium text-zinc-400">Maestro(a)</Label>
+                    <Input name="maestro" value={metadata.maestro || ""} onChange={handleMetadataChange} placeholder="Ej: Maestro Juan" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-zinc-400">Grado</Label>
+                    <Input name="grado" value={metadata.grado || ""} onChange={handleMetadataChange} placeholder="Ej: 5to Grado" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-[11px] font-medium text-zinc-400">Escuela</Label>
                     <Input name="escuela" value={metadata.escuela || ""} onChange={handleMetadataChange} placeholder="Nombre de la escuela" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[11px] font-medium text-zinc-400">Transportista</Label>
-                    <Input name="transportista" value={metadata.transportista || ""} onChange={handleMetadataChange} placeholder="Chofer asignado" className="bg-black/40 border-white/[0.07] text-zinc-200 h-8 text-xs" />
-                  </div>
+
                   <div className="space-y-1.5">
                     <Label className="text-[11px] font-medium text-zinc-400">Seguro</Label>
                     <div className="relative">
@@ -168,6 +162,15 @@ export function ClientDialog({ trigger, companyId, companyType }: { trigger?: Re
                 </div>
               </div>
             )}
+
+            <div className="space-y-1.5">
+              <Label htmlFor="authorizedPersons" className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Personas Autorizadas</Label>
+              <div className="relative">
+                <Users className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input id="authorizedPersons" name="authorizedPersons" placeholder="María, José..." className="bg-black/40 border-white/[0.07] text-zinc-200 placeholder:text-zinc-600 text-sm focus-visible:border-blue-500/50 pl-8 h-9" />
+              </div>
+              <p className="text-[10px] text-zinc-600 mt-1">Nombres separados por comas. Estas personas podrán aprobar facturas o trabajos.</p>
+            </div>
 
             <Button type="submit" disabled={loading} className="w-full h-9 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-medium text-sm shadow-lg shadow-blue-900/20 border-0">
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar Cliente"}

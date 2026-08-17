@@ -9,12 +9,13 @@ import { getClientContracts } from "@/actions/contracts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BackButton } from "@/components/ui/back-button"
 import { ClickableTableRow } from "@/components/ui/clickable-table-row"
 import { ClientSubscriptions } from "@/components/clients/client-subscriptions"
 import { AssignServiceDialog } from "@/components/clients/assign-service-dialog"
 import { EditClientButton } from "@/components/clients/edit-client-button"
-import { Smartphone, Mail, Phone, MapPin, UserCheck, Receipt, CirclePlus, Link2, Layers, FileText } from "lucide-react"
+import { Smartphone, Mail, Phone, MapPin, UserCheck, Receipt, CirclePlus, Link2, Layers, FileText, GraduationCap, Users, Shield, Bus, BookOpen } from "lucide-react"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
 
@@ -43,14 +44,16 @@ export default async function ClientDetailsPage(
   if (session.user.role === "SUPER_ADMIN") {
     const prisma = getBypassPrisma()
     client = await prisma.client.findUnique({
-      where: { id: params.clientId }
+      where: { id: params.clientId },
+      include: { company: true }
     })
   } else {
     const activeTenantId = await getActiveTenantId()
     if (!activeTenantId) redirect("/clientes")
     const prisma = getTenantPrisma(activeTenantId)
     client = await prisma.client.findUnique({
-      where: { id: params.clientId, companyId: activeTenantId }
+      where: { id: params.clientId, companyId: activeTenantId },
+      include: { company: true }
     })
   }
 
@@ -65,6 +68,15 @@ export default async function ClientDetailsPage(
     getClientContracts(client.id),
   ])
 
+  let metadataObj: any = {}
+  if (client.metadata) {
+    try {
+      metadataObj = typeof client.metadata === "string" ? JSON.parse(client.metadata) : client.metadata
+    } catch (e) {
+      metadataObj = {}
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -76,12 +88,36 @@ export default async function ClientDetailsPage(
           ) : (
             <Badge variant="secondary" className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20">Inactivo</Badge>
           )}
-          <EditClientButton client={client} />
+          <EditClientButton client={client} companyType={client.company?.companyType || "PYME"} />
         </div>
       </div>
 
-      {/* Información del Cliente */}
-      <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
+      <Tabs defaultValue="cliente" className="w-full space-y-6">
+        <TabsList className="bg-black/40 border border-white/5 backdrop-blur-xl mb-6 p-0 rounded-2xl grid grid-cols-2 md:flex md:flex-wrap w-full md:w-max gap-1 shadow-2xl no-scrollbar !h-auto relative z-10">
+          <TabsTrigger value="cliente" className="relative group flex-1 sm:flex-none items-center justify-center rounded-xl px-6 py-1.5 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 data-active:bg-blue-600 data-active:text-white data-active:shadow-[0_4px_20px_rgba(37,99,235,0.4)] text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border-none h-8">
+            <Users className="w-4 h-4 mr-2.5 opacity-80 group-data-active:opacity-100" />
+            Cliente
+          </TabsTrigger>
+          <TabsTrigger value="servicios" className="relative group flex-1 sm:flex-none items-center justify-center rounded-xl px-6 py-1.5 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 data-active:bg-blue-600 data-active:text-white data-active:shadow-[0_4px_20px_rgba(37,99,235,0.4)] text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border-none h-8">
+            <Layers className="w-4 h-4 mr-2.5 opacity-80 group-data-active:opacity-100" />
+            Servicios
+            <span className="ml-1.5 sm:ml-2.5 text-xs font-bold px-2 py-0.5 rounded-full bg-white/10 text-white shadow-inner group-data-active:bg-white/25">{subscriptions.length}</span>
+          </TabsTrigger>
+          <TabsTrigger value="facturas" className="relative group flex-1 sm:flex-none items-center justify-center rounded-xl px-6 py-1.5 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 data-active:bg-blue-600 data-active:text-white data-active:shadow-[0_4px_20px_rgba(37,99,235,0.4)] text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border-none h-8">
+            <Receipt className="w-4 h-4 mr-2.5 opacity-80 group-data-active:opacity-100" />
+            Facturas
+            <span className="ml-1.5 sm:ml-2.5 text-xs font-bold px-2 py-0.5 rounded-full bg-white/10 text-white shadow-inner group-data-active:bg-white/25">{invoices.length}</span>
+          </TabsTrigger>
+          <TabsTrigger value="contratos" className="relative group flex-1 sm:flex-none items-center justify-center rounded-xl px-6 py-1.5 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 data-active:bg-blue-600 data-active:text-white data-active:shadow-[0_4px_20px_rgba(37,99,235,0.4)] text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border-none h-8">
+            <FileText className="w-4 h-4 mr-2.5 opacity-80 group-data-active:opacity-100" />
+            Contratos
+            <span className="ml-1.5 sm:ml-2.5 text-xs font-bold px-2 py-0.5 rounded-full bg-white/10 text-white shadow-inner group-data-active:bg-white/25">{contracts.length}</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="cliente" className="space-y-6">
+          {/* Información del Cliente */}
+          <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl">
         <CardContent className="pt-0">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
@@ -133,10 +169,85 @@ export default async function ClientDetailsPage(
                 </div>
               </div>
             )}
+            
+            {/* Metadata (Transporte Escolar) */}
+            {client.company?.companyType === "TRANSPORTE_ESCOLAR" && (
+              <div className="col-span-1 sm:col-span-2 lg:col-span-3 border-t border-white/10 mt-2 pt-5">
+                <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-4 px-1">Datos Adicionales (Transporte Escolar)</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {metadataObj.acudiente && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                      <Users className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wider">Acudiente</p>
+                        <p className="text-white font-medium">{metadataObj.acudiente}</p>
+                      </div>
+                    </div>
+                  )}
+                  {metadataObj.alumno && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                      <GraduationCap className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wider">Alumno</p>
+                        <p className="text-white font-medium">{metadataObj.alumno}</p>
+                      </div>
+                    </div>
+                  )}
+                  {metadataObj.escuela && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                      <BookOpen className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wider">Escuela / Colegio</p>
+                        <p className="text-white font-medium">{metadataObj.escuela}</p>
+                      </div>
+                    </div>
+                  )}
+                  {metadataObj.maestro && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                      <UserCheck className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wider">Maestro(a)</p>
+                        <p className="text-white font-medium">{metadataObj.maestro}</p>
+                      </div>
+                    </div>
+                  )}
+                  {metadataObj.grado && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                      <Layers className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wider">Grado</p>
+                        <p className="text-white font-medium">{metadataObj.grado}</p>
+                      </div>
+                    </div>
+                  )}
+                  {metadataObj.transportista && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                      <Bus className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wider">Transportista</p>
+                        <p className="text-white font-medium">{metadataObj.transportista}</p>
+                      </div>
+                    </div>
+                  )}
+                  {metadataObj.seguro && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                      <Shield className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wider">Seguro</p>
+                        <p className="text-white font-medium">{metadataObj.seguro}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
           </div>
         </CardContent>
       </Card>
+      </TabsContent>
 
+      <TabsContent value="servicios" className="space-y-6">
       {/* Servicios */}
       <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl pb-0">
         <CardHeader>
@@ -158,19 +269,14 @@ export default async function ClientDetailsPage(
           <ClientSubscriptions subscriptions={subscriptions} clientId={client.id} />
         </CardContent>
       </Card>
+      </TabsContent>
 
-      {/* Botones de Acción Principal */}
-      <div className="flex flex-col sm:flex-row justify-end gap-3">
+      <TabsContent value="facturas" className="space-y-6">
+      <div className="flex justify-end">
         <Link href={`/facturas/new?clientId=${client.id}`} className="w-full sm:w-auto">
           <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 h-11 px-8 text-base">
             <Receipt className="w-5 h-5 mr-2" />
             Generar Factura
-          </Button>
-        </Link>
-        <Link href={`/contratos/new?clientId=${client.id}`} className="w-full sm:w-auto">
-          <Button variant="outline" className="w-full sm:w-auto border-white/10 hover:bg-white/5 text-zinc-300 h-11 px-8 text-base">
-            <FileText className="w-5 h-5 mr-2" />
-            Generar Contrato
           </Button>
         </Link>
       </div>
@@ -223,6 +329,17 @@ export default async function ClientDetailsPage(
           )}
         </CardContent>
       </Card>
+      </TabsContent>
+
+      <TabsContent value="contratos" className="space-y-6">
+      <div className="flex justify-end">
+        <Link href={`/contratos/new?clientId=${client.id}`} className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto border-white/10 hover:bg-white/5 text-zinc-300 h-11 px-8 text-base">
+            <FileText className="w-5 h-5 mr-2" />
+            Generar Contrato
+          </Button>
+        </Link>
+      </div>
 
       {/* Historial de Contratos */}
       <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl pb-0">
@@ -285,6 +402,9 @@ export default async function ClientDetailsPage(
           )}
         </CardContent>
       </Card>
+      </TabsContent>
+
+      </Tabs>
 
     </div>
   )
