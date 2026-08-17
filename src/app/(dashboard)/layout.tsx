@@ -22,7 +22,7 @@ export default async function DashboardLayout({
     select: { onboardingCompleted: true }
   })
 
-  if (dbUser && !dbUser.onboardingCompleted) {
+  if (dbUser && !dbUser.onboardingCompleted && session.user.role !== "SUPER_ADMIN") {
     redirect('/onboarding')
   }
 

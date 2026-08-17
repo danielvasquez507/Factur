@@ -16,8 +16,8 @@ export default async function OnboardingPage() {
     select: { onboardingCompleted: true, name: true }
   })
 
-  // Si ya lo completó, que se vaya al dashboard
-  if (dbUser?.onboardingCompleted) {
+  // Si ya lo completó o es SUPER_ADMIN, que se vaya al dashboard
+  if (dbUser?.onboardingCompleted || session.user.role === "SUPER_ADMIN") {
     redirect("/")
   }
 
