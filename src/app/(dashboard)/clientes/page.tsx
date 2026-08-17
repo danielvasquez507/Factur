@@ -58,10 +58,10 @@ export default async function ClientsPage() {
         </TabsList>
         
         <TabsContent value="clientes" className="mt-0 space-y-4">
-          <ClientDialog companyType={companyType} transportistas={(activeCompany?.metadata as any)?.transportistas} />
+          <ClientDialog companyType={companyType} />
           <Card className="bg-black/40 border-white/10 backdrop-blur-md shadow-2xl [--card-spacing:0px]">
             <CardContent className="p-0">
-              <ClientTable clients={clients} companyType={companyType} transportistas={(activeCompany?.metadata as any)?.transportistas} />
+              <ClientTable clients={clients} companyType={companyType} />
             </CardContent>
           </Card>
         </TabsContent>

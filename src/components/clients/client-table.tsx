@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { EditClientDialog } from "./edit-client-dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
-export function ClientTable({ clients, companyType, transportistas }: { clients: any[], companyType?: string, transportistas?: string[] }) {
+export function ClientTable({ clients, companyType }: { clients: any[], companyType?: string }) {
   const router = useRouter()
   const [editingClient, setEditingClient] = useState<any>(null)
   const [deletingClient, setDeletingClient] = useState<any>(null)
@@ -153,7 +153,6 @@ export function ClientTable({ clients, companyType, transportistas }: { clients:
         open={!!editingClient}
         onOpenChange={(open) => !open && setEditingClient(null)}
         companyType={companyType}
-        transportistas={transportistas}
       />
 
       <ConfirmDialog
